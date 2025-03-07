@@ -2,8 +2,9 @@ name: JobSpy Scraper Workflow
 
 on:
   workflow_dispatch:  # Allows manual trigger from GitHub or Power Automate
-  schedule:
-    - cron: '0 */6 * * *'  # Runs every 6 hours
+  # Remove or comment out the schedule to prevent auto-runs
+  # schedule:
+  #   - cron: '0 */6 * * *'  # Runs every 6 hours (DISABLED)
 
 permissions:
   actions: write
