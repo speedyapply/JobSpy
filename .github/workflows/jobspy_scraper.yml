@@ -1,0 +1,31 @@
+name: JobSpy Scraper Workflow
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub or Power Automate
+  schedule:
+    - cron: '0 */6 * * *'  # Runs every 6 hours
+
+jobs:
+  scrape_jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run JobSpy Scraper
+        run: python job_scraper.py
+
+      - name: Upload results to GitHub Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: jobspy-results
+          path: jobspy_output.csv
