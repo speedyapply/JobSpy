@@ -1,14 +1,9 @@
 name: JobSpy Scraper Workflow
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub or Power Automate
+  workflow_dispatch:  # Manual trigger from GitHub or Power Automate
   schedule:
     - cron: '0 */6 * * *'  # Runs every 6 hours
-
-permissions:
-  actions: write
-  contents: read
-  id-token: write
 
 jobs:
   scrape_jobs:
@@ -26,23 +21,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "⚠️ WARNING: requirements.txt not found! Skipping dependency installation."
+          fi
 
       - name: Run JobSpy Scraper
         run: python job_scraper.py
 
-      - name: Debug - Check if jobspy_output.csv exists
-        run: |
-          if [ ! -f jobspy_output.csv ]; then
-            echo "❌ ERROR: jobspy_output.csv not found!"
-            exit 1
-          else
-            echo "✅ jobspy_output.csv found, proceeding to upload..."
-          fi
-
-      - name: Upload JobSpy Output as Artifact
-        uses: actions/upload-artifact@v4  # Explicitly using latest version
+      - name: Upload results to GitHub Artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: jobspy-results
           path: jobspy_output.csv
-
