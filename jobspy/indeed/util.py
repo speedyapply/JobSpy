@@ -57,7 +57,6 @@ def is_job_remote(job: dict, description: str) -> bool:
     is_remote_in_attributes = any(
         any(keyword in attr["label"].lower() for keyword in remote_keywords)
         for attr in job["attributes"]
- 
     )
     is_remote_in_location = any(
         keyword in job["location"]["formatted"]["long"].lower()

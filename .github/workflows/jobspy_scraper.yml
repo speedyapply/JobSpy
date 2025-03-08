@@ -7,7 +7,7 @@ on:
   #   - cron: '0 */6 * * *'  # Runs every 6 hours (DISABLED)
 
 permissions:
-  actions: write
+  actions: read
   contents: read
   id-token: write
 
