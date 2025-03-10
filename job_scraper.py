@@ -7,7 +7,7 @@ from jobspy.ziprecruiter import ZipRecruiter
 from jobspy.model import ScraperInput
 
 # Define job sources
-SOURCES = {
+sources = {
     "google": Google,
     "linkedin": LinkedIn,
     "indeed": Indeed,
@@ -15,10 +15,10 @@ SOURCES = {
 }
 
 # Define search preferences
-SEARCH_TERMS = ["Automation Engineer", "CRM Manager", "Implementation Specialist"]
-RESULTS_WANTED = 200  # Fetch more jobs
-MAX_DAYS_OLD = 2  # Fetch jobs posted in last 48 hours
-TARGET_STATE = "NY"  # Only keep jobs from New York
+search_terms = ["Automation Engineer", "CRM Manager", "Implementation Specialist"]
+results_wanted = 200  # Fetch more jobs
+max_days_old = 2  # Fetch jobs posted in last 48 hours
+target_state = "NY"  # Only keep jobs from New York
 
 
 def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
@@ -28,7 +28,7 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     print("\n🔎 DEBUG: Fetching jobs for search terms:", search_terms)
 
     for search_term in search_terms:
-        for source_name, source_class in SOURCES.items():
+        for source_name, source_class in sources.items():
             print(f"\n🚀 Scraping {search_term} from {source_name}...")
 
             scraper = source_class()
@@ -106,10 +106,10 @@ def save_jobs_to_csv(jobs, filename="jobspy_output.csv"):
 
 # Run the scraper with multiple job searches
 job_data = scrape_jobs(
-    search_terms=SEARCH_TERMS,
-    results_wanted=RESULTS_WANTED,
-    max_days_old=MAX_DAYS_OLD,
-    target_state=TARGET_STATE
+    search_terms=search_terms,
+    results_wanted=results_wanted,
+    max_days_old=max_days_old,
+    target_state=target_state
 )
 
 # Save results to CSV
