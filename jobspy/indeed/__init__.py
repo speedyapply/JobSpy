@@ -205,6 +205,8 @@ class Indeed(Scraper):
         description = job["description"]["html"]
         if self.scraper_input.description_format == DescriptionFormat.MARKDOWN:
             description = markdown_converter(description)
+            description = description.replace(",", "")
+
 
         job_type = get_job_type(job["attributes"])
         timestamp_seconds = job["datePublished"] / 1000

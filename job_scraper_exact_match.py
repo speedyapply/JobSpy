@@ -76,7 +76,7 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
                             "Location State": location_state,
                             "Location Country": location_country,
                             "Job URL": job.job_url,
-                            "Job Description": job.description[:500] if job.description else "No description available",
+                            "Job Description": job.description.replace(",", "") if job.description else "No description available",
                             "Job Source": source_name
                         })
                     else:

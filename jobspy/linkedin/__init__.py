@@ -217,6 +217,8 @@ class LinkedIn(Scraper):
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
+            description = description.replace(",", "")
+
 
         return JobPost(
             id=f"li-{job_id}",

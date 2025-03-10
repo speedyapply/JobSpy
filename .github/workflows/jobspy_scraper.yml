@@ -30,7 +30,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run JobSpy Scraper
-        run: python job_scraper.py
+        run: python job_scraper_exact_match.py
 
       - name: Debug - Check if jobspy_output.csv exists
         run: |
