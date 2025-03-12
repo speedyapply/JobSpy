@@ -20,7 +20,7 @@ def get_job_type(attributes: list) -> list[JobType]:
 def get_compensation(compensation: dict) -> Compensation | None:
     """
     Parses the job to get compensation
-    :param sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrompensation:
+    :param compensation:
     :return: compensation object
     """
     if not compensation["baseSalary"] and not compensation["estimated"]:
