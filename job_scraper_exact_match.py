@@ -1,11 +1,25 @@
-import csv
-import datetime
 import os
+import datetime
 from jobspy.google import Google
 from jobspy.linkedin import LinkedIn
 from jobspy.indeed import Indeed
 from jobspy.ziprecruiter import ZipRecruiter
 from jobspy.model import ScraperInput
+
+def clean_text(text: str) -> str:
+    """
+    Cleans text for CSV output by removing or replacing characters
+    that could break CSV formatting.
+    """
+    if not text:
+        return ""
+    # Remove commas, newlines, carriage returns and double quotes.
+    cleaned = text.replace(",", " ") \
+                  .replace("\n", " ") \
+                  .replace("\r", " ") \
+                  .replace('"', "'")
+    # Collapse multiple spaces into one.
+    return " ".join(cleaned.split())
 
 # Define job sources
 sources = {
@@ -17,9 +31,9 @@ sources = {
 
 # Define search preferences
 search_terms = ["Automation Engineer", "CRM Manager", "Implementation Specialist", "Automation", "CRM"]
-results_wanted = 200  # Fetch more jobs
-max_days_old = 2  # Fetch jobs posted in last 48 hours
-target_state = "NY"  # Only keep jobs from New York
+results_wanted = 100  # Fetch more jobs
+max_days_old = 2      # Fetch jobs posted in last 48 hours
+target_state = "NY"   # Only keep jobs from New York
 
 def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     """Scrape jobs from multiple sources and filter by state."""
@@ -50,22 +64,21 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
                 # Debug: Show all jobs being fetched
                 print(f"📍 Fetched Job: {job.title} - {location_city}, {location_state}, {location_country}")
 
-                # 🔥 Exclude jobs that don’t explicitly match the search terms
+                # Exclude jobs that don’t explicitly match the search terms
                 if not any(term.lower() in job.title.lower() for term in search_terms):
                     print(f"🚫 Excluding: {job.title} (Doesn't match {search_terms})")
-                    continue  # Skip this job
+                    continue
 
-                # Ensure the job is recent
+                # Ensure the job is recent and in NY (or remote)
                 if job.date_posted and (today - job.date_posted).days <= max_days_old:
-                    # Only accept jobs if they're in NY or Remote
                     if location_state == target_state or job.is_remote:
                         print(f"✅ MATCH: {job.title} - {location_city}, {location_state} (Posted {job.date_posted})")
                         all_jobs.append({
                             "Job ID": job.id,
-                            "Job Title (Primary)": job.title,
-                            "Company Name": job.company_name if job.company_name else "Unknown",
-                            "Industry": job.company_industry if job.company_industry else "Not Provided",
-                            "Experience Level": job.job_level if job.job_level else "Not Provided",
+                            "Job Title (Primary)": clean_text(job.title),
+                            "Company Name": clean_text(job.company_name) if job.company_name else "Unknown",
+                            "Industry": clean_text(job.company_industry) if job.company_industry else "Not Provided",
+                            "Experience Level": clean_text(job.job_level) if job.job_level else "Not Provided",
                             "Job Type": job.job_type[0].name if job.job_type else "Not Provided",
                             "Is Remote": job.is_remote,
                             "Currency": job.compensation.currency if job.compensation else "",
@@ -76,7 +89,7 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
                             "Location State": location_state,
                             "Location Country": location_country,
                             "Job URL": job.job_url,
-                            "Job Description": job.description.replace(",", "") if job.description else "No description available",
+                            "Job Description": clean_text(job.description) if job.description else "No description available",
                             "Job Source": source_name
                         })
                     else:
@@ -87,9 +100,8 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     print(f"\n✅ {len(all_jobs)} jobs retrieved in NY")
     return all_jobs
 
-
 def save_jobs_to_csv(jobs, filename="jobspy_output.csv"):
-    """Save job data to a CSV file."""
+    """Save job data to a CSV file with a custom delimiter."""
     if not jobs:
         print("⚠️ No jobs found matching criteria.")
         return
@@ -106,13 +118,19 @@ def save_jobs_to_csv(jobs, filename="jobspy_output.csv"):
         "Job Source"
     ]
 
-    with open(filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(jobs)
+    # Define your custom delimiter
+    delimiter = "|~|"
+
+    with open(filename, mode="w", encoding="utf-8") as file:
+        # Write header
+        file.write(delimiter.join(fieldnames) + "\n")
+        # Write each job record
+        for job in jobs:
+            # Convert all field values to string
+            row = [str(job.get(field, "")) for field in fieldnames]
+            file.write(delimiter.join(row) + "\n")
 
     print(f"✅ Jobs saved to {filename} ({len(jobs)} entries)")
-
 
 # Run the scraper with multiple job searches
 job_data = scrape_jobs(

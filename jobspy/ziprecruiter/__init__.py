@@ -9,10 +9,11 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
+import cloudscraper  # NEW: Use cloudscraper to bypass Cloudflare
+
 from jobspy.ziprecruiter.constant import headers, get_cookie_data
 from jobspy.util import (
     extract_emails_from_text,
-    create_session,
     markdown_converter,
     remove_attributes,
     create_logger,
@@ -41,15 +42,20 @@ class ZipRecruiter(Scraper):
         self, proxies: list[str] | str | None = None, ca_cert: str | None = None
     ):
         """
-        Initializes ZipRecruiterScraper with the ZipRecruiter job search url
+        Initializes ZipRecruiterScraper with the ZipRecruiter job search url.
+        This version uses cloudscraper to bypass Cloudflare's anti-bot challenge.
         """
         super().__init__(Site.ZIP_RECRUITER, proxies=proxies)
 
-        self.scraper_input = None
-        self.session = create_session(proxies=proxies, ca_cert=ca_cert)
+        # Use cloudscraper instead of the standard session to handle Cloudflare.
+        self.session = cloudscraper.create_scraper()
+        if proxies:
+            self.session.proxies = proxies
+
         self.session.headers.update(headers)
         self._get_cookies()
 
+        self.scraper_input = None
         self.delay = 5
         self.jobs_per_page = 20
         self.seen_urls = set()
@@ -86,10 +92,10 @@ class ZipRecruiter(Scraper):
         self, scraper_input: ScraperInput, continue_token: str | None = None
     ) -> tuple[list[JobPost], str | None]:
         """
-        Scrapes a page of ZipRecruiter for jobs with scraper_input criteria
+        Scrapes a page of ZipRecruiter for jobs with scraper_input criteria.
         :param scraper_input:
         :param continue_token:
-        :return: jobs found on page
+        :return: jobs found on page.
         """
         jobs_list = []
         params = add_params(scraper_input)
@@ -123,7 +129,7 @@ class ZipRecruiter(Scraper):
 
     def _process_job(self, job: dict) -> JobPost | None:
         """
-        Processes an individual job dict from the response
+        Processes an individual job dict from the response.
         """
         title = job.get("name")
         job_url = f"{self.base_url}/jobs//j?lvk={job['listing_key']}"
@@ -184,16 +190,16 @@ class ZipRecruiter(Scraper):
             job_descr_div = soup.find("div", class_="job_description")
             company_descr_section = soup.find("section", class_="company_description")
             job_description_clean = (
-                remove_attributes(job_descr_div).prettify(formatter="html")
+                remove_attributes(job_descr_div).get_text(separator="\n", strip=True)
                 if job_descr_div
                 else ""
             )
             company_description_clean = (
-                remove_attributes(company_descr_section).prettify(formatter="html")
+                remove_attributes(company_descr_section).get_text(separator="\n", strip=True)
                 if company_descr_section
                 else ""
             )
-            description_full = job_description_clean + company_description_clean
+            description_full = job_description_clean + "\n" + company_description_clean
 
             try:
                 script_tag = soup.find("script", type="application/json")
