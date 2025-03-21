@@ -254,13 +254,13 @@ class JobPost(BaseModel):
     is_remote: bool | None = None
     listing_type: str | None = None
 
-    # linkedin specific
+    # LinkedIn specific
     job_level: str | None = None
 
-    # linkedin and indeed specific
+    # LinkedIn and Indeed specific
     company_industry: str | None = None
 
-    # indeed specific
+    # Indeed specific
     company_addresses: str | None = None
     company_num_employees: str | None = None
     company_revenue: str | None = None
@@ -268,9 +268,16 @@ class JobPost(BaseModel):
     company_logo: str | None = None
     banner_photo_url: str | None = None
 
-    # linkedin only atm
+    # LinkedIn only atm
     job_function: str | None = None
 
+    # Naukri specific
+    skills: list[str] | None = None  #from tagsAndSkills
+    experience_range: str | None = None  #from experienceText
+    company_rating: float | None = None  #from ambitionBoxData.AggregateRating
+    company_reviews_count: int | None = None  #from ambitionBoxData.ReviewsCount
+    vacancy_count: int | None = None  #from vacancy
+    work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
 
 class JobResponse(BaseModel):
     jobs: list[JobPost] = []
@@ -283,6 +290,7 @@ class Site(Enum):
     GLASSDOOR = "glassdoor"
     GOOGLE = "google"
     BAYT = "bayt"
+    NAUKRI = "naukri"
 
 
 class SalarySource(Enum):

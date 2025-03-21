@@ -344,4 +344,11 @@ desired_order = [
     "company_num_employees",
     "company_revenue",
     "company_description",
+    #naukri-specific fields
+    "skills",
+    "experience_range",
+    "company_rating",
+    "company_reviews_count",
+    "vacancy_count",
+    "work_from_home_type",
 ]

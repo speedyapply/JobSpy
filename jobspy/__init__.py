@@ -10,6 +10,7 @@ from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
+from jobspy.naukri import Naukri
 from jobspy.model import JobType, Location, JobResponse, Country
 from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
@@ -57,6 +58,7 @@ def scrape_jobs(
         Site.GLASSDOOR: Glassdoor,
         Site.GOOGLE: Google,
         Site.BAYT: BaytScraper,
+        Site.NAUKRI: Naukri,
     }
     set_logger_level(verbose)
     job_type = get_enum_from_value(job_type) if job_type else None
@@ -139,6 +141,7 @@ def scrape_jobs(
                     **job_data["location"]
                 ).display_location()
 
+            # Handle compensation
             compensation_obj = job_data.get("compensation")
             if compensation_obj and isinstance(compensation_obj, dict):
                 job_data["interval"] = (
@@ -157,7 +160,6 @@ def scrape_jobs(
                     and job_data["max_amount"]
                 ):
                     convert_to_annual(job_data)
-
             else:
                 if country_enum == Country.USA:
                     (
@@ -176,6 +178,17 @@ def scrape_jobs(
                 if "min_amount" in job_data and job_data["min_amount"]
                 else None
             )
+
+            #naukri-specific fields
+            job_data["skills"] = (
+                ", ".join(job_data["skills"]) if job_data["skills"] else None
+            )
+            job_data["experience_range"] = job_data.get("experience_range")
+            job_data["company_rating"] = job_data.get("company_rating")
+            job_data["company_reviews_count"] = job_data.get("company_reviews_count")
+            job_data["vacancy_count"] = job_data.get("vacancy_count")
+            job_data["work_from_home_type"] = job_data.get("work_from_home_type")
+
             job_df = pd.DataFrame([job_data])
             jobs_dfs.append(job_df)
 

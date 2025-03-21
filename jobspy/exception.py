@@ -34,3 +34,7 @@ class GoogleJobsException(Exception):
 class BaytException(Exception):
     def __init__(self, message=None):
         super().__init__(message or "An error occurred with Bayt")
+
+class NaukriException(Exception):
+    def __init__(self,message=None):
+        super().__init__(message or "An error occurred with Naukri")
