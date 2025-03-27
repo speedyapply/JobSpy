@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import random
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Optional
 
 import regex as re
@@ -277,7 +277,7 @@ class Naukri(Scraper):
             match = re.search(r"(\d+)\s*day", label)
             if match:
                 days = int(match.group(1))
-                parsed_date = today.replace(day=today.day - days).date()
+                parsed_date = (today - timedelta(days = days)).date()
                 log.debug(f"Date parsed: {days} days ago -> {parsed_date}")
                 return parsed_date
         elif created_date:
