@@ -47,11 +47,12 @@ class RotatingProxySession:
         """Utility method to format a proxy string into a dictionary."""
         if proxy.startswith("http://") or proxy.startswith("https://"):
             return {"http": proxy, "https": proxy}
+        if proxy.startswith("socks5://"):
+            return {"http": proxy, "https": proxy}
         return {"http": f"http://{proxy}", "https": f"http://{proxy}"}
 
 
 class RequestsRotating(RotatingProxySession, requests.Session):
-
     def __init__(self, proxies=None, has_retry=False, delay=1, clear_cookies=False):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
@@ -86,7 +87,6 @@ class RequestsRotating(RotatingProxySession, requests.Session):
 
 
 class TLSRotating(RotatingProxySession, tls_client.Session):
-
     def __init__(self, proxies=None):
         RotatingProxySession.__init__(self, proxies=proxies)
         tls_client.Session.__init__(self, random_tls_extension_order=True)
@@ -344,7 +344,7 @@ desired_order = [
     "company_num_employees",
     "company_revenue",
     "company_description",
-    #naukri-specific fields
+    # naukri-specific fields
     "skills",
     "experience_range",
     "company_rating",
