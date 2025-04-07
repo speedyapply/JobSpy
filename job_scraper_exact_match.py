@@ -14,7 +14,7 @@ sources = {
 }
 
 # Define search preferences
-search_terms = ["Automation Engineer", "CRM Manager", "Implementation Specialist", "Automation", "CRM"]
+search_terms = ["Automation Engineer", "CRM Manager", "Implementation Specialist", "CRM", "Project Manager", "POS", "Microsoft Power", "IT Support"]
 results_wanted = 100  # Fetch more jobs
 max_days_old = 2  # Fetch jobs posted in last 48 hours
 target_state = "NY"  # Only keep jobs from New York
