@@ -1,10 +1,28 @@
 name: JobSpy Scraper Dynamic Workflow
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub or Power Automate
-  # Remove or comment out the schedule to prevent auto-runs
-  # schedule:
-  #   - cron: '0 */6 * * *'  # Runs every 6 hours (DISABLED)
+  workflow_dispatch:
+    inputs:
+      user_email:
+        description: 'User email for the scraper'
+        required: true
+        default: 'branden@autoemployme.onmicrosoft.com'
+      search_terms:
+        description: 'Comma-separated list of search terms'
+        required: true
+        default: 'IT Support,CRM,Automation'
+      results_wanted:
+        description: 'Number of results to fetch'
+        required: true
+        default: '100'
+      max_days_old:
+        description: 'Fetch jobs posted in the last n days'
+        required: true
+        default: '2'
+      target_state:
+        description: 'Target state (e.g. NY)'
+        required: true
+        default: 'NY'
 
 permissions:
   actions: read
@@ -14,7 +32,6 @@ permissions:
 jobs:
   scrape_jobs:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,20 +46,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run JobSpy Scraper
+      - name: Set environment variables
+        run: |
+          echo "USER_EMAIL=${{ github.event.inputs.user_email }}" >> $GITHUB_ENV
+          echo "SEARCH_TERMS=${{ github.event.inputs.search_terms }}" >> $GITHUB_ENV
+          echo "RESULTS_WANTED=${{ github.event.inputs.results_wanted }}" >> $GITHUB_ENV
+          echo "MAX_DAYS_OLD=${{ github.event.inputs.max_days_old }}" >> $GITHUB_ENV
+          echo "TARGET_STATE=${{ github.event.inputs.target_state }}" >> $GITHUB_ENV
+
+      - name: Run JobSpy Scraper Dynamic
         run: python job_scraper_dynamic.py
 
-      - name: Debug - Check if jobspy_output_dynamic.csv exists
+      - name: Verify jobspy_output_dynamic.csv exists
         run: |
           if [ ! -f jobspy_output_dynamic.csv ]; then
             echo "❌ ERROR: jobspy_output_dynamic.csv not found!"
             exit 1
           else
-            echo "✅ jobspy_output_dynamic.csv found, proceeding to upload..."
+            echo "✅ jobspy_output_dynamic.csv found."
           fi
 
       - name: Upload JobSpy Output as Artifact
-        uses: actions/upload-artifact@v4  # Explicitly using latest version
+        uses: actions/upload-artifact@v4
         with:
-          name: jobspy-results
+          name: jobspy-results-dynamic
           path: jobspy_output_dynamic.csv
