@@ -122,7 +122,7 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
 # --------------------------------------------------------
 # Step 4: Save the Job Data to a CSV File
 # --------------------------------------------------------
-def save_jobs_to_csv(jobs, filename="jobspy_output.csv"):
+def save_jobs_to_csv(jobs, filename="jobspy_output_dynamic.csv"):
     """
     Saves job data to a CSV file using a custom delimiter.
     Fields within a record are separated by |~|,
