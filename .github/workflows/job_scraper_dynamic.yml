@@ -32,7 +32,6 @@ permissions:
 jobs:
   scrape_jobs:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -47,36 +46,41 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Write user config.json
+      - name: Set environment variables
         run: |
-          echo "{
-            \"user_email\": \"${{ github.event.inputs.user_email }}\",
-            \"search_terms\": \"${{ github.event.inputs.search_terms }}\",
-            \"results_wanted\": ${{ github.event.inputs.results_wanted }},
-            \"max_days_old\": ${{ github.event.inputs.max_days_old }},
-            \"target_state\": \"${{ github.event.inputs.target_state }}\"
-          }" > config.json
-
-      - name: Run JobSpy Scraper Dynamic
-        run: python job_scraper_dynamic.py
+          echo "USER_EMAIL=${{ github.event.inputs.user_email }}" >> $GITHUB_ENV
+          echo "SEARCH_TERMS=${{ github.event.inputs.search_terms }}" >> $GITHUB_ENV
+          echo "RESULTS_WANTED=${{ github.event.inputs.results_wanted }}" >> $GITHUB_ENV
+          echo "MAX_DAYS_OLD=${{ github.event.inputs.max_days_old }}" >> $GITHUB_ENV
+          echo "TARGET_STATE=${{ github.event.inputs.target_state }}" >> $GITHUB_ENV
 
       - name: Sanitize email for filename
         id: sanitize
         run: |
           safe_name=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
-          echo "::set-output name=safe_name::$safe_name"
+          echo "safe_name=$safe_name" >> $GITHUB_OUTPUT
 
-      - name: Verify user-specific CSV exists
+      - name: Run JobSpy Scraper Dynamic
         run: |
-          if [ ! -f "jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv" ]; then
-            echo "❌ ERROR: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv not found!"
+          python job_scraper_dynamic.py \
+            "${{ env.SEARCH_TERMS }}" \
+            "${{ env.RESULTS_WANTED }}" \
+            "${{ env.MAX_DAYS_OLD }}" \
+            "${{ env.TARGET_STATE }}" \
+            "${{ steps.sanitize.outputs.safe_name }}"
+
+      - name: Verify jobspy_output_dynamic file exists
+        run: |
+          file="jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv"
+          if [ ! -f "$file" ]; then
+            echo "❌ ERROR: $file not found!"
             exit 1
           else
-            echo "✅ Found: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv"
+            echo "✅ Output found: $file"
           fi
 
-      - name: Upload jobspy output
+      - name: Upload JobSpy Output as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy-output-${{ steps.sanitize.outputs.safe_name }}
+          name: jobspy-results-dynamic-${{ steps.sanitize.outputs.safe_name }}
           path: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv
