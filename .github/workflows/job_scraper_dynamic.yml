@@ -32,6 +32,7 @@ permissions:
 jobs:
   scrape_jobs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -46,28 +47,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set environment variables
+      - name: Write user-specific config.json
         run: |
-          echo "USER_EMAIL=${{ github.event.inputs.user_email }}" >> $GITHUB_ENV
-          echo "SEARCH_TERMS=${{ github.event.inputs.search_terms }}" >> $GITHUB_ENV
-          echo "RESULTS_WANTED=${{ github.event.inputs.results_wanted }}" >> $GITHUB_ENV
-          echo "MAX_DAYS_OLD=${{ github.event.inputs.max_days_old }}" >> $GITHUB_ENV
-          echo "TARGET_STATE=${{ github.event.inputs.target_state }}" >> $GITHUB_ENV
+          echo "{
+            \"user_email\": \"${{ github.event.inputs.user_email }}\",
+            \"search_terms\": [\"${{ github.event.inputs.search_terms }}\"],
+            \"results_wanted\": ${{ github.event.inputs.results_wanted }},
+            \"max_days_old\": ${{ github.event.inputs.max_days_old }},
+            \"target_state\": \"${{ github.event.inputs.target_state }}\"
+          }" > config.json
 
       - name: Run JobSpy Scraper Dynamic
         run: python job_scraper_dynamic.py
 
-      - name: Verify jobspy_output_dynamic.csv exists
-        run: |
-          if [ ! -f jobspy_output_dynamic.csv ]; then
-            echo "❌ ERROR: jobspy_output_dynamic.csv not found!"
-            exit 1
-          else
-            echo "✅ jobspy_output_dynamic.csv found."
-          fi
-
-      - name: Upload JobSpy Output as Artifact
+      - name: Upload user-specific CSV as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy-results-dynamic
-          path: jobspy_output_dynamic.csv
+          name: jobspy-output-${{ github.event.inputs.user_email }}
+          path: |
+            jobspy_output_dynamic_${{ github.event.inputs.user_email }}
+              .replace('@','_at_')
+              .replace('.','_')
+              .csv
