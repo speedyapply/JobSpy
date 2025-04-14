@@ -2,7 +2,7 @@ import csv
 import datetime
 import json
 import os
-
+import re
 from jobspy.google import Google
 from jobspy.linkedin import LinkedIn
 from jobspy.indeed import Indeed
@@ -15,49 +15,41 @@ sources = {
     "indeed": Indeed,
 }
 
-# Read dynamic user-specific config.json
-with open("config.json", "r") as f:
-    config = json.load(f)
+# Load user config
+with open("config.json", "r") as file:
+    config = json.load(file)
 
-search_terms = config.get("search_terms", [])
-results_wanted = config.get("results_wanted", 100)
-max_days_old = config.get("max_days_old", 2)
+user_email = config.get("user_email")
+search_terms = [term.strip() for term in config.get("search_terms", "").split(",")]
+results_wanted = int(config.get("results_wanted", 100))
+max_days_old = int(config.get("max_days_old", 2))
 target_state = config.get("target_state", "NY")
-user_email = config.get("user_email", "unknown@domain.com")
 
+# Sanitize email for filename
+safe_email = re.sub(r'[@.]', lambda x: '_at_' if x.group() == '@' else '_', user_email)
+output_filename = f"jobspy_output_dynamic_{safe_email}.csv"
 
-def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
-    """Scrape jobs from multiple sources and filter by state."""
+def scrape_jobs():
     all_jobs = []
     today = datetime.date.today()
-    
-    print("\n🔎 DEBUG: Fetching jobs for search terms:", search_terms)
+
+    print(f"\n🔎 Fetching jobs for: {search_terms}")
 
     for search_term in search_terms:
         for source_name, source_class in sources.items():
-            print(f"\n🚀 Scraping {search_term} from {source_name}...")
-
+            print(f"🚀 Scraping {search_term} from {source_name}...")
             scraper = source_class()
-            search_criteria = ScraperInput(
+            input_params = ScraperInput(
                 site_type=[source_name],
                 search_term=search_term,
                 results_wanted=results_wanted,
             )
+            results = scraper.scrape(input_params)
 
-            job_response = scraper.scrape(search_criteria)
-
-            for job in job_response.jobs:
-                location_city = job.location.city.strip() if job.location.city else "Unknown"
-                location_state = job.location.state.strip().upper() if job.location.state else "Unknown"
-                location_country = str(job.location.country) if job.location.country else "Unknown"
-
-                if not any(term.lower() in job.title.lower() for term in search_terms):
-                    print(f"🚫 Excluding: {job.title} (Doesn't match search terms)")
-                    continue
-
+            for job in results.jobs:
+                location_state = job.location.state.strip().upper() if job.location and job.location.state else "Unknown"
                 if job.date_posted and (today - job.date_posted).days <= max_days_old:
                     if location_state == target_state or job.is_remote:
-                        print(f"✅ MATCH: {job.title} - {location_city}, {location_state} (Posted {job.date_posted})")
                         all_jobs.append({
                             "Job ID": job.id,
                             "Job Title (Primary)": job.title,
@@ -70,61 +62,35 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
                             "Salary Min": job.compensation.min_amount if job.compensation else "",
                             "Salary Max": job.compensation.max_amount if job.compensation else "",
                             "Date Posted": job.date_posted.strftime("%Y-%m-%d") if job.date_posted else "Not Provided",
-                            "Location City": location_city,
+                            "Location City": job.location.city if job.location and job.location.city else "Unknown",
                             "Location State": location_state,
-                            "Location Country": location_country,
+                            "Location Country": str(job.location.country) if job.location and job.location.country else "Unknown",
                             "Job URL": job.job_url,
-                            "Job Description": job.description.replace(",", "") if job.description else "No description available",
+                            "Job Description": job.description.replace(",", "") if job.description else "No description",
                             "Job Source": source_name
                         })
-                    else:
-                        print(f"❌ Ignored (Wrong State): {job.title} - {location_city}, {location_state}")
-                else:
-                    print(f"⏳ Ignored (Too Old): {job.title} - {location_city}, {location_state}")
 
-    print(f"\n✅ {len(all_jobs)} jobs retrieved for user {user_email}")
     return all_jobs
 
-
-def save_jobs_to_csv(jobs, user_email):
-    """Save job data to a user-specific CSV file using custom delimiter."""
+def save_jobs_to_csv(jobs, filename):
     if not jobs:
-        print("⚠️ No jobs found matching criteria.")
+        print("⚠️ No jobs found.")
         return
 
-    # Clean the email to create a safe filename
-    safe_email = user_email.replace("@", "_at_").replace(".", "_")
-    filename = f"jobspy_output_dynamic_{safe_email}.csv"
+    fieldnames = list(jobs[0].keys())
+    header = "|~|".join(fieldnames)
+    records = [header]
 
-    # Remove old file if it exists
-    if os.path.exists(filename):
-        os.remove(filename)
+    for job in jobs:
+        row = [str(job.get(field, "Not Provided")).replace(",", "") for field in fieldnames]
+        records.append("|~|".join(row))
 
-    fieldnames = [
-        "Job ID", "Job Title (Primary)", "Company Name", "Industry",
-        "Experience Level", "Job Type", "Is Remote", "Currency",
-        "Salary Min", "Salary Max", "Date Posted", "Location City",
-        "Location State", "Location Country", "Job URL", "Job Description",
-        "Job Source", "User Email"
-    ]
+    output = ",".join(records)
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(output)
 
-    with open(filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter="|")
-        writer.writeheader()
-        for job in jobs:
-            job["User Email"] = user_email
-            writer.writerow(job)
+    print(f"✅ Saved {len(jobs)} jobs to {filename}")
 
-    print(f"📄 File saved: {filename} ({len(jobs)} entries)")
-    return filename
-
-
-# Run the scraper and save the results to a user-specific output file
-job_data = scrape_jobs(
-    search_terms=search_terms,
-    results_wanted=results_wanted,
-    max_days_old=max_days_old,
-    target_state=target_state
-)
-
-output_filename = save_jobs_to_csv(job_data, user_email)
+# Run
+scraped_jobs = scrape_jobs()
+save_jobs_to_csv(scraped_jobs, output_filename)

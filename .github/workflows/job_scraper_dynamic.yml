@@ -47,11 +47,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Write user-specific config.json
+      - name: Write user config.json
         run: |
           echo "{
             \"user_email\": \"${{ github.event.inputs.user_email }}\",
-            \"search_terms\": [\"${{ github.event.inputs.search_terms }}\"],
+            \"search_terms\": \"${{ github.event.inputs.search_terms }}\",
             \"results_wanted\": ${{ github.event.inputs.results_wanted }},
             \"max_days_old\": ${{ github.event.inputs.max_days_old }},
             \"target_state\": \"${{ github.event.inputs.target_state }}\"
@@ -60,12 +60,23 @@ jobs:
       - name: Run JobSpy Scraper Dynamic
         run: python job_scraper_dynamic.py
 
-      - name: Upload user-specific CSV as artifact
+      - name: Sanitize email for filename
+        id: sanitize
+        run: |
+          safe_name=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
+          echo "::set-output name=safe_name::$safe_name"
+
+      - name: Verify user-specific CSV exists
+        run: |
+          if [ ! -f "jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv" ]; then
+            echo "❌ ERROR: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv not found!"
+            exit 1
+          else
+            echo "✅ Found: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv"
+          fi
+
+      - name: Upload jobspy output
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy-output-${{ github.event.inputs.user_email }}
-          path: |
-            jobspy_output_dynamic_${{ github.event.inputs.user_email }}
-              .replace('@','_at_')
-              .replace('.','_')
-              .csv
+          name: jobspy-output-${{ steps.sanitize.outputs.safe_name }}
+          path: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv
