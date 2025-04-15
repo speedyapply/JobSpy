@@ -4,83 +4,44 @@ on:
   workflow_dispatch:
     inputs:
       user_email:
-        description: 'User email for the scraper'
+        description: 'Email of user'
         required: true
         default: 'branden@autoemployme.onmicrosoft.com'
-      search_terms:
-        description: 'Comma-separated list of search terms'
-        required: true
-        default: 'IT Support,CRM,Automation'
-      results_wanted:
-        description: 'Number of results to fetch'
-        required: true
-        default: '100'
-      max_days_old:
-        description: 'Fetch jobs posted in the last n days'
-        required: true
-        default: '2'
-      target_state:
-        description: 'Target state (e.g. NY)'
-        required: true
-        default: 'NY'
 
 permissions:
-  actions: read
   contents: read
   id-token: write
 
 jobs:
   scrape_jobs:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set Up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set environment variables
-        run: |
-          echo "USER_EMAIL=${{ github.event.inputs.user_email }}" >> $GITHUB_ENV
-          echo "SEARCH_TERMS=${{ github.event.inputs.search_terms }}" >> $GITHUB_ENV
-          echo "RESULTS_WANTED=${{ github.event.inputs.results_wanted }}" >> $GITHUB_ENV
-          echo "MAX_DAYS_OLD=${{ github.event.inputs.max_days_old }}" >> $GITHUB_ENV
-          echo "TARGET_STATE=${{ github.event.inputs.target_state }}" >> $GITHUB_ENV
-
-      - name: Sanitize email for filename
+      - name: Sanitize Email
         id: sanitize
         run: |
-          safe_name=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
-          echo "safe_name=$safe_name" >> $GITHUB_OUTPUT
+          safe_email=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
+          echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
 
-      - name: Run JobSpy Scraper Dynamic
+      - name: Run Job Scraper
         run: |
-          python job_scraper_dynamic.py \
-            "${{ env.SEARCH_TERMS }}" \
-            "${{ env.RESULTS_WANTED }}" \
-            "${{ env.MAX_DAYS_OLD }}" \
-            "${{ env.TARGET_STATE }}" \
-            "${{ steps.sanitize.outputs.safe_name }}"
+          python scripts/job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
 
-      - name: Verify jobspy_output_dynamic file exists
-        run: |
-          file="jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv"
-          if [ ! -f "$file" ]; then
-            echo "❌ ERROR: $file not found!"
-            exit 1
-          else
-            echo "✅ Output found: $file"
-          fi
-
-      - name: Upload JobSpy Output as Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy-results-dynamic-${{ steps.sanitize.outputs.safe_name }}
-          path: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_name }}.csv
+          name: jobspy-output-${{ steps.sanitize.outputs.safe_email }}
+          path: jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_email }}.csv
