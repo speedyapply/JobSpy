@@ -44,5 +44,5 @@ jobs:
       - name: Upload Output Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy-output-${{ steps.sanitize.outputs.safe_email }}
+          name: jobspy_output_${{ steps.sanitize.outputs.safe_email }}
           path: outputs/jobspy_output_${{ steps.sanitize.outputs.safe_email }}.csv
