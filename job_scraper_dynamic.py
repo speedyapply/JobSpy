@@ -123,7 +123,7 @@ if __name__ == "__main__":
             target_state=config["target_state"]
         )
 
-        output_file = f"outputs/jobspy_output_dynamic_{safe_email}.csv"
+        output_file = f"outputs/jobspy_output_{safe_email}.csv"
         save_jobs_to_csv(job_data, output_file)
 
     except Exception as e:

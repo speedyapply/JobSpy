@@ -6,7 +6,7 @@ on:
       user_email:
         description: 'Email of user'
         required: true
-        default: 'branden@autoemployme.onmicrosoft.com'
+        default: 'Branden@autoemployme.onmicrosoft.com'
 
 permissions:
   contents: read
@@ -30,13 +30,14 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Sanitize Email
+      - name: Sanitize Email (Preserve Case)
         id: sanitize
         run: |
-          safe_email=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
+          raw_email="${{ github.event.inputs.user_email }}"
+          safe_email=$(echo "$raw_email" | sed 's/@/_at_/g; s/\./_/g')
           echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
 
-      - name: Run Job Scraper
+      - name: Run Job Scraper with Config
         run: |
           python scripts/job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
 
@@ -44,4 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jobspy-output-${{ steps.sanitize.outputs.safe_email }}
-          path: outputs/jobspy_output_dynamic_${{ steps.sanitize.outputs.safe_email }}.csv
+          path: outputs/jobspy_output_${{ steps.sanitize.outputs.safe_email }}.csv

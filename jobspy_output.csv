@@ -1,180 +1,1159 @@
-User Email|~|Job ID|~|Job Title (Primary)|~|Company Name|~|Industry|~|Experience Level|~|Job Type|~|Is Remote|~|Currency|~|Salary Min|~|Salary Max|~|Date Posted|~|Location City|~|Location State|~|Location Country|~|Job URL|~|Job Description|~|Job Source,branden@autoemployme.onmicrosoft.com|~|go-RUd3r13f0Yi5nV75AAAAAA==|~|GPS - Quality Automation Engineer - Senior Associate|~|EY|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|Not Provided|~|Not Provided|~|Not Provided|~|2025-04-12|~|McLean|~|VA|~|Unknown|~|https://www.indeed.com/viewjob?jk=f6f5bbb3fa46b83e&utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic|~|At EY you’ll have the chance to build a career as unique as you are with the global scale support inclusive culture and technology to become the best version of you. And we’re counting on your unique voice and perspective to help EY become even better. Join us and build an exceptional experience for yourself and a better working world for all.
+Job ID|~|Job Title (Primary)|~|Company Name|~|Industry|~|Experience Level|~|Job Type|~|Is Remote|~|Currency|~|Salary Min|~|Salary Max|~|Date Posted|~|Location City|~|Location State|~|Location Country|~|Job URL|~|Job Description|~|Job Source,in-14aa3a6878ef8f7b|~|DevOps Automation Engineer IV|~|Airlines Reporting Corporation (ARC)|~|Consulting And Business Services|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|107400.0|~|171800.0|~|2025-04-14|~|Arlington|~|VA|~|US|~|https://www.indeed.com/viewjob?jk=14aa3a6878ef8f7b|~|About The Role::
 
-The exceptional EY experience. It's yours to build.
+It's a great time to join us at Airlines Reporting Corporation (ARC)! ARC accelerates the growth of global air travel by delivering forward\-looking travel data flexible distribution services and other innovative industry solutions. We are a leading travel intelligence company with the world’s largest most comprehensive global airline ticket dataset including more than 15 billion passenger flights. By working here you can contribute to solutions and expertise that strengthen economies and enrich lives. We think big embrace challenges and explore new ideas to lead the way for the travel industry.  
 
-EY focuses on high-ethical standards and integrity among its employees and expects all candidates to demonstrate these qualities.
+ARC is looking for a **DevOps Automation Engineer IV** to join our team! In this role you will provide subject\-matter expertise to product teams using an automated and template approach for deploying infrastructure required product stack. You'll be responsible for configuration management infrastructure as code for environment consistencies and optimal infrastructure utilization of with direction from the Product Owner the Solution Owner and technical guidance from Solution Architects and Developers.
+What You'll Get to Do::
+* Support software development by implementing infrastructure as code and the necessary infrastructure to run the full product stack including the multiple challenging projects that span over longer periods of time and support business critical initiatives. This includes VPCs CI/CD (continuous integration and continuous deployment) recommendations and design for serverless and various container technologies. Provide a service\-focused approach leveraging continuous process improvement. Participate in chaos testing to improve system resiliency. Mentor other engineers. Provide overall technical thought leadership to the rest of the DevOps team and to ancillary teams working closely with DevOps.
+* Provide thought leadership on how supportability scalability and recovery for engineered solutions can be improved using new methods and tools. Provide resource consumption for the engineered solution. Ensure the overall technical solution is aligned with the business needs.
+* Drive the improvement of service costs while maintaining service level objectives and infrastructure automation to maintain a high level of velocity. Introduce new methods for auto\-scaling technologies. Reduce the environment drift by leveraging and improving infrastructure as code and configuration management processes. May collaborate with ARC architecture and design teams on ways to improve development standards.
+* Consistently identify process improvements and identify ways to automate where manual tasks exist today. Identify and recommend new methodologies to provide the business with increased flexibility and agility.
+* Stay current with latest development tools technology platforms and ideas patterns and methodologies applicable to the DevOps Automation space. Coach peers and other stakeholders by documenting and sharing knowledge and clearly articulating ideas and results.
+* Ensure operating costs for Cloud resources are properly tracked reported and alerted on and recommend and perform cost optimization actions where applicable.
 
-Quality Automation Engineer – Senior Associate
 
-From strategy to execution the Government & Public Sector (GPS) practice of Ernst & Young LLP provides a full range of consulting and audit services to help our Federal State Local and Education clients implement new ideas to help achieve their mission outcomes. We deliver real change and measurable results through our diverse high-performing teams quality work at the highest professional standards operational know-how from across our global organization and creative and bold ideas that drive innovation. We enable our government clients to achieve their mission of protecting the nation and serving the people; increasing public safety; improving healthcare for our military veterans and citizens; delivering essential public services; and helping those in need. EY is ready to help our government build a better working world.
+You'll Bring These Qualifications::
+* Bachelor’s degree in Computer Science or related engineering field; or equivalent experience
+* 7\+ years of infrastructure and/or Cloud administration role
+* 5\+ years of experience with full cycle application development (Full SDLC experience: design development delivery etc.)
+* 3\+ years with Agile Scrum DevOps XP and Continuous Integration and Continuous Delivery
+* 5\+ years of experience implementing modern applications using:
+	+ Cloud Based Solutions/Technologies (AWS Google Azure)
+	+ Account and resource management coupled with cloud accounting methodologies
+	+ Implementation of infrastructure as code including orchestration and change management tools (Terraform AWS CloudFormation Ansible Chef Puppet SaltStack etc.)
+	+ Experience with Software Development Kits command line utilities YAML JSON and various access methods of restful APIs
+	+ Experience with one minimum programming or scripting language (Python NodeJS Salt Stack Bash PowerShell etc.)
+	+ DevOps tools including but not limited to GIT GitLab CI/CD Jira Confluence automated testing and deployment tools
+* Proven knowledge of networking concepts virtualization concepts operating system internals configuration management and system management
+* Proven ability to lead multiple resources through triaging events and ability communication after action reports
+* A passion for continuous improvement reduction of mean time to resolution of issues and demonstrable ability to lead others in these areas
+* Experience leading small technical teams to mentor and guide multiple\-disciplined technical teams as well as peers
+* Team and company first mentality willing to adjust priorities to meet predefined timelines and goals
+* Ability to discover and define non\-functional requirements and to transform them into technical requirements and solution definition
+* Proven ability to influence technology strategy and best practices across peer and leadership groups to support an agile development culture
+* Outstanding communication skills (verbal and written) and ability to communicate with internal and external customers and all levels of management including communicating technical information to nontechnical audiences
+* Strong intellectual curiosity to challenge what exists and explore what should be changed to best meet evolving business and market
+* A strong passion to support peers to help meet timelines on larger projects
 
-Our GPS Technology Organization is a structure within the US GPS practice that implements and maintains a new operate and technology model designed specifically to support U.S. Defense and Government engagements.
 
-The opportunity
+What We Can Offer You::
+* Joining ARC means joining a team that is motivated diverse creative collaborative and solutions\-oriented. We think big embrace challenges and explore new ideas to lead the way for the travel industry.
+* Our employees value the hands\-on learning and professional development opportunities that allow them to expand their skills and grow their career in new dynamic ways.
+* ARC offers **WorkFlex**. WorkFlex is ARC’s hybrid work program which offers eligible employees the flexibility to work from home while also requiring in office workdays throughout the year to foster collaboration and connection throughout the organization. We’ve designed WorkFlex to enable employees to succeed and thrive while maintaining strong connections to one another and ARC \- both of which are critical to our shared success.
+* We offer a highly competitive comprehensive benefits package so you can worry less and focus on what truly matters.
+* By joining ARC you will partner with top minds in the industry as we use data and technology to innovate how the world travels.
 
-As an Automation Engineer – Quality Assurance you will focus on automating everything—from application testing to infrastructure validation Azure checks and continuous integration processes. You will develop and maintain automation frameworks streamline deployments and ensure high-quality cloud-based applications using Azure-centric tools and methodologies.
 
-You will work under the guidance of senior engineers and architects collaborating with developers and DevOps teams to design and implement scalable automation solutions across Azure services and applications.
+EOE M/F/D/V Females and Minorities Encouraged to Apply|~|indeed,in-e110f2924c46f5de|~|QA Automation Engineer – Software Testing Specialist- Remote|~|ZIRLEN TECHNOLOGIES INCORPORATED|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|79166.0|~|100242.0|~|2025-04-14|~|Remote|~|Unknown|~|US|~|https://www.indeed.com/viewjob?jk=e110f2924c46f5de|~|**REQUIREMENT:**  
+
+**QA Automation Engineer – Software Testing Specialist (Automated Testing SQL API Testing)**  
+
+**Austin Texas (Remote)\-Locals Only**  
+
+**Long Term Contract**  
+
+**Need Overall 10\+Years of experience**  
+
+**3 References from the recent projects is must.**  
+
+  
+
+**Minimum Qualifications:**  
+
+* 7 years of Testing complex Web Applications
+* 7 years of Testing all phases of Software Development Life Cycle SDLC
+* 3 years of Database/SQL Language experience
+* 3 years of Experience with Creating Automation test cases
+* 2 years of Experience with API JSON MXL
+
+**Preferred:**  
+
+* 5 years Test automation experience using open source technologies and/or in\-house frameworks
+* 5 years of Experience with test frameworks such TestNG JUnit BDD
+* 2 years of Experience with test frameworks such TestNG JUnit BDD
+* 2 years of Experience in API testing (SOAP and REST)
+* 1 years of WAPT Pro Jmeter or other performance testing tools
+* 1 years of Experience testing .NET applications
+* 1 years of Experience working with Power BI
+* 1 years of Previous experience with Zephyr Scale preferred
+* 1 years of Previous experience with JIRA preferred
+
+**Specific Skills:**  
+
+* Strong automation testing expertise with Selenium and TestNG.
+* Experience with functional regression performance and accessibility testing.
+* Ability to analyze user requirements and develop detailed test cases.
+* SQL knowledge to perform data queries and validations.
+* Proficiency in Java programming for automation testing.
+* Familiarity with performance testing tools like JMeter or WAPT Pro.
+* Experience with manual testing and data validation.
+* Strong collaboration skills to work with development teams.
+
+If you are interested share your updated resume with contact number to this email **sivarajan.s@zirlen.com**  
+
+  
+
+This is a remote position.|~|indeed,go-W0Tmb9QGOz3Lib5hAAAAAA==|~|Product Manager CRM Marketing & Data Cloud|~|PPG|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|Not Provided|~|Not Provided|~|Not Provided|~|2025-04-13|~|Pittsburgh|~|PA|~|Unknown|~|https://careers.ppg.com/us/en/job/PIIPIIUSJR2433940EXTERNALENUS/Product-Manager-CRM-Marketing-Data-Cloud?utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic|~|As the Digital Product Manager CRM Marketing & Data Cloud you will play a pivotal role in shaping and executing our strategy to optimize customer engagement retention and acquisition. In order to unlock financial impact you will lead a cross functional cross business unit team through delivery of Salesforce Marketing Cloud Account Engagement & Salesforce Data Cloud and collaborate closely with cross-functional teams including Marketing Sales Commercial Excellence and IT to drive the development implementation and process improvement of CRM solutions.
+
+This is a role will require 20-30% travel. It is based in Pittsburgh PA (USA) or Remote. Relocation assistance available.
 
 Key Responsibilities
-• Develop and implement code-driven automation solutions for web and Windows applications in a cloud-based environment using Katalon Selenium and Java (beyond record/playback functionality).
-• Automate testing for both locally deployed applications and cloud-hosted environments (e.g. Azure Virtual Desktops (AVDs) Azure Web Apps).
-• Automate Azure infrastructure validation including VM health checks resource configurations access policies and networking.
-• Integrate automated testing into Azure DevOps CI/CD pipelines to ensure seamless deployments and validation.
-• Develop API automation testing using Postman to validate cloud and microservices-based architectures.
-• Leverage Git functionalities for version control test script management and CI/CD integration.
-• Implement automation for security and compliance checks within Azure environments ensuring adherence to best practices.
-• Troubleshoot and optimize automation scripts collaborating with developers and senior engineers to enhance framework efficiency.
-• Work in an Agile development environment contributing to test planning execution and continuous improvements.
+• Scale Salesforce Marketing Automation Account Engagement and Salesforce Data Cloud globally across PPG’s Strategic Business Units and regions with a focus on negotiating trade-offs to achieve as much standardization as possible while meeting business objectives
+• Define and prioritize the product roadmap considering customer needs competitive landscape and business objectives.
+• Collaborate cross-functionally with Marketing Operations Sales Commercial Excellence and IT teams to ensure alignment and successful execution of initiatives.
+• Work closely with stakeholders to gather and prioritize requirements translating them into actionable product features and enhancements.
+• Oversee the end-to-end product development lifecycle from ideation and design to development testing and release.
+• Define and monitor key performance metrics to assess product performance identify areas for improvement and drive optimization efforts.
+• Stay abreast of industry trends competitor offerings and emerging technologies to inform product strategy and decision-making.
+• Leverage customer feedback data analysis and market research to gain insights into customer needs and preferences informing product enhancements and innovations.
+• Effectively communicate product plans progress and updates to internal stakeholders executive leadership and external partners as needed.
 
-Skills and Attributes for Success
-• Deep experience in automation development using Katalon Selenium and Java.
-• Strong experience with Azure DevOps Git and CI/CD automation.
-• Advanced scripting in PowerShell Python or Bash for Azure infrastructure automation.
-• Hands-on experience with Azure services (VMs App Services Functions AKS Networking).
-• Experience automating Windows application testing.
-• Strong understanding of API automation and cloud service testing.
-• Knowledge of cloud security and compliance automation in Azure environments.
-• Strong troubleshooting and problem-solving skills.
-• Ability to collaborate effectively while following guidance from senior engineers and architects.
+Qualifications
+• Bachelor’s degree in Business Information Technology or a related field (or equivalent experience).
+• 3+ years of hands-on experience with Marketing Cloud and Data Cloud Technology as a Product Manager Administrator or Consultant.
+• Salesforce certifications (e.g. Pardot Marketing Cloud) strongly preferred.
+• Proven track record of managing Salesforce projects and delivering measurable business outcomes.
+• Strong understanding of sales processes metrics and best practices.
+• Experience with Agile and/or Scrum methodologies.
+• Excellent problem-solving skills and attention to detail.
+• Strong communication and interpersonal skills with the ability to influence and collaborate across teams
 
-To Qualify for the Role You Must Have
-• Bachelor’s degree in computer science Software Engineering or a related field (or equivalent experience).
-• 2-3+ years of experience in automation engineering focusing on Azure-based environments.
-• Expertise in Katalon Studio Selenium Java-based automation frameworks.
-• Experience automating Azure infrastructure validations and security checks.
-• Proficiency in integrating automation into Azure DevOps CI/CD pipelines.
-• Experience with API automation testing using Postman.
-• Strong command of Git version control and branching strategies.
-• Ability to obtain and maintain Top Secret Security Clearance.
+PPG pay ranges and benefits can vary by location which allows us to compensate employees competitively in different geographic markets. PPG considers several factors in making compensation decisions including but not limited to skill sets experience and training qualifications and education licensure and certifications and other organizational needs. Other incentives may apply.
 
-Ideally You’ll Also Have
-• Experience with PowerShell IaC or Ansible for Azure automation.
-• Knowledge of Azure security and compliance automation tools.
-• Familiarity with containerized application testing (AKS Docker).
-• Experience integrating automation with Azure Monitor and Log Analytics.
+Our employee benefits programs are designed to support the health and well-being of our employees. Any insurance coverages and benefits will be in accordance with the terms and conditions of the applicable plans and associated governing plan documents.
 
-What we look for
-• We are looking for a technically skilled and detail-oriented automation engineer who thrives in a collaborative remote work environment. This role is ideal for someone who enjoys automation testing software engineering and working within structured frameworks set by lead engineers.
+About us:
 
-What we offer
+Here at PPG we make it happen and we seek candidates of the highest integrity and professionalism who share our values with the commitment and drive to strive today to do better than yesterday – everyday.
 
-We offer a comprehensive compensation and benefits package where you’ll be rewarded based on your performance and recognized for the value you bring to the business. The base salary range for this job in all geographic locations in the US is $67900 to $123300. The salary range for New York City Metro Area Washington State and California (excluding Sacramento) is $81500 to $140100. Individual salaries within those ranges are determined through a wide variety of factors including but not limited to education experience knowledge skills and geography. In addition our Total Rewards package includes medical and dental coverage pension and 401(k) plans and a wide range of paid time off options. Join us in our team-led and leader-enabled hybrid model. Our expectation is for most people in external client serving roles to work together in person 40-60% of the time over the course of an engagement project or year. Under our flexible vacation policy you’ll decide how much vacation time you need based on your own personal circumstances. You’ll also be granted time off for designated EY Paid Holidays Winter/Summer breaks Personal/Family Care and other leaves of absence when needed to support your physical financial and emotional well-being.
-• Continuous learning: You’ll develop the mindset and skills to navigate whatever comes next.
-• Success as defined by you: We’ll provide the tools and flexibility so you can make a meaningful impact your way.
-• Transformative leadership: We’ll give you the insights coaching and confidence to be the leader the world needs.
-• Diverse and inclusive culture: You’ll be embraced for who you are and empowered to use your voice to help others find theirs.
+PPG: WE PROTECT AND BEAUTIFY THE WORLD™
 
-EY accepts applications for this position on an on-going basis. If you can demonstrate that you meet the criteria above please contact us as soon as possible.
+Through leadership in innovation sustainability and color PPG helps customers in industrial transportation consumer products and construction markets and aftermarkets to enhance more surfaces in more ways than does any other company.. To learn more visit www.ppg.com and follow @ PPG on Twitter.
 
-EY exists to build a better working world helping to create long-term value for clients people and society and build trust in the capital markets.
+The PPG Way
 
-Enabled by data and technology diverse EY teams in over 150 countries provide trust through assurance and help clients grow transform and operate.
+Every single day at PPG:
 
-Working across assurance consulting law strategy tax and transactions EY teams ask better questions to find new answers for the complex issues facing our world today.
+We partner with customers to create mutual value.
 
-For those living in California please click here for additional information.
+We are “One PPG” to the world.
 
-EY provides equal employment opportunities to applicants and employees without regard to race color religion age sex sexual orientation gender identity/expression pregnancy genetic information national origin protected veteran status disability status or any other legally protected basis including arrest and conviction records in accordance with applicable law.
+We trust our people every day in every way.
 
-EY is committed to providing reasonable accommodation to qualified individuals with disabilities including veterans with disabilities. If you have a disability and either need assistance applying online or need to request an accommodation during any part of the application process please call 1-800-EY-HELP3 select Option 2 for candidate related inquiries then select Option 1 for candidate queries and finally select Option 2 for candidates with an inquiry which will route you to EY’s Talent Shared Services Team (TSS) or email the TSS at ssc.customersupport@ey.com.|~|google,branden@autoemployme.onmicrosoft.com|~|in-a8d0f9c94e2ce938|~|Software Quality Automation Engineer|~|Butler Till|~|Not Provided|~|Not Provided|~|FULL_TIME|~|False|~|USD|~|72000.0|~|100000.0|~|2025-04-14|~|Rochester|~|NY|~|US|~|https://www.indeed.com/viewjob?jk=a8d0f9c94e2ce938|~|**SUMMARY**
+We make it happen.
+
+We run it like we own it.
+
+We do better today than yesterday – everyday.
+
+PPG provides equal opportunity to all candidates and employees. We offer an opportunity to grow and develop your career in an environment that provides a fulfilling workplace for employees creates an environment for continuous learning and embraces the ideas and diversity of others. All qualified applicants will receive consideration for employment without regard to sex pregnancy race color creed religion national origin age disability status marital status sexual orientation gender identity or expression. If you need assistance to complete your application due to a disability please email recruiting@ppg.com.
+
+PPG values your feedback on our recruiting process. We encourage you to visit Glassdoor.com and provide feedback on the process so that we can do better today than yesterday.
+
+Benefits will be discussed with you by your recruiter during the hiring process.|~|google,go-E8O47PoUwNGCXEgOAAAAAA==|~|CRM Database Manager|~|HearingLife|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|Not Provided|~|Not Provided|~|Not Provided|~|2025-04-13|~|Franklin Township|~|NJ|~|Unknown|~|https://www.learn4good.com/jobs/new-jersey/info_technology/4141636785/e/?utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic|~|Location: Township of Franklin
+Overview
+
+Hearing Life is a national hearing care company and part of the Demant Group a global leader in hearing healthcare built on a heritage of care health and innovation since 1904. Hearing Life operates more than 600 hearing care centers across 42 states. We follow a scientific results-oriented approach to hearing healthcare that is provided by highly skilled and caring professionals.
+
+Our vision is to help more people hear better through life-changing hearing health delivered by the best personalized care. This Team Member must role-model and uphold the Hearing Life Core Values:
+• We create trust.
+• We are team players.
+• We apply a can-do attitude.
+• We create innovative solutions.
+
+CRM Database Manager:
+
+We are seeking a detail-oriented and strategic CRM Database Manager to oversee the health integrity and efficiency of our customer relationship management (CRM) database. This role will be responsible for data monitoring quality assurance compliance with data governance policies and technical database management. The ideal candidate will collaborate across departments to ensure best practices in data entry maintenance and reporting data-driven decision-making and business insights.
+Responsibilities
+
+CRM Data Monitoring & Best Practices
+• Develop and implement strategies to monitor CRM data quality and consistency to improve overall business performance.
+• Establish and enforce global and local best practices for data entry updates and maintenance.
+• Identify and address data discrepancies duplicates and inconsistencies.
+
+Project Collaboration:
+• Work closely with the marketing team to understand project requirements and objectives. Provide insights and data-driven recommendations to enhance campaign effectiveness and customer engagement.
+• Respond to requests for CRM data and reports on an ad-hoc basis. Ensure timely and accurate delivery of data to support various marketing initiatives and decision-making processes.
+
+Data Health Management & Quality Assurance
+• Regularly audit CRM data to ensure accuracy completeness and compliance.
+• Implement automated and manual processes for data cleansing and validation.
+• Develop key performance indicators (KPIs) to track data health aligned with global principles.
+
+Collaboration & Training
+• Work cross-functionally with teams to ensure proper CRM data usage.
+• Determine training needs on data entry protocols compliance requirements and best practices.
+• Provide ongoing support and guidance to enhance CRM adoption and data quality.
+
+Data Analysis & Reporting
+• Create and maintain reports on data quality user behaviors and trends.
+• Analyze CRM data to provide insights for business strategy and decision-making.
+• Partner with Analytics team on dashboards and reporting to track key CRM metrics.
+
+Compliance & Data Governance
+• Working with IT and Global ensure CRM data management aligns with industry regulations and internal policies.
+• Work with IT on maintaining compliance with data protection laws (e.g. GDPR CCPA).
+• Define uphold and support data governance standards for security and data privacy.
+
+Technical Database Management
+• Optimize CRM database performance storage and retrieval processes.
+• Work with IT teams to troubleshoot and resolve CRM system issues.
+• Assist with CRM upgrades integrations and system enhancements.
+Qualifications
+• Bachelor’s degree in Information Systems Business Data Science or related field.
+• Proven 3-5 years of experience in CRM database management (Microsoft 365 Salesforce Hub Spot or similar).
+• Strong analytical skills with experience in data reporting and visualization.
+• Knowledge of data governance compliance regulations and best practices.
+• Proficiency in SQL Excel and CRM & reporting tools.
+
+Travel:
+
+Position will require travel 10-20% of the time.
+
+Location:
+
+Somerset New Jersey is preferable but may consider Remote.
+
+We are an Equal Opportunity / Affirmative Action employer all qualified applicants will receive consideration for employment without regard to race color religion sexual orientation sex national origin disability or protected veteran status.
+
+#
+
+#LI-WJ1
+
+#LI-ON
+#J-18808-Ljbffr|~|google,in-9e469b502f018a76|~|Lead Project Manager|~|Imperial Management Group|~|Not Provided|~|Not Provided|~|PART_TIME|~|True|~|USD|~|30.0|~|35.0|~|2025-04-15|~|Remote|~|Unknown|~|US|~|https://www.indeed.com/viewjob?jk=9e469b502f018a76|~|**About Us:**
+
+Imperial Management Group (IMG) is a premier consulting firm that empowers businesses through strategic planning operational efficiency and compliance solutions. We specialize in helping organizations streamline operations enhance financial management and ensure regulatory compliance.
+
+A core part of our work involves assisting businesses and nonprofit organizations navigate the complex landscape of **grants and government contracts**. From *securing funding opportunities to ensuring compliance with federal and state regulations* we provide expert guidance at every stage. Our mission is to equip our clients with the tools and strategies to access funding optimize resources and sustain long\-term growth.
+
+With a client\-centric approach we offer tailored solutions that drive measurable impact through operational consulting business development or financial strategy.
+
+**Position Overview**
+
+IMG is seeking a strategic results\-driven Lead Project Manager to oversee client\-facing projects and internal operational initiatives. This role is ideal for someone with exceptional organizational skills a proactive mindset and the ability to manage multiple complex projects simultaneously.
+
+The ideal candidate will have experience leading teams managing deadlines and ensuring quality execution across cross\-functional deliverables. A background in grants government contracts or compliance is a strong plus.
+
+**Key Responsibilities**
+
+* Lead the planning execution and delivery of multiple projects across internal operations and client engagements.
+* Identify areas for process improvement and implement best practices to enhance team efficiency.
+* Develop detailed project plans track progress and ensure deliverables are completed on time and within scope.
+* Serve as the primary point of contact for project teams on project timelines goals and updates.
+* Coordinate and facilitate project meetings including status updates action planning and issue resolution.
+* Manage and optimize workflows across platforms such as Trello Clockify and other project management and AI tools.
+* Track and ensure compliance\-related deliverables (grants contracts reporting) are met accurately and on time.
+* Collaborate with finance team on budget tracking invoicing milestones and resource allocation.
+* Support onboarding and training of new contractors or project contributors.
+
+**Qualifications \& Requirements**
+
+* Proven experience as a project manager or program lead preferably in consulting nonprofit government or compliance\-related industries.
+* Strong communication skills—both written and verbal.
+* Ability to work independently and make data\-driven decisions.
+* Comfortable leading meetings presenting updates and providing strategic insights to leadership.
+* Strong understanding of project management methodologies (Agile Waterfall or hybrid).
+* Experience working with grants government contracts or regulatory compliance is highly preferred.
+* Demonstrated ability to manage multiple priorities and coordinate across teams.
+* Proficient in tools such as Trello Google Workspace Microsoft Office Clockify and client CRM systems.
+* Familiarity with AI\-powered tools (e.g. ChatGPT Notion AI or similar) to streamline project planning content generation and task automation.
+
+**Position Details \& Compensation**
+
+* **Part\-Time Role**: This position requires approximately **10 hours per week** making it ideal for those seeking supplemental work or a flexible schedule.
+* **Compensation**: $25\-$30 per hour based on experience.
+* **Schedule Flexibility**: While this role offers flexibility availability for occasional scheduled meetings or urgent requests during business hours (Eastern Time) may be required. A reasonable expectation could be availability for key check\-ins a few times per week and responsiveness within 24 hours for standard requests.
+* **Preferred Time Zone**: Eastern Time preferred but candidates in other time zones are welcome as long as availability aligns with the team’s needs.
+* **Employment Type**: Independent Contractor (1099\). Candidates must have their own computer reliable internet and necessary software.
+
+**Why Join IMG?**
+
+* Flexible remote work environment
+* Collaborative and mission\-driven team
+* Work with impactful clients across diverse industries
+
+**How to Apply:** Submit your resume and a brief cover letter outlining your experience and qualifications. We look forward to hearing from you!
+
+Job Types: Part\-time Contract
+
+Pay: $30\.00 \- $35\.00 per hour
+
+Expected hours: 10 – 15 per week
+
+Benefits:
+
+* Flexible schedule
+
+Compensation Package:
+
+* 1099 contract
+
+Schedule:
+
+* Monday to Friday
+* Weekends as needed
+
+Work Location: Remote|~|indeed,go-Fo9ox8SUDrcXJDHfAAAAAA==|~|HCM Implementation Specialist|~|Macro Solutions|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|Not Provided|~|Not Provided|~|Not Provided|~|2025-04-13|~|Fort Washington|~|MD|~|Unknown|~|https://us.bebee.com/job/da86f86a5a75e2d147717bc43e30dc9f?utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic|~|About the Role:
+At Macro Solutions we're seeking a highly skilled Workday HCM Implementation Lead to join our team. As a key member of our organization you will be responsible for designing configuring and implementing Workday environments for our clients.
+
+Key Responsibilities:
+• Participate in the ongoing design configuration security and reporting for Workday HCM and its associated modules
+• Partner and build relationships with stakeholders to advance Workday adoption and ease of use
+• Research problems identify opportunities and seek opinions and feedback on suggested solutions
+• Translate business requirements into system requirements
+• Create Workday reports
+• Provide end-user troubleshooting issue remediation and escalation management
+• Work with application owners to create and deliver system training
+
+Requirements:
+• Federal agency requires US Citizenship
+• Required Workday Certification - HCM Certification (Consulting)
+• Bachelor's degree in business organizational development human resources information systems or related field
+• 5 years' HCM or HRIS experience
+• 2 years' Workday experience
+• At least two full implementations of Workday with demonstrated Workday experience
+• General understanding of human resources benefits compensation and payroll processes
+• Ability to work with multiple projects and stakeholders
+• Experience translating business requirements into system requirements
+• Strong oral and written communications skills
+• Great organizational analytical and problem-solving skills
+• Ability to work independently and communicate and work productively as part of multiple fully remote and/or hybrid teams
+
+Benefits:
+Macro Solutions is a woman-owned IT and management consulting firm that helps government organizations select implement integrate and maintain critical business solutions. We pride ourselves on building high-touch high-trust environments for our clients and partners at every level of our business. Assessed at CMMI Maturity Level 3 for both Development and Services and ISO 9001:2015 certification Macro delivers honest powerful results from the inside outward.
+
+We deeply invest in advancing long-lasting employee relationships through our Consultant Care program which ensures that our employees are always a priority at every level of the organization. This has been integral to our 94% employee retention rate.
+
+We offer a supportive environment and culture that thrives on dreaming big getting things done and having fun together. Our competitive benefits package includes health dental 401(k) and paid time off.|~|google,in-34972e42b89843e8|~|Technical Implementation Specialist|~|Planet DDS|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|None|~|None|~|2025-04-15|~|Atlanta|~|GA|~|US|~|https://www.indeed.com/viewjob?jk=34972e42b89843e8|~|Planet DDS is a leading provider of a platform of cloud\-based solutions that empowers growth\-minded dental businesses. Now serving over 13000 practices and 118000 customers in North America Planet DDS delivers a comprehensive suite of solutions including Denticon Practice Management Cloud 9 Ortho Practice Management and Apteryx Cloud Imaging. Planet DDS is dedicated to enabling dental support organizations (DSOs) and groups to grow and thrive with technology that delivers seamless integrations improved workflows and future\-proof scalability.  
 
   
 
-The Software Quality Automation Engineer will have a focus on designing developing and maintaining automated testing frameworks to improve software reliability and accelerate the development lifecycle. The ideal candidate has extensive experience in automation testing strong coding skills and a passion for driving efficiency through automated solutions.
+The Technical Implementation Specialist is responsible for the successful implementation and installation of our imaging software. They work collaboratively with our Professional Services and Technical Support organizations to schedule and deliver installation activities and work remotely with our clients (dentists office staff and IT resources) to install test and enable proper software use. The specialist is the primary point of contact for our clients during the implementation charged with overseeing all aspects of the customer journey.  
 
   
 
-This role is integral in supporting software engineering teams by implementing test automation strategies optimizing CI/CD pipelines and ensuring high\-quality software releases with minimal manual intervention.
+JOB DUTIES:  
+
+* Serve as the primary point of contact (internal and external) during the implementation process with responsiveness and customer care.
+* Advocate for client’s needs throughout the organization and drive activities and decisions that will enable a client’s successful launch.
+* Evaluate each client’s unique needs and abilities to deliver the appropriate level of support for a positive experience ensuring all relevant parties stay on track and meet agreed upon milestones.
+* Coordinate client data conversions education and third\-party integrations.
+* Coordinate collaborate and communicate proactively with internal and external parties.
+* Advocate for client’s needs throughout the organization and drive activities and decisions that will enable a client’s successful launch.
+* Responsible for the complete and successful installation of the image software.
+* Assist with testing of office imaging hardware to ensure it is functional post installation.
+* Create manage deliver and review project plans and deliverables.
+* Respond to calls e\-mail messages and incident tickets in line with company policies.
+* Lead internal and external meetings including kickoff setup weekly status etc.
+* Understand and meet performance metrics related to implementation scope and timelines.
+* Maintain understanding of new product offerings and potential impacts to active and future clients.
+* Identify and share opportunities to improve the customer journey and experience with our products.
+* Collaborate with Product and Engineering teams to create and maintain product content related to onboarding
+* Other duties as required
 
   
 
-**Our tech stack includes HTML5/CSS Node.js React TypeScript C\# Python JavaScript Docker AWS and Azure** **Services along with databases such as MS\-SQL PostgreSQL and Snowflake.**
+SKILLS/QUALIFICATIONS:  
+
+* High school diploma or equivalent
+* Strong written and oral communication skills
+* 1\+ years of experience managing multiple simultaneous projects
+* 1\-2 years of experience in a Windows technology support function
+* Ability to work independently and as a collaborative team member
+* Strong written and oral communication skills; ability to simplify complex technical jargon
+* Highly organized self\-starter with exceptional attention to detail and accountable to deadlines
+* Ability to be flexible with work hours; some weekend work occasionally required to meet client deadlines and go\-live expectations
+
+**PLANET DDS CORE IDEOLOGY**
+
+**Why are we here?**
+
+
+Unleashing dentists and their staff to focus on patient care.
+
+
+**Where are we headed?**
+
+In the next 5 years Planet DDS will remain the leading provider of cloud\-based technology solutions in North America expanding to serve more than 25000 dental practices.
+
+
+**How do we get there?**
+
+
+To encourage measurable progress toward our vision and make the best decisions on behalf of employees and customers we adopted a set of common values:
+
+
+Collaborative – Working independently and across teams we create scalable solutions to enable company growth
+
+
+Empathetic – We are educated on the experience of our customers and feel vested in their success
+
+
+Accountable – We feel ownership for the quality of our work and take pride in the positive outcomes
+
+
+Trustworthy – We operate with integrity and honest making promises we know that we can keep
+
+
+Ambitious – We are driven by our ability to make a long\-term positive impact on the lives of dental market leaders
+
+
+*An Equal Opportunity Employer – Including Disability/Veterans*
+
+
+
+
+tpjY6tbZyM|~|indeed,go-W0Tmb9QGOz3Lib5hAAAAAA==|~|Product Manager CRM Marketing & Data Cloud|~|PPG|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|Not Provided|~|Not Provided|~|Not Provided|~|2025-04-13|~|Pittsburgh|~|PA|~|Unknown|~|https://careers.ppg.com/us/en/job/PIIPIIUSJR2433940EXTERNALENUS/Product-Manager-CRM-Marketing-Data-Cloud?utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic|~|As the Digital Product Manager CRM Marketing & Data Cloud you will play a pivotal role in shaping and executing our strategy to optimize customer engagement retention and acquisition. In order to unlock financial impact you will lead a cross functional cross business unit team through delivery of Salesforce Marketing Cloud Account Engagement & Salesforce Data Cloud and collaborate closely with cross-functional teams including Marketing Sales Commercial Excellence and IT to drive the development implementation and process improvement of CRM solutions.
+
+This is a role will require 20-30% travel. It is based in Pittsburgh PA (USA) or Remote. Relocation assistance available.
+
+Key Responsibilities
+• Scale Salesforce Marketing Automation Account Engagement and Salesforce Data Cloud globally across PPG’s Strategic Business Units and regions with a focus on negotiating trade-offs to achieve as much standardization as possible while meeting business objectives
+• Define and prioritize the product roadmap considering customer needs competitive landscape and business objectives.
+• Collaborate cross-functionally with Marketing Operations Sales Commercial Excellence and IT teams to ensure alignment and successful execution of initiatives.
+• Work closely with stakeholders to gather and prioritize requirements translating them into actionable product features and enhancements.
+• Oversee the end-to-end product development lifecycle from ideation and design to development testing and release.
+• Define and monitor key performance metrics to assess product performance identify areas for improvement and drive optimization efforts.
+• Stay abreast of industry trends competitor offerings and emerging technologies to inform product strategy and decision-making.
+• Leverage customer feedback data analysis and market research to gain insights into customer needs and preferences informing product enhancements and innovations.
+• Effectively communicate product plans progress and updates to internal stakeholders executive leadership and external partners as needed.
+
+Qualifications
+• Bachelor’s degree in Business Information Technology or a related field (or equivalent experience).
+• 3+ years of hands-on experience with Marketing Cloud and Data Cloud Technology as a Product Manager Administrator or Consultant.
+• Salesforce certifications (e.g. Pardot Marketing Cloud) strongly preferred.
+• Proven track record of managing Salesforce projects and delivering measurable business outcomes.
+• Strong understanding of sales processes metrics and best practices.
+• Experience with Agile and/or Scrum methodologies.
+• Excellent problem-solving skills and attention to detail.
+• Strong communication and interpersonal skills with the ability to influence and collaborate across teams
+
+PPG pay ranges and benefits can vary by location which allows us to compensate employees competitively in different geographic markets. PPG considers several factors in making compensation decisions including but not limited to skill sets experience and training qualifications and education licensure and certifications and other organizational needs. Other incentives may apply.
+
+Our employee benefits programs are designed to support the health and well-being of our employees. Any insurance coverages and benefits will be in accordance with the terms and conditions of the applicable plans and associated governing plan documents.
+
+About us:
+
+Here at PPG we make it happen and we seek candidates of the highest integrity and professionalism who share our values with the commitment and drive to strive today to do better than yesterday – everyday.
+
+PPG: WE PROTECT AND BEAUTIFY THE WORLD™
+
+Through leadership in innovation sustainability and color PPG helps customers in industrial transportation consumer products and construction markets and aftermarkets to enhance more surfaces in more ways than does any other company.. To learn more visit www.ppg.com and follow @ PPG on Twitter.
+
+The PPG Way
+
+Every single day at PPG:
+
+We partner with customers to create mutual value.
+
+We are “One PPG” to the world.
+
+We trust our people every day in every way.
+
+We make it happen.
+
+We run it like we own it.
+
+We do better today than yesterday – everyday.
+
+PPG provides equal opportunity to all candidates and employees. We offer an opportunity to grow and develop your career in an environment that provides a fulfilling workplace for employees creates an environment for continuous learning and embraces the ideas and diversity of others. All qualified applicants will receive consideration for employment without regard to sex pregnancy race color creed religion national origin age disability status marital status sexual orientation gender identity or expression. If you need assistance to complete your application due to a disability please email recruiting@ppg.com.
+
+PPG values your feedback on our recruiting process. We encourage you to visit Glassdoor.com and provide feedback on the process so that we can do better today than yesterday.
+
+Benefits will be discussed with you by your recruiter during the hiring process.|~|google,in-9e469b502f018a76|~|Lead Project Manager|~|Imperial Management Group|~|Not Provided|~|Not Provided|~|PART_TIME|~|True|~|USD|~|30.0|~|35.0|~|2025-04-15|~|Remote|~|Unknown|~|US|~|https://www.indeed.com/viewjob?jk=9e469b502f018a76|~|**About Us:**
+
+Imperial Management Group (IMG) is a premier consulting firm that empowers businesses through strategic planning operational efficiency and compliance solutions. We specialize in helping organizations streamline operations enhance financial management and ensure regulatory compliance.
+
+A core part of our work involves assisting businesses and nonprofit organizations navigate the complex landscape of **grants and government contracts**. From *securing funding opportunities to ensuring compliance with federal and state regulations* we provide expert guidance at every stage. Our mission is to equip our clients with the tools and strategies to access funding optimize resources and sustain long\-term growth.
+
+With a client\-centric approach we offer tailored solutions that drive measurable impact through operational consulting business development or financial strategy.
+
+**Position Overview**
+
+IMG is seeking a strategic results\-driven Lead Project Manager to oversee client\-facing projects and internal operational initiatives. This role is ideal for someone with exceptional organizational skills a proactive mindset and the ability to manage multiple complex projects simultaneously.
+
+The ideal candidate will have experience leading teams managing deadlines and ensuring quality execution across cross\-functional deliverables. A background in grants government contracts or compliance is a strong plus.
+
+**Key Responsibilities**
+
+* Lead the planning execution and delivery of multiple projects across internal operations and client engagements.
+* Identify areas for process improvement and implement best practices to enhance team efficiency.
+* Develop detailed project plans track progress and ensure deliverables are completed on time and within scope.
+* Serve as the primary point of contact for project teams on project timelines goals and updates.
+* Coordinate and facilitate project meetings including status updates action planning and issue resolution.
+* Manage and optimize workflows across platforms such as Trello Clockify and other project management and AI tools.
+* Track and ensure compliance\-related deliverables (grants contracts reporting) are met accurately and on time.
+* Collaborate with finance team on budget tracking invoicing milestones and resource allocation.
+* Support onboarding and training of new contractors or project contributors.
+
+**Qualifications \& Requirements**
+
+* Proven experience as a project manager or program lead preferably in consulting nonprofit government or compliance\-related industries.
+* Strong communication skills—both written and verbal.
+* Ability to work independently and make data\-driven decisions.
+* Comfortable leading meetings presenting updates and providing strategic insights to leadership.
+* Strong understanding of project management methodologies (Agile Waterfall or hybrid).
+* Experience working with grants government contracts or regulatory compliance is highly preferred.
+* Demonstrated ability to manage multiple priorities and coordinate across teams.
+* Proficient in tools such as Trello Google Workspace Microsoft Office Clockify and client CRM systems.
+* Familiarity with AI\-powered tools (e.g. ChatGPT Notion AI or similar) to streamline project planning content generation and task automation.
+
+**Position Details \& Compensation**
+
+* **Part\-Time Role**: This position requires approximately **10 hours per week** making it ideal for those seeking supplemental work or a flexible schedule.
+* **Compensation**: $25\-$30 per hour based on experience.
+* **Schedule Flexibility**: While this role offers flexibility availability for occasional scheduled meetings or urgent requests during business hours (Eastern Time) may be required. A reasonable expectation could be availability for key check\-ins a few times per week and responsiveness within 24 hours for standard requests.
+* **Preferred Time Zone**: Eastern Time preferred but candidates in other time zones are welcome as long as availability aligns with the team’s needs.
+* **Employment Type**: Independent Contractor (1099\). Candidates must have their own computer reliable internet and necessary software.
+
+**Why Join IMG?**
+
+* Flexible remote work environment
+* Collaborative and mission\-driven team
+* Work with impactful clients across diverse industries
+
+**How to Apply:** Submit your resume and a brief cover letter outlining your experience and qualifications. We look forward to hearing from you!
+
+Job Types: Part\-time Contract
+
+Pay: $30\.00 \- $35\.00 per hour
+
+Expected hours: 10 – 15 per week
+
+Benefits:
+
+* Flexible schedule
+
+Compensation Package:
+
+* 1099 contract
+
+Schedule:
+
+* Monday to Friday
+* Weekends as needed
+
+Work Location: Remote|~|indeed,in-4691298bbfd808c5|~|IT&S Project Manager|~|Northwell Health|~|Not Provided|~|Not Provided|~|FULL_TIME|~|False|~|USD|~|85090.0|~|147220.0|~|2025-04-14|~|Lake Success|~|NY|~|US|~|https://www.indeed.com/viewjob?jk=4691298bbfd808c5|~|Job Description
+
+
+Plans manages and coordinates project activities to ensure goals and objectives of multiple and large projects are accomplished within prescribed time\-frame and funding parameters. Establishes timelines and ensures project deadlines are met. Maintains integrity and cost containment of projects.
+
+
+
+Job Responsibility
+
+
+
+* Plans manages and coordinates projects and ensures project initiatives and timelines are met. Develops project initiation process by defining project scope determining action items assigning ownership creating project timetables and tracking execution and workflow; prepares presents and distributes project status reports.
+* Evaluates plans and monitors project implementation for solutions; manages project and project delivery teams ensures deadlines are met escalates issues for appropriate timely resolution and adheres to standardized project management methodologies.
+* Develops interdisciplinary project teams in coordination with clinical/business community to ensure deployment of systems; serves as liaison to project sponsors project teams and stakeholders.
+* Works with internal and external groups to optimize success of project deployment; communicates with user departments and project teams on project activities; confers with project staff and vendors to provide support and resolve problems.
+* Collaborates with clinical business financial and quality teams to define and develop metric goals; partners with management to develop tools and metrics to evaluate performance of target initiatives.
+* Assists with planning monitoring criteria and required corporate reporting metrics; ensures availability of performance measurement data for review analysis and corrective actions.
+* Evaluates and drives risk management process improvements efficiencies and workflow enhancements.
+* Partners with management identifies end user education training program and services; assists in the development and maintains department policies and procedures.
+* Provides subject matter expert support in the development of clinical/business information systems and integration to improve the timely completion of projects.
+* Operates under general guidance and work assignments are varied and require interpretation and independent decisions on course of action.
+* Performs related duties as required. All responsibilities noted here are considered essential functions of the job under the Americans with Disabilities Act. Duties not mentioned here but considered related are not essential functions.
+  
+
+Job Qualification
+
+
+
+* Bachelor's Degree required or equivalent combination of education and related experience.
+* 3\-5 years of project management for Information Technology projects required.
+* Experience in assigned technical area required.
+* PMP Certification preferred.
+  
 
   
 
-**KEY OUTCOMES \& RESPONSIBILITIES**  
+* **Additional Salary Detail**
 
-**Key Outcome: Scalable and Reliable Test Automation for Continuous Deployment**  
-
-*Key Responsibilities:*
+The salary range and/or hourly rate listed is a good faith determination of potential base compensation that may be offered to a successful applicant for this position at the time of this job advertisement and may be modified in the future.When determining a team member's base salary and/or rate several factors may be considered as applicable (e.g. location specialty service line years of relevant experience education credentials negotiated contracts budget and internal equity).|~|indeed,in-ff7c4ac1e4085aff|~|Associate Project Manager|~|Northwell Health|~|Not Provided|~|Not Provided|~|FULL_TIME|~|False|~|USD|~|64350.0|~|86060.0|~|2025-04-14|~|Manhasset|~|NY|~|US|~|https://www.indeed.com/viewjob?jk=ff7c4ac1e4085aff|~|Job Description
 
 
-* Develop and Maintain Automation Frameworks: Build robust scalable test automation frameworks for API UI performance and security testing.
-* Execute Automated Tests: Design and execute automated test scripts to validate software functionality regression performance and security across multiple environments.
-* Integrate with CI/CD Pipelines: Implement and enhance automated tests within continuous integration and deployment (CI/CD) pipelines.
-* Manage Test Data: Develop scripts and tools to generate test data dynamically for automated test suites.
-* Identify Defects and Analyze Root Cause: Work closely with developers to diagnose debug and resolve software defects efficiently.
-* Conduct Performance Testing: Conduct load and stress testing to ensure system stability under peak loads.
-* Develop and Plan Test Strategy: Define and document test strategies ensuring automated tests align with business requirements.
+Partners supports and facilitates projects and ensures project initiatives and timelines are met. Assists with management of project plans research and analysis. Coordinates implementation of project plans and evaluates outcomes.
 
 
-**Key Outcome: Efficient Collaboration and Continuous Improvement in Testing Automation**  
-
-*Key Responsibilities:*
+Job Responsibility
 
 
-* Work Closely with Development Teams: Collaborate with software engineers to develop strategies for implementing best practices in testing define test requirements and integrate automated testing early in the development lifecycle.
-* Adopt and Promote Best Practices: Stay updated with emerging test automation tools and techniques driving adoption of best practices across teams.
-* Mentorship and Knowledge Sharing: Provide guidance and mentorship to developers and other QA engineers on automation frameworks and tools.
-* Code Reviews and Quality Assurance: Participate in code reviews with a focus on automation scripts and testability of applications.
 
 
-**REQUIREMENTS**  
-
-**Required:**
-
-
-* Bachelor's degree in Computer Science Engineering or equivalent work experience.
-* 3\-5 years of experience in test automation including designing and maintaining automated test suites.
-* Proficiency in programming languages such as Python JavaScript TypeScript or C\#.
-* Proven experience with API testing tools like Postman Insomnia or equivalent.
-* Hands\-on experience with automated testing frameworks such as Selenium Playwright Cypress Jest or Cucumber.
-* Experience with integrating automated tests into CI/CD pipelines (e.g. Jenkins GitHub Actions GitLab CI/CD or Azure DevOps).
-* Familiarity with containerized environments (Docker Kubernetes) and cloud services (AWS Azure).
+* Assists the project initiation process by creating project timetables and tracking execution and workflow.
+* Aids the preparation of project status reports.
+* Assists internal and external groups to optimize success of project deployment.
+* Participates in communication with user departments and project teams on project activities.
+* Assists the management to develop tools and metrics to evaluate performance of target initiatives.
+* Helps in driving risk management process improvements efficiencies and workflow enhancements.
+* Assists in the development and maintains department policies and procedures.
+* Operates with direct guidance and work assignments are generally straightforward and of moderate complexity.
+* Performs related duties as required. All responsibilities noted here are considered essential functions of the job under the Americans with Disabilities Act. Duties not mentioned here but considered related are not essential functions.
 
 
-**Preferred:**
+Job Qualification
 
 
-* Experience with performance testing tools (JMeter k6 Locust).
-* Strong understanding of software development best practices including test\-driven development (TDD) and behavior\-driven development (BDD).
-* Knowledge of monitoring and logging solutions for automated testing.
-* Experience with System Observability tools (Datadog New Relic Prometheus).
-* Experience working in an Agile/Scrum environment.
 
 
-**CORE COMPETENCIES**
+* Bachelor's Degree required or equivalent combination of education and related experience.
+* 0\-1 years of relevant experience required.
+* Proficiency in MS Office Suite (Excel Powerpoint Access etc) preferred
+* Strong attention to detail and project timelines.
+* Strong written and verbal communication skills.
+* Proven success working with all levels of management preferred.
+
+* **Additional Salary Detail**
+
+The salary range and/or hourly rate listed is a good faith determination of potential base compensation that may be offered to a successful applicant for this position at the time of this job advertisement and may be modified in the future.When determining a team member's base salary and/or rate several factors may be considered as applicable (e.g. location specialty service line years of relevant experience education credentials negotiated contracts budget and internal equity).|~|indeed,in-e35d2f3138e734f3|~|IT&S Project Manager|~|Northwell Health|~|Not Provided|~|Not Provided|~|FULL_TIME|~|False|~|USD|~|85090.0|~|147220.0|~|2025-04-14|~|Lake Success|~|NY|~|US|~|https://www.indeed.com/viewjob?jk=e35d2f3138e734f3|~|Job Description
 
 
-* CUSTOMER FOCUS/CLIENT INTIMACY: seeking to understand client business challenges/needs and delivering continuous value to our clients
-* COLLABORATIVE: working with teams and across the organization with ease
-* OWNER AGILITY: able to continuously learn and quickly adapt to changing circumstance
-* RESULTS DRIVEN: accepts accountability to deliver business outcomes even under changing circumstances. Delivers on commitments
-* DISCIPLINED: Thinks plans and prioritizes work on an ongoing basis plans and aligns with key team members before acting
+Plans manages and coordinates project activities to ensure goals and objectives of multiple and large projects are accomplished within prescribed time\-frame and funding parameters. Establishes timelines and ensures project deadlines are met. Maintains integrity and cost containment of projects.
 
 
-**WORK ENVIRONMENT \& PHYSICAL DEMANDS**  
 
-The work environment and physical demands characteristics described here are representative of those an employee encounters while performing the essential functions of this job typically in an office setting or in a home office. An employee in this role may be in a stationary position often standing or sitting for prolonged periods and using office equipment and computers. The noise level in the office environment is usually moderate. (I.e. business office with computers and printers light foot traffic etc.). Reasonable accommodation may be requested to enable individuals to perform the essential functions.
+Job Responsibility
+
+
+
+* Plans manages and coordinates projects and ensures project initiatives and timelines are met. Develops project initiation process by defining project scope determining action items assigning ownership creating project timetables and tracking execution and workflow; prepares presents and distributes project status reports.
+* Evaluates plans and monitors project implementation for solutions; manages project and project delivery teams ensures deadlines are met escalates issues for appropriate timely resolution and adheres to standardized project management methodologies.
+* Develops interdisciplinary project teams in coordination with clinical/business community to ensure deployment of systems; serves as liaison to project sponsors project teams and stakeholders.
+* Works with internal and external groups to optimize success of project deployment; communicates with user departments and project teams on project activities; confers with project staff and vendors to provide support and resolve problems.
+* Collaborates with clinical business financial and quality teams to define and develop metric goals; partners with management to develop tools and metrics to evaluate performance of target initiatives.
+* Assists with planning monitoring criteria and required corporate reporting metrics; ensures availability of performance measurement data for review analysis and corrective actions.
+* Evaluates and drives risk management process improvements efficiencies and workflow enhancements.
+* Partners with management identifies end user education training program and services; assists in the development and maintains department policies and procedures.
+* Provides subject matter expert support in the development of clinical/business information systems and integration to improve the timely completion of projects.
+* Operates under general guidance and work assignments are varied and require interpretation and independent decisions on course of action.
+* Performs related duties as required. All responsibilities noted here are considered essential functions of the job under the Americans with Disabilities Act. Duties not mentioned here but considered related are not essential functions.
+  
+
+Job Qualification
+
+
+
+* Bachelor's Degree required or equivalent combination of education and related experience.
+* 3\-5 years of project management for Information Technology projects required.
+* Experience in assigned technical area required.
+* PMP Certification preferred.
+  
 
   
 
-**COMMITMENT TO DIVERSITY EQUITY INCLUSION AND BELONGING**  
+* **Additional Salary Detail**
 
-Our dedication to Diversity Equity Inclusion and Belonging (DEIB) is a cornerstone of our culture. We believe that the diversity and inclusivity of our workforce are sources of strength. As you become part of our community you'll discover that we are dedicated to creating a positive impact not only for our clients but also for the communities where we live and work.
+The salary range and/or hourly rate listed is a good faith determination of potential base compensation that may be offered to a successful applicant for this position at the time of this job advertisement and may be modified in the future.When determining a team member's base salary and/or rate several factors may be considered as applicable (e.g. location specialty service line years of relevant experience education credentials negotiated contracts budget and internal equity).|~|indeed,in-9e469b502f018a76|~|Lead Project Manager|~|Imperial Management Group|~|Not Provided|~|Not Provided|~|PART_TIME|~|True|~|USD|~|30.0|~|35.0|~|2025-04-15|~|Remote|~|Unknown|~|US|~|https://www.indeed.com/viewjob?jk=9e469b502f018a76|~|**About Us:**
+
+Imperial Management Group (IMG) is a premier consulting firm that empowers businesses through strategic planning operational efficiency and compliance solutions. We specialize in helping organizations streamline operations enhance financial management and ensure regulatory compliance.
+
+A core part of our work involves assisting businesses and nonprofit organizations navigate the complex landscape of **grants and government contracts**. From *securing funding opportunities to ensuring compliance with federal and state regulations* we provide expert guidance at every stage. Our mission is to equip our clients with the tools and strategies to access funding optimize resources and sustain long\-term growth.
+
+With a client\-centric approach we offer tailored solutions that drive measurable impact through operational consulting business development or financial strategy.
+
+**Position Overview**
+
+IMG is seeking a strategic results\-driven Lead Project Manager to oversee client\-facing projects and internal operational initiatives. This role is ideal for someone with exceptional organizational skills a proactive mindset and the ability to manage multiple complex projects simultaneously.
+
+The ideal candidate will have experience leading teams managing deadlines and ensuring quality execution across cross\-functional deliverables. A background in grants government contracts or compliance is a strong plus.
+
+**Key Responsibilities**
+
+* Lead the planning execution and delivery of multiple projects across internal operations and client engagements.
+* Identify areas for process improvement and implement best practices to enhance team efficiency.
+* Develop detailed project plans track progress and ensure deliverables are completed on time and within scope.
+* Serve as the primary point of contact for project teams on project timelines goals and updates.
+* Coordinate and facilitate project meetings including status updates action planning and issue resolution.
+* Manage and optimize workflows across platforms such as Trello Clockify and other project management and AI tools.
+* Track and ensure compliance\-related deliverables (grants contracts reporting) are met accurately and on time.
+* Collaborate with finance team on budget tracking invoicing milestones and resource allocation.
+* Support onboarding and training of new contractors or project contributors.
+
+**Qualifications \& Requirements**
+
+* Proven experience as a project manager or program lead preferably in consulting nonprofit government or compliance\-related industries.
+* Strong communication skills—both written and verbal.
+* Ability to work independently and make data\-driven decisions.
+* Comfortable leading meetings presenting updates and providing strategic insights to leadership.
+* Strong understanding of project management methodologies (Agile Waterfall or hybrid).
+* Experience working with grants government contracts or regulatory compliance is highly preferred.
+* Demonstrated ability to manage multiple priorities and coordinate across teams.
+* Proficient in tools such as Trello Google Workspace Microsoft Office Clockify and client CRM systems.
+* Familiarity with AI\-powered tools (e.g. ChatGPT Notion AI or similar) to streamline project planning content generation and task automation.
+
+**Position Details \& Compensation**
+
+* **Part\-Time Role**: This position requires approximately **10 hours per week** making it ideal for those seeking supplemental work or a flexible schedule.
+* **Compensation**: $25\-$30 per hour based on experience.
+* **Schedule Flexibility**: While this role offers flexibility availability for occasional scheduled meetings or urgent requests during business hours (Eastern Time) may be required. A reasonable expectation could be availability for key check\-ins a few times per week and responsiveness within 24 hours for standard requests.
+* **Preferred Time Zone**: Eastern Time preferred but candidates in other time zones are welcome as long as availability aligns with the team’s needs.
+* **Employment Type**: Independent Contractor (1099\). Candidates must have their own computer reliable internet and necessary software.
+
+**Why Join IMG?**
+
+* Flexible remote work environment
+* Collaborative and mission\-driven team
+* Work with impactful clients across diverse industries
+
+**How to Apply:** Submit your resume and a brief cover letter outlining your experience and qualifications. We look forward to hearing from you!
+
+Job Types: Part\-time Contract
+
+Pay: $30\.00 \- $35\.00 per hour
+
+Expected hours: 10 – 15 per week
+
+Benefits:
+
+* Flexible schedule
+
+Compensation Package:
+
+* 1099 contract
+
+Schedule:
+
+* Monday to Friday
+* Weekends as needed
+
+Work Location: Remote|~|indeed,in-aa0d8c06a083a4ec|~|Project Manager / Networking|~|Royal Communications Consultants Inc|~|Not Provided|~|Not Provided|~|FULL_TIME|~|False|~|USD|~|145000.0|~|155000.0|~|2025-04-14|~|New York|~|NY|~|US|~|https://www.indeed.com/viewjob?jk=aa0d8c06a083a4ec|~|Seeking a project manager with networking experience. The right candidate will be able to manage projects while also having a solid understanding of networking principles technologies and infrastructure. Skilled in planning executing and delivering projects that involve installation of network equipment network infrastructure security or related technologies.  
+
+**Key Skills and Responsibilities:**  
+
+* Possess the core skills of project management including planning organizing and executing projects according to defined scope budget and timelines.
+* Understanding of network architectures protocols and technologies.
+* Effectively manage projects related to network infrastructure security and implementation.
+* Build and maintain relationships with stakeholders ensuring alignment with project goals and expectations.
+* Identify and resolve technical issues that arise during network project implementation contributing to successful project delivery.
+* Manage project budgets effectively ensuring resources are allocated appropriately and within the allocated timeframe.
+* Manage scheduling.
+* Clearly communicate project progress challenges and solutions to various stakeholders including technical and non\-technical audiences.
+* Relevant PM certifications preferred.
+
+
+
+
+
+ApHTFBmzSH|~|indeed,in-28c6b23644ab46be|~|Architect Project Manager|~|Short Elliott Hendrickson|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|82000.0|~|115000.0|~|2025-04-15|~|Saint Paul|~|MN|~|US|~|https://www.indeed.com/viewjob?jk=28c6b23644ab46be|~|Imagine being an employee\-owner of a company guided by engaged and empowered team members like yourself. Where a culture of respect flexibility and accountability aren't just ideals \- they're our foundation and diverse backgrounds and perspectives are valued as drivers of innovation and growth. Join us as together we are Building a Better World for All of Us®.
+
+
+**You belong at SEH**
+
+
+We are currently searching for a talented **Architect Project Manager** to join and grow with our Architecture team **out of our St. Paul office** this will be a **hybrid position** so you can also work from home.
+
+
+At SEH we see architectural design as an opportunity to unite form and function efficiency and style sustainability and purpose. You’ll work with a team across the nation who collaborate with governmental agencies to build community centers public safety facilities and park facilities. Or a team of designers who specialize in retail commercial hotels and resorts and large residential/mixed\-use developments. Partner with our planners engineers and environmental teams to turn visions into reality for our clients.
+
+
+**Why our employee\-owners love SEH:**
+
+
+* "I was on vacation last week and had zero concerns that my colleagues would help out with anything that came into my inbox!" – GIS Analyst
+* "What company has a CEO who cares enough to seek out one\-on\-one conversations ranging from 'How are you?' to 'What do you think would help the company?' SEH that's who. " – Civil Engineering Technician
+* "Having the feeling that my voice matters and believing that SEH truly cares about the employees is so satisfying!" – Sr Financial Analyst
+* "It feels good having colleagues and supervisors that provide support and resources for growth and learning!" – Civil Engineer
+* "This is the first company I've worked for with a true entrepreneurial spirit." – Sr Mechanical Engineer
+
+
+**Why you’ll love SEH:**
+
+
+* Collaborate on amazing projects of varying size and complexity that positively impact communities
+* Being 100% employee\-owned means we all share in the company’s success
+* Career development through continued education licensure/certification skills and technical training
+* Work arrangements that promote work/life balance
+* Flexible holidays enable individuals to tailor their festivities
+* Paid Family Leave provides time to care for loved ones whether family by birth or family by choice
+
+
+**This Opportunity:**
+
+
+* Work with local and regional teams to prepare full design projects.
+* Responsible for the development of architectural projects with new and prospective clientele
+* Marketing SEH’s architectural services preparing and conducting proposal presentations and managing communication between clients consultants and contractors
+* Provide guidance and mentorship to junior staff
+* Manage project financials
+
+
+**Essential Qualifications:**
+
+
+* Professional Degree in Architecture
+* Ten\+ years’ experience with strong expertise in municipal market architecture development
+* Licensed Architect in the State of Minnesota
+* Strong business management skills with previous leadership roles and proven success in securing new work building business networks and expanding business markets
+* Ability to work independently and to coordinate activities across regional teams and offices
+* Previous project management experience; Strong client and team communication skills and ability to guide project teams and clients through the design process
+* Ability to mentor junior architectural staff and/or other junior project staff through the design process
+* Ability to understand how buildings are constructed and to create technical documentation that succinctly describes the work to be done
+* Working knowledge of standard building code reviews; facility space planning programming and interior functional layouts site master planning and investigations.
+* Ability to travel to clients as needed for team meetings client consultations on\-site inspections/visits etc. At times overnight travel may be required
+* Previous experience in proposal and client management with proven history in leading project pursuits and winning proposals.
+
+
+**Preferred Qualifications:**
+
+
+* Industrial and Private sector market experience
+* NCARB Certification with ability to obtain licensure in additional states
+* Understanding of project financials metrics and ability to track and actively manage a projects financial performance
+* Experience acting as a staff supervisor providing guidance and mentorship to direct reports.
+* Proficiency with Revit and /or AutoCAD software
+* Proficient with Microsoft Suite including Microsoft Project
+
+
+**Who We Are**
+
+
+Better Places. Clean Water. Renewing Infrastructure. Improving Mobility. SEH is an employee\-owned engineering architectural planning and environmental company offering a wide variety of services. We've been helping government industrial and commercial clients find solutions to complex challenges since 1927\. Our 900\+ employee\-owners across the US unite behind our core purpose of Building a Better World for All of Us®.
+
+
+**Who We Are**
+
+
+Better Places. Clean Water. Renewing Infrastructure. Improving Mobility. SEH is an employee\-owned engineering architectural planning and environmental company offering a wide variety of services. We've been helping government industrial and commercial clients find solutions to complex challenges since 1927\. Our 900\+ employee\-owners across the US unite behind our core purpose of Building a Better World for All of Us®.
+
+
+Base compensation is expected to be in the range of $82000 and $115000 based on skill set and experience. Check out our full benefits package at SEH Hiring Journey
+
+
+The selected candidate must be authorized to work for any employer in the U.S. without requiring visa sponsorship now or in the future.
+
+
+SEH is committed to providing equal employment opportunities to all employees and applicants without regard to race color religion sex sexual orientation gender identity or expression national origin disability or veteran status. We take affirmative action to ensure that all employment decisions are based on merit qualifications and abilities.
+
+
+**Notice to Third Party Agencies:** SEH does not accept unsolicited resumes from third party recruiting firms. Absent a signed Service Agreement by SEH’s Talent Director SEH reserves the right to pursue and hire these candidates without financial obligation to recruiters or agencies.
+
+
+\#LI\-GR1 \#LI\-Hybrid|~|indeed,in-3cad56dcde4a739d|~|Construction Project Manager - TikTok Creator|~|CourseCareers|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|4000.0|~|20000.0|~|2025-04-14|~|Unknown|~|GA|~|US|~|https://www.indeed.com/viewjob?jk=3cad56dcde4a739d|~|**About the Role**
+------------------
+
+
+This is a part\-time remote freelance position where anyone with previous experience working in construction can make additional income creating simple TikTok videos about their job.
+
+
+You'll be introducing new people to a career in construction and teaching them how they can land their first position as an Assistant Construction PM or Coordinator by going through our affordable online course.
+
+
+You will be given a complete guide to follow for creating content on TikTok including exact video scripts to create and 1:1 feedback on ways to improve.
+
+
+**What You'll Need**
+--------------------
+
+* Must have previous experience working in construction project management. Preferably currently working in the role.
+* Previous experience creating TikTok content is a plus but not required.
+
+**Compensation**
+----------------
+
+
+The compensation will be a mix of payment per video plus a 45% affiliate commission on all course sales. The amount of upfront payment per video is based on your experience creating TikTok content.
+
+
+Based on previous creators you can expect around $4000/month in affiliate commissions after your first month from 2\-5 hours of work per week and up to $20000/month after your first 3 months.
+
+
+In addition to making a significant income on the side you'll also be building your personal brand on social media and generating a following for yourself.
+
+**Next Steps To Apply**
+-----------------------
+
+We are choosing who we hire solely based on the sample video submitted in the application.
+
+
+* Reference this video: https://www.tiktok.com/@cutthetech/video/7423051428324838702
+* Replicate the video above as closely as possible using a similar camera angle and length of the video. Keep the text on screen similar but change it to match your own story.
+* Upload the video to TikTok and submit the link to it in the application. We will review all applicants and let you know if we'd like to move forward.
+
+PS: There may be multiple job postings for the same position but only with different titles. Please only apply to one.|~|indeed,in-49a50df6574a9ac3|~|Remote Technical Project Manager|~|Quantum Pulse Consulting|~|Not Provided|~|Not Provided|~|Not Provided|~|True|~|USD|~|86926.0|~|108037.0|~|2025-04-14|~|Detroit|~|MI|~|US|~|https://www.indeed.com/viewjob?jk=49a50df6574a9ac3|~|**About the Role:**  
+
+Quantum Pulse Consulting is seeking a proactive and charismatic Technical Project Manager based in the Philippines. This role requires a strong combination of technical fluency people skills and operational leadership. The ideal candidate is not only detail\-oriented and organized but also extroverted fun to work with and deeply committed to the team’s success. You’ll be working closely with the leadership team and managing dynamic projects across a global consulting environment.
+
+
+**Key Responsibilities:**
+
+
+* Lead end\-to\-end project execution across various technical and consulting initiatives
+* Coordinate with cross\-functional teams track progress and ensure timely delivery of milestones
+* Communicate effectively with stakeholders and team members in fast\-paced virtual environments
+* Oversee task management platforms (Coda)
+* Anticipate blockers problem\-solve and keep projects running smoothly
+* Ensure all documentation timelines and deliverables are updated and aligned with client expectations
+* Be a vibrant go\-to person for internal communication and team energy
+
+
+**Required Qualifications:**
+
+
+* Bachelor’s degree in Business Technology or related field
+* Project management certifications (e.g. PMP Scrum Master Agile) strongly preferred
+* Demonstrated experience managing digital or technical projects
+* Excellent written and verbal communication skills
+* Strong leadership and social presence in virtual team settings
+* Tech\-savvy and capable of understanding technical discussions and tools
+* Must have a portfolio or clear examples of previous project management work
+* Highly available flexible and thrives in a remote fast\-paced collaborative team
+
+
+**Preferred Attributes:**
+
+
+* Outgoing highly social personality; someone the team would genuinely love to work with
+* Low personal obligations that could conflict with working U.S. hours
+* Confident leading conversations with both technical and non\-technical teams
+* Eager to grow in a startup\-minded high\-performance environment
+
+
+**How to Apply:**
+
+
+Send your resume certifications and portfolio to:
+
+
+rasheed.ali@qpulse.tech
+
+
+CC in your email: career@qpulse.tech
+
+
+Subject Line: Project Manager – PH Based|~|indeed,in-61b46b22a27e138e|~|MARS Energy - Project Manager|~|Unknown|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|85000.0|~|95000.0|~|2025-04-15|~|Buffalo Grove|~|IL|~|US|~|https://www.indeed.com/viewjob?jk=61b46b22a27e138e|~|At **MARS Energy \- EPC** we specialize in delivering commercial\-scale solar solutions that power schools municipalities and critical infrastructure across Illinois. As a trusted Engineering Procurement and Construction (EPC) provider we are committed to clean energy and smart growth. We’re looking for a **Project Manager** to lead solar construction projects with precision professionalism and purpose\- from design through final PTO.
+
+ **Responsibilities:**
+
+* Coordinates weekly meetings with teams to communicate the status of projects and 3\-week lookaheads.
+* Leads the full project lifecycle for solar EPC projects ensuring delivery on time on budget and to scope.
+* Coordinates cross\-functional teams\- engineering procurement and field crews\- for efficient project execution.
+* Serves as the main point of contact for clients contractors utility partners and public agencies.
+* Builds and maintains detailed project schedules and budgets using tools like Smart sheets Microsoft and Procore.
+* Conducts weekly site visits to monitor construction progress perform safety inspections and milestone verification. Pre\-qualify subcontractors for inclusion on bid list.
+* Manages accuracy of accounts payable and receivable invoices as it relates to projects assigned.
+* Oversees project documentation permitting and reporting for project compliance.
+* Supports estimating teams in the preconstruction and bidding phases.
+* Facilitates project commissioning closeout and client handoff.
+* Must be in Buffalo Grove office 1\-2 days per week.
+
+**Education:**
+
+* Bachelor’s degree in Construction Management Engineering Renewable Energy or a related field preferred.
+* PMP certification or equivalent a plus.
+* NABCEP Training or equivalent a plus
+
+**Experience:**
+
+* 3–5 years of experience managing construction projects; solar or renewable energy experience strongly preferred.
+* Prior experience managing public works or government\-funded projects is a major plus.
+* Demonstrated ability to manage multiple concurrent projects and field teams.
+
+**Skills Knowledge \& Abilities:**
+
+* Excellent communication and leadership skills.
+* Strong working knowledge of construction sequencing budgeting and permitting.
+* Familiarity with solar PV systems renewable energy lifecycles and utility interconnections.
+* Proficiency in project management software and Microsoft Office Suite.
+* Organized solution\-oriented and able to manage deadlines independently.
+* Ability to operate company vehicle.
+
+**Physical Demands:**
+
+* Must be able to walk job sites climb ladders/stairs and lift up to 50 lbs.
+* Frequent travel to project sites throughout Illinois required.
+* Comfortable working outdoors in varied weather conditions.
+* Required to be in office 1\-2 days per week at our Buffalo Grove location.|~|indeed,in-ab386e23cd6d4603|~|Marketing + Communications Project Manager|~|Global Leadership Network|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|71788.0|~|87567.0|~|2025-04-14|~|Barrington|~|IL|~|US|~|https://www.indeed.com/viewjob?jk=ab386e23cd6d4603|~|**Marketing \+ Communications Project Manager**
+
+**Purpose**: As a Marketing \+ Communications Project Manager on the Global Leadership Network’s Marketing and Communications Team you’ll play a critical role in ensuring the seamless execution of marketing initiatives. You will be responsible for managing timelines workflows and budgets to keep projects on track and aligned with organizational goals. Your expertise in Monday.com will drive efficiency ensuring all deadlines are met team members are aligned and deliverables are completed with excellence. By maintaining high attention to detail tracking invoices and ensuring budget accuracy you will help advance our mission—equipping leaders around the world through The Global Leadership Summit and our year\-round content offerings.
+
+**Global Leadership Network (GLN)** is a nonprofit organization located in South Barrington Illinois. Our purpose is to introduce more people to Jesus and fully follow Him. We accomplish this by serving pastors and equipping churches in order to inspire Kingdom\-oriented leaders around the world through the Global Leadership Summit and other leadership development resources.
+
+
+The Global Leadership Summit is attended by 60000\+ leaders in 400 sites (primarily churches) throughout the United States. The Summit is translated into 50\+ languages and held in over 800 sites in 110 countries reaching over 240000 international leaders from September to April.
+
+
+
+
+**Job Status**: Regular Full\-Time Exempt
+
+**Position Team**: Marketing \& Communications
+
+**Reports to**: Vice President of Marketing \& Communications
+
+**Benefits (PT30\-FT):** Our comprehensive benefits package includes health dental and vision insurance life insurance retirement savings with company match generous paid time off mental health counseling reimbursement and more.
+
+**Hybrid Work Schedule**: This position is fully remote which includes working at home on Monday through Friday and may require being in the office for two scheduled Core Weeks each month and the option to work from home or in the office on Mondays Fridays and Tuesday through Thursdays during non\-Core Weeks.
+
+
+**Primary Responsibilities**:
+
+* Oversee the marketing and communications project workflow ensuring all campaigns content and creative deliverables meet deadlines.
+* Manage Monday.com setting up and tracking project timelines assigning tasks and optimizing processes to drive efficiency.
+* Maintain clear and proactive communication with internal team members freelancers and stakeholders to ensure project alignment.
+* Track and input all marketing\-related invoices ensuring expenses align with budget expectations and are accurately recorded.
+* Partner with designers writers and strategists to ensure marketing projects are executed on\-brand on\-time and on\-budget.
+* Assist in the development and refinement of project management best practices enhancing workflow efficiency.
+* Support cross\-functional teams ensuring marketing campaigns align with broader organizational goals and initiatives.
+* Identify and troubleshoot potential roadblocks offering solutions to keep projects moving forward.
+* Complete other related duties as assigned.
+* Actively participate in one\-on\-one meetings with manager team meetings all\-staff meetings and cross\-functional meetings as needed.
+
+**Key Deliverables:**
+
+* Implement well\-coordinated marketing and communications campaigns ensuring deliverables are completed on schedule and within scope.
+* Accurate budget tracking with invoices processed and categorized correctly.
+* A well\-maintained Monday.com system that provides clear visibility into marketing team workflows priorities and progress.
+* Improved team communication and streamlined project management processes reducing inefficiencies.
+* Support during The Global Leadership Summit ensuring marketing assets and communications align seamlessly with event needs.
+
+**Skills and Qualifications:**
+
+* Excellent written and verbal communication skills ensuring clarity across teams.
+* Ability to thrive in a fast\-paced environment managing shifting priorities with grace and efficiency.
+* Strong organizational skills with a keen attention to detail and ability to manage multiple projects simultaneously.
+
+**Education Experience and Other Requirements:**
+
+* Bachelor’s degree in marketing communications business or a related field (preferred).
+* 3\+ years of experience in project management preferably in a marketing or communications setting.
+* Expertise in Monday.com for project management (experience with automation and reporting a plus).
+* Experience with budget tracking and invoice processing.
+* Proficiency in Office 365 (Word Excel PowerPoint Teams SharePoint OneDrive etc.).
+* Experience with Active Campaign a plus.
+* A vital relationship with Jesus Christ as Lord and Savior and an active participant of a local church that holds to a historic orthodox understanding of biblical Christianity.
+
+**Organizational Values:**
+
+* **Excellence** – We bring our best into everything we do knowing that this honors God.
+* **Authenticity** – We seek to be real and honest and encourage others to do the same.
+* **Collaboration** – We set aside personal preferences to reach those who do not yet know Jesus.
+* **Humility** – We are flexible responsible and respectful of others.|~|indeed,in-61b46b22a27e138e|~|MARS Energy - Project Manager|~|Unknown|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|85000.0|~|95000.0|~|2025-04-15|~|Buffalo Grove|~|IL|~|US|~|https://www.indeed.com/viewjob?jk=61b46b22a27e138e|~|At **MARS Energy \- EPC** we specialize in delivering commercial\-scale solar solutions that power schools municipalities and critical infrastructure across Illinois. As a trusted Engineering Procurement and Construction (EPC) provider we are committed to clean energy and smart growth. We’re looking for a **Project Manager** to lead solar construction projects with precision professionalism and purpose\- from design through final PTO.
+
+ **Responsibilities:**
+
+* Coordinates weekly meetings with teams to communicate the status of projects and 3\-week lookaheads.
+* Leads the full project lifecycle for solar EPC projects ensuring delivery on time on budget and to scope.
+* Coordinates cross\-functional teams\- engineering procurement and field crews\- for efficient project execution.
+* Serves as the main point of contact for clients contractors utility partners and public agencies.
+* Builds and maintains detailed project schedules and budgets using tools like Smart sheets Microsoft and Procore.
+* Conducts weekly site visits to monitor construction progress perform safety inspections and milestone verification. Pre\-qualify subcontractors for inclusion on bid list.
+* Manages accuracy of accounts payable and receivable invoices as it relates to projects assigned.
+* Oversees project documentation permitting and reporting for project compliance.
+* Supports estimating teams in the preconstruction and bidding phases.
+* Facilitates project commissioning closeout and client handoff.
+* Must be in Buffalo Grove office 1\-2 days per week.
+
+**Education:**
+
+* Bachelor’s degree in Construction Management Engineering Renewable Energy or a related field preferred.
+* PMP certification or equivalent a plus.
+* NABCEP Training or equivalent a plus
+
+**Experience:**
+
+* 3–5 years of experience managing construction projects; solar or renewable energy experience strongly preferred.
+* Prior experience managing public works or government\-funded projects is a major plus.
+* Demonstrated ability to manage multiple concurrent projects and field teams.
+
+**Skills Knowledge \& Abilities:**
+
+* Excellent communication and leadership skills.
+* Strong working knowledge of construction sequencing budgeting and permitting.
+* Familiarity with solar PV systems renewable energy lifecycles and utility interconnections.
+* Proficiency in project management software and Microsoft Office Suite.
+* Organized solution\-oriented and able to manage deadlines independently.
+* Ability to operate company vehicle.
+
+**Physical Demands:**
+
+* Must be able to walk job sites climb ladders/stairs and lift up to 50 lbs.
+* Frequent travel to project sites throughout Illinois required.
+* Comfortable working outdoors in varied weather conditions.
+* Required to be in office 1\-2 days per week at our Buffalo Grove location.|~|indeed,in-866bb426b88363dc|~|IT Support Specialist (PT)|~|Quiktrak|~|Consulting And Business Services|~|Not Provided|~|PART_TIME|~|True|~|USD|~|29235.0|~|33150.0|~|2025-04-14|~|Beaverton|~|OR|~|US|~|https://www.indeed.com/viewjob?jk=866bb426b88363dc|~|**General Summary**:
 
   
 
-**EEO DISCLAIMER**  
-
-Butler/Till is an Equal Opportunity Employer to all employees and applicants and prohibits discrimination and harassment of any kind without regard to race color religion age sex national origin disability status genetics protected veteran status sexual orientation gender identity or expression or any other characteristic protected by federal state or local laws. This applies to all terms and conditions of employment including recruiting hiring placement promotion termination layoff recall transfer leaves of absence compensation and training.
+Manages laptops and tablets and peripherals for remote employees and field staff. Provides support for all issues relating to PC systems. This is a part\-time position that requires all work hours to be onsite.
 
   
 
-**COMPENSATION**  
 
-Butler/Till is committed to providing pay transparency of our compensation philosophy and ensuring equitable pay practices for our employee owners. The compensation range for this position is $72000\- $100000 and represents the annual salary range in Rochester NY. Base pay offered may vary depending on multiple individualized factors including location skills and experience.
+**Essential Functions**:
+
+  
+
+(The essential functions are intended only as illustrations of the various types of work that may be performed. The omission of specific statements of duties does not exclude them from the position. Duties and responsibilities are also subject to change by the employer as the needs of the employer and requirements of the job change.)
 
 
-This is just one component of Butler/Till’s total compensation package for employee owners. The total compensation package for this position may also include other elements including ESOP (employee stock ownership plan) an annual bonus in addition to a full benefits package and paid time off benefits including 100% paid parental leave. Details of participation in these benefit plans will be provided if an employee receives an offer of employment.|~|indeed
+
+* Be able to procure and ship devices (Tablets Laptops remote work kits etc.) to Field Inspectors and Employees.
+
+	+ Manage UPS account.
+
+	+ Manage Amazon Business account.
+* Be able to install remoting software to Devices for ITOps offsite/offshore so that they can connect and configure the device.
+
+
+* Be able to manage inventory in the Quiktrak office.
+
+	+ Maintain Inventory.
+
+	+ Manage data erasure for designated devices.
+
+	+ Work with external services for device destruction and recycling.
+* Be able to coordinate with Employees and generate shipping labels to receive devices/equipment. This could be for Employees leaving or repair/replacement cases.
+
+
+* Help with some of the ITOps tickets that includes basic desktop support troubleshooting installing testing and maintaining.
+
+
+
+**Nice to haves**:
+
+
+
+* Ability to automate some or all Device configuration process through script writing.|~|indeed,in-8e0332ef3363f9b6|~|IT Support - TikTok Creator|~|CourseCareers|~|Not Provided|~|Not Provided|~|FULL_TIME|~|True|~|USD|~|4000.0|~|20000.0|~|2025-04-14|~|Unknown|~|GA|~|US|~|https://www.indeed.com/viewjob?jk=8e0332ef3363f9b6|~|**About the Role**
+------------------
+
+
+This is a part\-time remote freelance position where anyone with previous experience working in IT Support can make additional income creating simple TikTok videos about their job.
+
+
+You'll be introducing new people to a career in IT and teaching them how they can land their first position in help desk by going through our affordable online course.
+
+
+You will be given a complete guide to follow for creating content on TikTok including exact video scripts to create and 1:1 feedback on ways to improve.
+
+
+**What You'll Need**
+--------------------
+
+* Must have previous experience working in IT Support. Preferably currently working in the role.
+* Previous experience creating TikTok content is a plus but not required.
+
+**Compensation**
+----------------
+
+
+The compensation will be a mix of payment per video plus a 45% affiliate commission on all course sales. The amount of upfront payment per video is based on your experience creating TikTok content.
+
+
+Based on previous creators you can expect around $4000/month in affiliate commissions after your first month from 2\-5 hours of work per week and up to $20000/month after your first 3 months.
+
+
+In addition to making a significant income on the side you'll also be building your personal brand on social media and generating a following for yourself.
+
+**Next Steps To Apply**
+-----------------------
+
+We are choosing who we hire solely based on the sample video submitted in the application.
+
+
+* Reference this video: https://www.tiktok.com/@cutthetech/video/7423051428324838702
+* Replicate the video above as closely as possible using a similar camera angle and length of the video. Keep the text on screen similar but change it to match your own story.
+* Upload the video to TikTok and submit the link to it in the application. We will review all applicants and let you know if we'd like to move forward.
+
+PS: There may be multiple job postings for the same position but only with different titles. Please only apply to one.|~|indeed
