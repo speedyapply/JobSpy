@@ -37,6 +37,9 @@ jobs:
           safe_email=$(echo "$raw_email" | sed 's/@/_at_/g; s/\./_/g')
           echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
 
+      - name: Ensure outputs folder exists
+        run: mkdir -p outputs
+
       - name: Run Job Scraper with Config
         run: |
           python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
