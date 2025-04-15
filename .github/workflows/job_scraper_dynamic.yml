@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Job Scraper with Config
         run: |
-          python scripts/job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
+          python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
 
       - name: Upload Output Artifact
         uses: actions/upload-artifact@v4
