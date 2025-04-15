@@ -16,6 +16,7 @@ sources = {
 }
 
 def sanitize_email(email):
+    """Sanitize email to use in filename."""
     return email.replace("@", "_at_").replace(".", "_")
 
 def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
@@ -35,16 +36,22 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
                 results_wanted=results_wanted,
             )
 
-            job_response = scraper.scrape(search_criteria)
+            try:
+                job_response = scraper.scrape(search_criteria)
+            except Exception as e:
+                print(f"❌ Error scraping from {source_name} with term '{search_term}': {e}")
+                continue
 
             for job in job_response.jobs:
                 location_city = job.location.city.strip() if job.location.city else "Unknown"
                 location_state = job.location.state.strip().upper() if job.location.state else "Unknown"
                 location_country = str(job.location.country) if job.location.country else "Unknown"
 
+                # Match job title to search term
                 if not any(term.lower() in job.title.lower() for term in search_terms):
                     continue
 
+                # Filter by date and location
                 if job.date_posted and (today - job.date_posted).days <= max_days_old:
                     if location_state == target_state or job.is_remote:
                         all_jobs.append({
@@ -71,6 +78,7 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     return all_jobs
 
 def save_jobs_to_csv(jobs, filename):
+    """Save job data to a CSV file with custom formatting."""
     if not jobs:
         print("⚠️ No jobs found matching criteria.")
         return
@@ -108,27 +116,32 @@ def save_jobs_to_csv(jobs, filename):
 
 # MAIN
 if __name__ == "__main__":
-    if len(sys.argv) < 6:
-        print("ℹ️ CLI arguments not provided. Falling back to config.json")
+    try:
+        if len(sys.argv) >= 6:
+            # CLI input
+            search_terms_str = sys.argv[1]
+            results_wanted = int(sys.argv[2])
+            max_days_old = int(sys.argv[3])
+            target_state = sys.argv[4]
+            user_email = sys.argv[5]
+        else:
+            # Fallback to config.json
+            print("ℹ️ CLI arguments not provided. Falling back to config.json")
+            with open("config.json", "r") as f:
+                config = json.load(f)
+            search_terms_str = ",".join(config["search_terms"])
+            results_wanted = config["results_wanted"]
+            max_days_old = config["max_days_old"]
+            target_state = config["target_state"]
+            user_email = config["user_email"]
 
-        with open("config.json", "r") as f:
-            config = json.load(f)
+        search_terms = [term.strip() for term in search_terms_str.split(",")]
+        safe_email = sanitize_email(user_email)
+        output_filename = f"jobspy_output_dynamic_{safe_email}.csv"
 
-        search_terms_str = ",".join(config["search_terms"])
-        results_wanted = config["results_wanted"]
-        max_days_old = config["max_days_old"]
-        target_state = config["target_state"]
-        user_email = config["user_email"]
-    else:
-        search_terms_str = sys.argv[1]
-        results_wanted = int(sys.argv[2])
-        max_days_old = int(sys.argv[3])
-        target_state = sys.argv[4]
-        user_email = sys.argv[5]
+        jobs = scrape_jobs(search_terms, results_wanted, max_days_old, target_state)
+        save_jobs_to_csv(jobs, output_filename)
 
-    safe_email = sanitize_email(user_email)
-    search_terms = [term.strip() for term in search_terms_str.split(",")]
-
-    job_data = scrape_jobs(search_terms, results_wanted, max_days_old, target_state)
-    filename = f"jobspy_output_dynamic_{safe_email}.csv"
-    save_jobs_to_csv(job_data, filename)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        sys.exit(1)
