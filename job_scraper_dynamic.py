@@ -16,29 +16,20 @@ sources = {
 }
 
 def sanitize_email(email):
-    """Sanitize email to create safe filenames."""
     return email.replace("@", "_at_").replace(".", "_")
 
 def load_config_file(email=None):
-    """Load config JSON from /configs directory or fallback to root config.json"""
     if email:
         safe_email = sanitize_email(email)
         config_path = os.path.join("configs", f"config_{safe_email}.json")
         if os.path.exists(config_path):
-            print(f"📂 Loading config for {email} from: {config_path}")
+            print(f"📂 Loading config for {email} → {config_path}")
             with open(config_path, "r", encoding="utf-8") as f:
                 return json.load(f), safe_email
         else:
-            print(f"⚠️ Config not found for {email}, falling back to root config.json")
-
-    if os.path.exists("config.json"):
-        print("📂 Loading default config.json from root")
-        with open("config.json", "r", encoding="utf-8") as f:
-            config = json.load(f)
-            safe_email = sanitize_email(config["user_email"])
-            return config, safe_email
+            raise FileNotFoundError(f"❌ Config for {email} not found at {config_path}")
     else:
-        raise FileNotFoundError("❌ No config.json found anywhere!")
+        raise ValueError("❌ Email must be passed as argument")
 
 def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     all_jobs = []
@@ -89,9 +80,9 @@ def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
     print(f"✅ {len(all_jobs)} jobs matched.")
     return all_jobs
 
-def save_jobs_to_csv(jobs, filename):
+def save_jobs_to_csv(jobs, output_path):
     if not jobs:
-        print("⚠️ No jobs found matching criteria.")
+        print("⚠️ No jobs found.")
         return
 
     fieldnames = [
@@ -103,20 +94,21 @@ def save_jobs_to_csv(jobs, filename):
     ]
 
     header = "|~|".join(fieldnames)
-    records = [header]
+    rows = [header]
 
     for job in jobs:
         row = []
         for field in fieldnames:
             value = str(job.get(field, "Not Provided")).replace(",", "").strip()
             row.append(value if value else "Not Provided")
-        records.append("|~|".join(row))
+        rows.append("|~|".join(row))
 
-    output = ",".join(records)
-    with open(filename, "w", encoding="utf-8") as f:
+    output = ",".join(rows)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(output)
 
-    print(f"💾 Jobs saved to: {filename} ({len(jobs)} entries)")
+    print(f"💾 Saved output to: {output_path}")
 
 # MAIN
 if __name__ == "__main__":
@@ -124,15 +116,16 @@ if __name__ == "__main__":
         user_email = sys.argv[1] if len(sys.argv) >= 2 else None
         config, safe_email = load_config_file(user_email)
 
-        search_terms = config["search_terms"]
-        results_wanted = config["results_wanted"]
-        max_days_old = config["max_days_old"]
-        target_state = config["target_state"]
+        job_data = scrape_jobs(
+            search_terms=config["search_terms"],
+            results_wanted=config["results_wanted"],
+            max_days_old=config["max_days_old"],
+            target_state=config["target_state"]
+        )
 
-        filename = f"jobspy_output_dynamic_{safe_email}.csv"
-        job_data = scrape_jobs(search_terms, results_wanted, max_days_old, target_state)
-        save_jobs_to_csv(job_data, filename)
+        output_file = f"outputs/jobspy_output_dynamic_{safe_email}.csv"
+        save_jobs_to_csv(job_data, output_file)
 
     except Exception as e:
-        print(f"❌ Fatal error: {e}")
+        print(f"❌ Fatal Error: {e}")
         sys.exit(1)
