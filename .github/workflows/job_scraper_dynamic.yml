@@ -1,44 +1,63 @@
 name: JobSpy Scraper Dynamic Workflow
 
+
 on:
   workflow_dispatch:
     inputs:
       user_email:
         description: 'Email of user'
         required: true
+        default: 'Branden@autoemployme.onmicrosoft.com'
+
 
 permissions:
   contents: read
   id-token: write
 
+
 jobs:
   scrape_jobs:
     runs-on: ubuntu-latest
 
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+
 
       - name: Set Up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Sanitize Email
-        id: vars
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      - name: Sanitize Email (Preserve Case)
+        id: sanitize
         run: |
           raw_email="${{ github.event.inputs.user_email }}"
           safe_email=$(echo "$raw_email" | sed 's/@/_at_/g; s/\./_/g')
           echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
 
-      - name: Run Job Scraper
-        env:
-          GITHUB_RUN_ID: ${{ github.run_id }}
+
+      - name: Ensure outputs folder exists
+        run: mkdir -p outputs
+
+
+      - name: Run Job Scraper with Config
         run: |
           python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
+
 
       - name: Upload Output Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.run_id }}
-          path: outputs/jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.run_id }}.csv
+          name: jobspy_output_${{ steps.sanitize.outputs.safe_email }}
+          path: outputs/jobspy_output_${{ steps.sanitize.outputs.safe_email }}.csv
+
+
