@@ -4,6 +4,7 @@ from jobspy.linkedin import LinkedIn
 from jobspy.indeed import Indeed
 from jobspy.model import ScraperInput
 
+# Define sources
 sources = {
     "google": Google,
     "linkedin": LinkedIn,
@@ -21,7 +22,10 @@ def load_config(email):
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f), safe_email
 
-def scrape_jobs(search_terms, results_wanted, max_days_old, target_state):
+def scrape_jobs(search_terms, results_wanted_str, max_days_old_str, target_state):
+    # Convert string values to integers
+    results_wanted = int(results_wanted_str.strip())
+    max_days_old = int(max_days_old_str.strip())
     today = datetime.date.today()
     all_jobs = []
 
@@ -86,7 +90,14 @@ if __name__ == "__main__":
 
         user_email, run_id = sys.argv[1], sys.argv[2]
         config, safe_email = load_config(user_email)
-        jobs = scrape_jobs(config["search_terms"], config["results_wanted"], config["max_days_old"], config["target_state"])
+
+        jobs = scrape_jobs(
+            config["search_terms"],
+            config["results_wanted"],
+            config["max_days_old"],
+            config["target_state"]
+        )
+
         save_to_csv(jobs, f"outputs/jobspy_output_{safe_email}_{run_id}.csv")
 
     except Exception as e:

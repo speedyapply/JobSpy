@@ -6,7 +6,9 @@ on:
       user_email:
         description: 'Email of user'
         required: true
-        default: 'Branden@autoemployme.onmicrosoft.com'
+      run_id:
+        description: 'Run ID from Power Automate'
+        required: true
 
 permissions:
   contents: read
@@ -25,25 +27,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Sanitize Email + Create Run ID
+      - name: Sanitize Email
         id: vars
         run: |
-          safe_email=$(echo "${{ github.event.inputs.user_email }}" | sed 's/@/_at_/g; s/\./_/g')
-          run_id=$(date +%s)
+          raw_email="${{ github.event.inputs.user_email }}"
+          safe_email=$(echo "$raw_email" | sed 's/@/_at_/g; s/\./_/g')
           echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
-          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Run Job Scraper
         run: |
-          python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}" "${{ steps.vars.outputs.run_id }}"
+          python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}" "${{ github.event.inputs.run_id }}"
 
       - name: Upload Output Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ steps.vars.outputs.run_id }}
-          path: outputs/jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ steps.vars.outputs.run_id }}.csv
+          name: jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.event.inputs.run_id }}
+          path: outputs/jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.event.inputs.run_id }}.csv
