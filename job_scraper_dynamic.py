@@ -23,7 +23,6 @@ def load_config(email):
         return json.load(f), safe_email
 
 def scrape_jobs(search_terms, results_wanted_str, max_days_old_str, target_state):
-    # Convert string values to integers
     results_wanted = int(results_wanted_str.strip())
     max_days_old = int(max_days_old_str.strip())
     today = datetime.date.today()
@@ -85,10 +84,14 @@ def save_to_csv(jobs, path):
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) != 3:
-            raise ValueError("❌ Usage: python job_scraper_dynamic.py <user_email> <run_id>")
+        if len(sys.argv) != 2:
+            raise ValueError("❌ Usage: python job_scraper_dynamic.py <user_email>")
 
-        user_email, run_id = sys.argv[1], sys.argv[2]
+        user_email = sys.argv[1]
+        run_id = os.getenv("GITHUB_RUN_ID")
+        if not run_id:
+            raise EnvironmentError("❌ GITHUB_RUN_ID is not set in the environment.")
+
         config, safe_email = load_config(user_email)
 
         jobs = scrape_jobs(

@@ -6,9 +6,6 @@ on:
       user_email:
         description: 'Email of user'
         required: true
-      run_id:
-        description: 'Run ID from Power Automate'
-        required: true
 
 permissions:
   contents: read
@@ -35,11 +32,13 @@ jobs:
           echo "safe_email=$safe_email" >> $GITHUB_OUTPUT
 
       - name: Run Job Scraper
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}" "${{ github.event.inputs.run_id }}"
+          python job_scraper_dynamic.py "${{ github.event.inputs.user_email }}"
 
       - name: Upload Output Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.event.inputs.run_id }}
-          path: outputs/jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.event.inputs.run_id }}.csv
+          name: jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.run_id }}
+          path: outputs/jobspy_output_${{ steps.vars.outputs.safe_email }}_${{ github.run_id }}.csv
