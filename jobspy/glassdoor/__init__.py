@@ -34,13 +34,13 @@ log = create_logger("Glassdoor")
 
 class Glassdoor(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
     ):
         """
         Initializes GlassdoorScraper with the Glassdoor job search url
         """
         site = Site(Site.GLASSDOOR)
-        super().__init__(site, proxies=proxies, ca_cert=ca_cert)
+        super().__init__(site, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
 
         self.base_url = None
         self.country = None
@@ -65,6 +65,8 @@ class Glassdoor(Scraper):
         )
         token = self._get_csrf_token()
         headers["gd-csrf-token"] = token if token else fallback_token
+        if self.user_agent:
+            headers["user-agent"] = self.user_agent
         self.session.headers.update(headers)
 
         location_id, location_type = self._get_location(
