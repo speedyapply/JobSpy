@@ -8,3 +8,4 @@
 *.pyc
 .env
 dist
+/data/**
