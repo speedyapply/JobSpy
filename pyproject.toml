@@ -24,7 +24,7 @@ pandas = "^2.1.0"
 NUMPY = "1.26.3"
 pydantic = "^2.3.0"
 tls-client = "^1.0.1"
-markdownify = "^0.13.1"
+markdownify = "^1.1.0"
 regex = "^2024.4.28"
 
 [tool.poetry.group.dev.dependencies]
