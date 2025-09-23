@@ -46,7 +46,7 @@ class BDJobs(Scraper):
     band_delay = 3
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
     ):
         """
         Initializes BDJobsScraper with the BDJobs job search url
