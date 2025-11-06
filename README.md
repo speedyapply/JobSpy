@@ -41,6 +41,10 @@ print(jobs.head())
 jobs.to_csv("jobs.csv", quoting=csv.QUOTE_NONNUMERIC, escapechar="\\", index=False) # to_excel
 ```
 
+``` Already created a file that can be modified for your specific needs "hunt.py" 
+
+```
+
 ### Output
 
 ```
