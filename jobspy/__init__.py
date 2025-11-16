@@ -49,6 +49,8 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    rate_delay_min: int | float | None = None,
+    rate_delay_max: int | float | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -103,7 +105,7 @@ def scrape_jobs(
 
     def scrape_site(site: Site) -> Tuple[str, JobResponse]:
         scraper_class = SCRAPER_MAPPING[site]
-        scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
+        scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent, rate_delay_min=rate_delay_min, rate_delay_max=rate_delay_max)
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         cap_name = site.value.capitalize()
         site_name = "ZipRecruiter" if cap_name == "Zip_recruiter" else cap_name

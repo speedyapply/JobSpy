@@ -32,6 +32,8 @@ jobs = scrape_jobs(
     results_wanted=20,
     hours_old=72,
     country_indeed='USA',
+    rate_delay_min=1,    # in seconds
+    rate_delay_max=2,    # in seconds
     
     # linkedin_fetch_description=True # gets more info such as description, direct job url (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
@@ -118,6 +120,12 @@ Optional
 |
 ├── ca_cert (str)
 |    path to CA Certificate file for proxies
+|
+├── rate_delay_min (int | float)
+|    (optional) minimum rate delay between network requests (must be specified together with rate_delay_max)
+|
+├── rate_delay_max (int | float)
+|    (optional) maximum rate delay between network requests (must be specified together with rate_delay_min)
 ```
 
 ```

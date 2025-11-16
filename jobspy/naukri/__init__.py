@@ -44,7 +44,7 @@ class Naukri(Scraper):
     jobs_per_page = 20  
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
     ):
         """
         Initializes NaukriScraper with the Naukri API URL
@@ -55,8 +55,10 @@ class Naukri(Scraper):
             ca_cert=ca_cert,
             is_tls=False,
             has_retry=True,
-            delay=5,
+            backoff_factor=5,
             clear_cookies=True,
+            rate_delay_min=rate_delay_min,
+            rate_delay_max=rate_delay_max,
         )
         self.session.headers.update(naukri_headers)
         self.scraper_input = None

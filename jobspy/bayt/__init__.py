@@ -25,17 +25,19 @@ class BaytScraper(Scraper):
     band_delay = 3
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
     ):
         super().__init__(Site.BAYT, proxies=proxies, ca_cert=ca_cert)
         self.scraper_input = None
         self.session = None
         self.country = "worldwide"
+        self.rate_delay_min = rate_delay_min
+        self.rate_delay_max = rate_delay_max
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True
+            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True, rate_delay_min=self.rate_delay_min, rate_delay_max=self.rate_delay_max
         )
         job_list: list[JobPost] = []
         page = 1

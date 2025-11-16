@@ -22,7 +22,7 @@ from jobspy.google.util import log, find_job_info_initial_page, find_job_info
 
 class Google(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
     ):
         """
         Initializes Google Scraper with the Goodle jobs search url
@@ -37,6 +37,8 @@ class Google(Scraper):
         self.seen_urls = set()
         self.url = "https://www.google.com/search"
         self.jobs_url = "https://www.google.com/async/callback:550"
+        self.rate_delay_min = rate_delay_min
+        self.rate_delay_max = rate_delay_max
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         """
@@ -48,7 +50,7 @@ class Google(Scraper):
         self.scraper_input.results_wanted = min(900, scraper_input.results_wanted)
 
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True
+            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True, rate_delay_min=self.rate_delay_min, rate_delay_max=self.rate_delay_max
         )
         forward_cursor, job_list = self._get_initial_cursor_and_jobs()
         if forward_cursor is None:

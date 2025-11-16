@@ -3,6 +3,9 @@ from __future__ import annotations
 import logging
 import re
 from itertools import cycle
+import random
+import threading
+import time
 
 import numpy as np
 import requests
@@ -51,29 +54,69 @@ class RotatingProxySession:
             return {"http": proxy, "https": proxy}
         return {"http": f"http://{proxy}", "https": f"http://{proxy}"}
 
+class RateLimiter:
+    """
+    A thread-safe rate limiter to enforce a delay between operations.
+
+    Args:
+        rate_delay_min (int | float | None):
+            The minimum time in seconds to wait since the last request.
+        rate_delay_max (int | float | None):
+            The maximum time in seconds to wait since the last request.
+    """
+    def __init__(self, rate_delay_min: int | float | None, rate_delay_max: int | float | None):
+        self.rate_delay_min = rate_delay_min
+        self.rate_delay_max = rate_delay_max
+        self.rate_delay_lock = threading.Lock()
+        self.last_request_time = 0.0
+
+    def enforce_delay(self):
+        """
+        Enforces a delay to meet the configured rate limit.
+
+        This method is thread-safe. It calculates the required sleep time based on
+        the time elapsed since the last request and waits if necessary.
+        """
+
+        if not isinstance(self.rate_delay_min, (int, float)) or not isinstance(self.rate_delay_max, (int, float)):
+            return
+
+        delay_seconds = random.uniform(self.rate_delay_min, self.rate_delay_max)
+        with self.rate_delay_lock:
+            time_elapsed = time.monotonic() - self.last_request_time
+            sleep_time = delay_seconds - time_elapsed
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+
+            self.last_request_time = time.monotonic()
+
+
 
 class RequestsRotating(RotatingProxySession, requests.Session):
-    def __init__(self, proxies=None, has_retry=False, delay=1, clear_cookies=False):
+    def __init__(self, proxies=None, has_retry=False, backoff_factor=1, clear_cookies=False, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
         self.clear_cookies = clear_cookies
         self.allow_redirects = True
-        self.setup_session(has_retry, delay)
+        self.setup_session(has_retry, backoff_factor)
+        self.rate_limiter = RateLimiter(rate_delay_min, rate_delay_max)
 
-    def setup_session(self, has_retry, delay):
+    def setup_session(self, has_retry, backoff_factor):
         if has_retry:
             retries = Retry(
                 total=3,
                 connect=3,
                 status=3,
                 status_forcelist=[500, 502, 503, 504, 429],
-                backoff_factor=delay,
+                backoff_factor=backoff_factor,
             )
             adapter = HTTPAdapter(max_retries=retries)
             self.mount("http://", adapter)
             self.mount("https://", adapter)
 
     def request(self, method, url, **kwargs):
+        self.rate_limiter.enforce_delay()
+
         if self.clear_cookies:
             self.cookies.clear()
 
@@ -87,11 +130,14 @@ class RequestsRotating(RotatingProxySession, requests.Session):
 
 
 class TLSRotating(RotatingProxySession, tls_client.Session):
-    def __init__(self, proxies=None):
+    def __init__(self, proxies=None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None):
         RotatingProxySession.__init__(self, proxies=proxies)
         tls_client.Session.__init__(self, random_tls_extension_order=True)
+        self.rate_limiter = RateLimiter(rate_delay_min, rate_delay_max)
 
     def execute_request(self, *args, **kwargs):
+        self.rate_limiter.enforce_delay()
+
         if self.proxy_cycle:
             next_proxy = next(self.proxy_cycle)
             if next_proxy["http"] != "http://localhost":
@@ -109,21 +155,29 @@ def create_session(
     ca_cert: str | None = None,
     is_tls: bool = True,
     has_retry: bool = False,
-    delay: int = 1,
+    backoff_factor: int = 1,
     clear_cookies: bool = False,
+    rate_delay_min: int | float | None = None,
+    rate_delay_max: int | float | None = None,
 ) -> requests.Session:
     """
     Creates a requests session with optional tls, proxy, and retry settings.
     :return: A session object
     """
     if is_tls:
-        session = TLSRotating(proxies=proxies)
+        session = TLSRotating(
+            proxies=proxies,
+            rate_delay_min=rate_delay_min,
+            rate_delay_max=rate_delay_max,
+        )
     else:
         session = RequestsRotating(
             proxies=proxies,
             has_retry=has_retry,
-            delay=delay,
+            backoff_factor=backoff_factor,
             clear_cookies=clear_cookies,
+            rate_delay_min=rate_delay_min,
+            rate_delay_max=rate_delay_max,
         )
 
     if ca_cert:

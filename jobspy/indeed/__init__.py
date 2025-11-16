@@ -28,7 +28,7 @@ log = create_logger("Indeed")
 
 class Indeed(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
     ):
         """
         Initializes IndeedScraper with the Indeed API url
@@ -36,7 +36,7 @@ class Indeed(Scraper):
         super().__init__(Site.INDEED, proxies=proxies)
 
         self.session = create_session(
-            proxies=self.proxies, ca_cert=ca_cert, is_tls=False
+            proxies=self.proxies, ca_cert=ca_cert, is_tls=False, rate_delay_min=rate_delay_min, rate_delay_max=rate_delay_max
         )
         self.scraper_input = None
         self.jobs_per_page = 100
