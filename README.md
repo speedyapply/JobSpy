@@ -258,3 +258,69 @@ Naukri specific
 ├── vacancy_count
 └── work_from_home_type
 ```
+
+---
+
+## ChatGPT & LLM Integration
+
+JobSpy is optimized for use with ChatGPT and other LLMs for automated job research and BD intelligence gathering.
+
+### Quick Start for ChatGPT
+
+```python
+from jobspy import scrape_jobs
+import json
+
+# Search and return JSON
+jobs = scrape_jobs(
+    site_name=["indeed", "linkedin"],
+    search_term="software engineer",
+    location="Remote",
+    results_wanted=10,
+    verbose=0
+)
+
+# Convert to JSON for LLM processing
+result = {"count": len(jobs), "jobs": jobs.to_dict(orient="records")}
+print(json.dumps(result, indent=2, default=str))
+```
+
+### CLI for Code Execution
+
+A CLI wrapper is provided for easier ChatGPT code execution:
+
+```bash
+# Basic search with JSON output
+python jobspy_cli.py --search "data analyst" --location "NYC" --format json
+
+# Remote jobs from last 48 hours
+python jobspy_cli.py --search "python developer" --remote --hours 48 --results 20
+
+# Multi-site search
+python jobspy_cli.py --search "project manager" --sites indeed,linkedin,glassdoor
+
+# JSON input mode
+echo '{"search_term": "DevOps", "location": "Remote"}' | python jobspy_cli.py --json-input
+```
+
+### Documentation
+
+- **[CHATGPT_GUIDE.md](CHATGPT_GUIDE.md)** - Complete ChatGPT integration guide with prompt templates
+- **[tool_manifest.json](tool_manifest.json)** - Machine-readable tool metadata for MCP servers
+- **[examples/](examples/)** - Ready-to-use example scripts:
+  - `basic_search.py` - Simple job search
+  - `json_output_example.py` - JSON output for LLMs
+  - `bd_intelligence_search.py` - BD market intelligence
+  - `federal_contractor_search.py` - Federal/cleared job searches
+
+### Use Cases for ChatGPT
+
+| Use Case | Example Prompt |
+|----------|----------------|
+| Job Search | "Find 10 Python developer jobs in NYC" |
+| Salary Research | "What's the salary range for data scientists in SF?" |
+| Company Intel | "What positions is Google hiring for?" |
+| BD Intelligence | "Which companies are hiring the most cloud engineers?" |
+| Market Trends | "Show remote job trends for DevOps roles" |
+
+For detailed ChatGPT prompt templates and examples, see [CHATGPT_GUIDE.md](CHATGPT_GUIDE.md).
