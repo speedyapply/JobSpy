@@ -34,13 +34,13 @@ log = create_logger("Glassdoor")
 
 class Glassdoor(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None, flaresolverr_url: str | None = None
     ):
         """
         Initializes GlassdoorScraper with the Glassdoor job search url
         """
         site = Site(Site.GLASSDOOR)
-        super().__init__(site, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
+        super().__init__(site, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent, flaresolverr_url=flaresolverr_url)
 
         self.rate_delay_min = rate_delay_min
         self.rate_delay_max = rate_delay_max
@@ -63,7 +63,7 @@ class Glassdoor(Scraper):
         self.base_url = self.scraper_input.country.get_glassdoor_url()
 
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, has_retry=True, rate_delay_min=self.rate_delay_min, rate_delay_max=self.rate_delay_max
+            proxies=self.proxies, ca_cert=self.ca_cert, has_retry=True, rate_delay_min=self.rate_delay_min, rate_delay_max=self.rate_delay_max, flaresolverr_url=self.flaresolverr_url
         )
         token = self._get_csrf_token()
         headers["gd-csrf-token"] = token if token else fallback_token
@@ -118,6 +118,16 @@ class Glassdoor(Scraper):
                 timeout_seconds=15,
                 data=payload,
             )
+            
+            # DEBUG: Log raw response for analysis
+            if self.scraper_input.verbose:
+                 log.info(f"DEBUG: Glassdoor response status: {response.status_code}")
+                 log.info(f"DEBUG: Glassdoor response content (first 500 chars): {response.text[:500]}...")
+                 
+                 # Save full response to a file for review
+                 with open(f"glassdoor_debug_page_{page_num}.html", "w") as f:
+                     f.write(response.text)
+
             if response.status_code != 200:
                 exc_msg = f"bad response status code: {response.status_code}"
                 raise GlassdoorException(exc_msg)
@@ -260,7 +270,8 @@ class Glassdoor(Scraper):
     def _get_location(self, location: str, is_remote: bool) -> (int, str):
         if not location or is_remote:
             return "11047", "STATE"  # remote options
-        url = f"{self.base_url}/findPopularLocationAjax.htm?maxLocationsToReturn=10&term={location}"
+        from urllib.parse import quote
+        url = f"{self.base_url}/findPopularLocationAjax.htm?maxLocationsToReturn=10&term={quote(location)}"
         res = self.session.get(url)
         if res.status_code != 200:
             if res.status_code == 429:
@@ -270,7 +281,10 @@ class Glassdoor(Scraper):
             else:
                 err = f"Glassdoor response status code {res.status_code}"
                 err += f" - {res.text}"
-                log.error(f"Glassdoor response status code {res.status_code}")
+                log.error(err)
+                # DEBUG: dump to file
+                with open("glassdoor_location_error.html", "w") as f:
+                    f.write(res.text)
                 return None, None
         items = res.json()
 

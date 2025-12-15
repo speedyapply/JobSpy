@@ -38,15 +38,17 @@ class ZipRecruiter(Scraper):
     api_url = "https://api.ziprecruiter.com"
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None
+        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None, flaresolverr_url: str | None = None
     ):
         """
         Initializes ZipRecruiterScraper with the ZipRecruiter job search url
         """
-        super().__init__(Site.ZIP_RECRUITER, proxies=proxies)
+        super().__init__(Site.ZIP_RECRUITER, proxies=proxies, flaresolverr_url=flaresolverr_url)
 
         self.scraper_input = None
-        self.session = create_session(proxies=proxies, ca_cert=ca_cert, rate_delay_min=rate_delay_min, rate_delay_max=rate_delay_max)
+        self.session = create_session(
+            proxies=self.proxies, ca_cert=self.ca_cert, has_retry=True, rate_delay_min=rate_delay_min, rate_delay_max=rate_delay_max, flaresolverr_url=self.flaresolverr_url
+        )
         self.session.headers.update(headers)
         self._get_cookies()
 
@@ -114,6 +116,12 @@ class ZipRecruiter(Scraper):
 
         res_data = res.json()
         jobs_list = res_data.get("jobs", [])
+        if not jobs_list:
+             log.warning("ZipRecruiter: No jobs found in response.")
+             # DEBUG: dump to file
+             with open("ziprecruiter_debug.json", "w") as f:
+                 f.write(json.dumps(res_data, indent=2))
+        
         next_continue_token = res_data.get("continue", None)
         with ThreadPoolExecutor(max_workers=self.jobs_per_page) as executor:
             job_results = [executor.submit(self._process_job, job) for job in jobs_list]
@@ -125,29 +133,37 @@ class ZipRecruiter(Scraper):
         """
         Processes an individual job dict from the response
         """
-        title = job.get("name")
-        job_url = f"{self.base_url}/jobs//j?lvk={job['listing_key']}"
-        if job_url in self.seen_urls:
-            return
-        self.seen_urls.add(job_url)
+        try:
+            # log.info(f"Processing job: {job.get('name')}")
+            title = job.get("name")
+            job_url = f"{self.base_url}/jobs//j?lvk={job['listing_key']}"
+            if job_url in self.seen_urls:
+                 # log.info(f"Duplicate job: {job_url}")
+                 return
+            self.seen_urls.add(job_url)
 
-        description = job.get("job_description", "").strip()
-        listing_type = job.get("buyer_type", "")
-        description = (
-            markdown_converter(description)
-            if self.scraper_input.description_format == DescriptionFormat.MARKDOWN
-            else description
-        )
-        company = job.get("hiring_company", {}).get("name")
-        country_value = "usa" if job.get("job_country") == "US" else "canada"
-        country_enum = Country.from_string(country_value)
+            description = job.get("job_description", "").strip()
+            listing_type = job.get("buyer_type", "")
+            description = (
+                markdown_converter(description)
+                if self.scraper_input.description_format == DescriptionFormat.MARKDOWN
+                else description
+            )
+            company = job.get("hiring_company", {}).get("name")
+            country_value = "usa" if job.get("job_country") == "US" else "canada"
+            country_enum = Country.from_string(country_value)
 
-        location = Location(
-            city=job.get("job_city"), state=job.get("job_state"), country=country_enum
-        )
-        job_type = get_job_type_enum(
-            job.get("employment_type", "").replace("_", "").lower()
-        )
+            location = Location(
+                city=job.get("job_city"), state=job.get("job_state"), country=country_enum
+            )
+            job_type = get_job_type_enum(
+                job.get("employment_type", "").replace("_", "").lower()
+            )
+            
+            # log.info(f"Job processed: {title}")
+        except Exception as e:
+            log.error(f"Error processing job: {e}")
+            return None
         date_posted = datetime.fromisoformat(job["posted_time"].rstrip("Z")).date()
         comp_interval = job.get("compensation_interval")
         comp_interval = "yearly" if comp_interval == "annual" else comp_interval

@@ -51,6 +51,7 @@ def scrape_jobs(
     user_agent: str = None,
     rate_delay_min: int | float | None = None,
     rate_delay_max: int | float | None = None,
+    flaresolverr_url: str | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -195,6 +196,7 @@ def scrape_jobs(
             user_agent=user_agent,
             rate_delay_min=rate_delay_min,
             rate_delay_max=rate_delay_max,
+            flaresolverr_url=flaresolverr_url,
         )
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         cap_name = site.value.capitalize()

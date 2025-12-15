@@ -98,6 +98,9 @@ Output Formats:
     parser.add_argument("--json-input", action="store_true",
                        help="Read search parameters from JSON on stdin")
 
+    # Flaresolverr integration
+    parser.add_argument("--flaresolverr-url", type=str, help="URL for Flaresolverr instance (e.g., http://localhost:8191)")
+
     # Utility commands
     parser.add_argument("--list-sites", action="store_true", help="List all supported job sites")
     parser.add_argument("--list-countries", action="store_true", help="List supported countries")
@@ -189,6 +192,7 @@ def run_search(params: dict) -> str:
             proxies=proxies,
             linkedin_fetch_description=params.get("linkedin_descriptions", False) or params.get("linkedin_fetch_description", False),
             linkedin_company_ids=company_ids,
+            flaresolverr_url=params.get("flaresolverr_url"),
             verbose=params.get("verbose", 0),
         )
 
@@ -291,6 +295,7 @@ def main():
             "linkedin_company_ids": args.linkedin_company_ids,
             "google_search_term": args.google_search_term,
             "proxies": args.proxies,
+            "flaresolverr_url": args.flaresolverr_url,
             "verbose": args.verbose,
             "format": args.format,
             "fields": args.fields,

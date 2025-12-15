@@ -118,12 +118,12 @@ class RateLimiter:
 
 
 class RequestsRotating(RotatingProxySession, requests.Session):
-    def __init__(self, proxies=None, has_retry=False, delay=1, clear_cookies=False, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None):
+    def __init__(self, proxies=None, has_retry=False, delay=1, clear_cookies=False, flaresolverr_url=None):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
         self.clear_cookies = clear_cookies
+        self.flaresolverr_url = flaresolverr_url
         self.allow_redirects = True
-        self.rate_limiter = RateLimiter(rate_delay_min, rate_delay_max)
         self.setup_session(has_retry, delay)
 
     def setup_session(self, has_retry, delay):
@@ -140,92 +140,243 @@ class RequestsRotating(RotatingProxySession, requests.Session):
             self.mount("https://", adapter)
 
     def request(self, method, url, **kwargs):
-        self.rate_limiter.enforce_delay()
         if self.clear_cookies:
             self.cookies.clear()
+        
+        # Rate Limiting Logic
+        if hasattr(self, 'rate_limiter'):
+             self.rate_limiter.enforce_delay()
 
+        # Standard Request Logic
+        # Apply proxy cycling logic
         if self.proxy_cycle:
             next_proxy = next(self.proxy_cycle)
             if next_proxy["http"] != "http://localhost":
                 self.proxies = next_proxy
             else:
                 self.proxies = {}
-        response = requests.Session.request(self, method, url, **kwargs)
         
-        # Smart Rate Limiting: Trigger backoff on 429 (Too Many Requests) or 403 (Forbidden)
-        if response.status_code in [429, 403]:
+        try:
+             response = requests.Session.request(self, method, url, **kwargs)
+        except Exception as e:
+             raise e
+
+        # Check for Cloudflare errors and retry with Flaresolverr if available
+        if self.flaresolverr_url and self._is_cloudflare_blocked(response):
+            create_logger("Requests").info(f"Cloudflare block detected (status {response.status_code}). Retrying with Flaresolverr...")
+            fr_resp = flaresolverr_request(self.flaresolverr_url, method, url, **kwargs)
+            if fr_resp and fr_resp.ok:
+                # Inject cookies from Flaresolverr into our session for future requests
+                if hasattr(fr_resp, 'flaresolverr_cookies'):
+                    for cookie in fr_resp.flaresolverr_cookies:
+                        self.cookies.set(
+                            cookie.get('name', ''),
+                            cookie.get('value', ''),
+                            domain=cookie.get('domain', ''),
+                            path=cookie.get('path', '/')
+                        )
+                    create_logger("Requests").info(f"Injected {len(fr_resp.flaresolverr_cookies)} cookies from Flaresolverr")
+                return fr_resp
+            # If Flaresolverr also failed, fall through to return original response
+
+        if hasattr(self, 'rate_limiter') and response.status_code in [429, 403]:
             # Default to 30s backoff, or longer if retry-after header is present
-            retry_after = int(response.headers.get("Retry-After", 30))
+            retry_after_header = response.headers.get("Retry-After")
+            retry_after = int(retry_after_header) if retry_after_header and retry_after_header.isdigit() else 30
             if retry_after > 60:
                 retry_after = 60 # Cap at 60s to avoid hanging too long
                 
             create_logger("Requests").warning(f"Received {response.status_code}. Backing off for {retry_after}s")
             self.rate_limiter.backoff(seconds=retry_after)
-            
+             
         return response
+    
+    def _is_cloudflare_blocked(self, response):
+        """Detect if response is a Cloudflare challenge/block"""
+        if response.status_code not in [403, 503]:
+            return False
+        
+        # Check response headers for Cloudflare indicators
+        headers = {k.lower(): v.lower() for k, v in response.headers.items()} if hasattr(response, 'headers') else {}
+        if headers.get('server', '') == 'cloudflare' or 'cf-ray' in headers:
+            return True
+        
+        # Check response content for Cloudflare indicators
+        content = response.text.lower() if hasattr(response, 'text') else ''
+        cf_indicators = [
+            'cloudflare',
+            'cf-ray',
+            'cf_chl_opt',
+            'just a moment',
+            'checking your browser',
+            'ddos-guard',
+            'cf-waf'
+        ]
+        return any(indicator in content for indicator in cf_indicators)
 
 
 class TLSRotating(RotatingProxySession, tls_client.Session):
-    def __init__(self, proxies=None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None):
+    def __init__(self, proxies=None, rate_delay_min: int | float | None = None, rate_delay_max: int | float | None = None, flaresolverr_url=None):
         RotatingProxySession.__init__(self, proxies=proxies)
         tls_client.Session.__init__(self, random_tls_extension_order=True)
         self.rate_limiter = RateLimiter(rate_delay_min, rate_delay_max)
+        self.flaresolverr_url = flaresolverr_url
 
     def execute_request(self, *args, **kwargs):
         self.rate_limiter.enforce_delay()
+        
         if self.proxy_cycle:
             next_proxy = next(self.proxy_cycle)
             if next_proxy["http"] != "http://localhost":
                 self.proxies = next_proxy
             else:
                 self.proxies = {}
+        
+        # Try normal request first
         response = tls_client.Session.execute_request(self, *args, **kwargs)
+        response.ok = response.status_code in range(200, 400)
+        
+        # Check for Cloudflare errors and retry with Flaresolverr if available
+        if self.flaresolverr_url and self._is_cloudflare_blocked(response):
+            create_logger("TLS").info(f"Cloudflare block detected (status {response.status_code}). Retrying with Flaresolverr...")
+            
+            # Parse method and url from args/kwargs
+            method = kwargs.get("method") or (args[0] if len(args) > 0 else "GET")
+            url = kwargs.get("url") or (args[1] if len(args) > 1 else None)
+            
+            # Prepare kwargs for Flaresolverr (remove method/url to avoid duplication)
+            kwargs_for_fr = kwargs.copy()
+            kwargs_for_fr.pop("method", None)
+            kwargs_for_fr.pop("url", None)
+            
+            fr_resp = flaresolverr_request(self.flaresolverr_url, method, url, **kwargs_for_fr)
+            if fr_resp and fr_resp.ok:
+                # Inject cookies from Flaresolverr into our session for future requests
+                if hasattr(fr_resp, 'flaresolverr_cookies'):
+                    for cookie in fr_resp.flaresolverr_cookies:
+                        self.cookies.set(
+                            cookie.get('name', ''),
+                            cookie.get('value', ''),
+                            domain=cookie.get('domain', ''),
+                            path=cookie.get('path', '/')
+                        )
+                    create_logger("TLS").info(f"Injected {len(fr_resp.flaresolverr_cookies)} cookies from Flaresolverr")
+                return fr_resp
+            # If Flaresolverr also failed, fall through to return original response
         
         # Smart Rate Limiting: Trigger backoff on 429 (Too Many Requests) or 403 (Forbidden)
         if response.status_code in [429, 403]:
-             # Default to 30s backoff for TLS (Glassdoor often gives 403)
             create_logger("TLS").warning(f"Received {response.status_code}. Backing off for 30s")
             self.rate_limiter.backoff(seconds=30)
             
-        response.ok = response.status_code in range(200, 400)
         return response
+    
+    def _is_cloudflare_blocked(self, response):
+        """Detect if response is a Cloudflare challenge/block"""
+        if response.status_code not in [403, 503]:
+            return False
+        
+        # Check response headers for Cloudflare indicators
+        headers = {k.lower(): v.lower() for k, v in response.headers.items()} if hasattr(response, 'headers') else {}
+        if headers.get('server', '') == 'cloudflare' or 'cf-ray' in headers:
+            return True
+        
+        # Check response content for Cloudflare indicators
+        content = response.text.lower() if hasattr(response, 'text') else ''
+        cf_indicators = [
+            'cloudflare',
+            'cf-ray',
+            'cf_chl_opt',
+            'just a moment',
+            'checking your browser',
+            'ddos-guard',
+            'cf-waf'
+        ]
+        return any(indicator in content for indicator in cf_indicators)
 
 
-def create_session(
-    *,
-    proxies: dict | str | None = None,
-    ca_cert: str | None = None,
-    is_tls: bool = True,
-    has_retry: bool = False,
-    delay: int = 1,
-    clear_cookies: bool = False,
-    rate_delay_min: int | float | None = None,
-    rate_delay_max: int | float | None = None,
-) -> requests.Session:
+def create_session(proxies, ca_cert=None, is_tls=True, has_retry=False, delay=1, rate_delay_min=None, rate_delay_max=None, flaresolverr_url=None):
     """
-    Creates a requests session with optional tls, proxy, and retry settings.
-    :return: A session object
+    Creates a rotating session with the provided proxies.
+    If is_tls is True, creates a TLSRotating session.
+    If is_tls is False, creates a RequestsRotating session.
     """
     if is_tls:
-        session = TLSRotating(
-            proxies=proxies,
-            rate_delay_min=rate_delay_min,
-            rate_delay_max=rate_delay_max,
-        )
+        session = TLSRotating(proxies=proxies, flaresolverr_url=flaresolverr_url)
     else:
-        session = RequestsRotating(
-            proxies=proxies,
-            has_retry=has_retry,
-            delay=delay,
-            clear_cookies=clear_cookies,
-            rate_delay_min=rate_delay_min,
-            rate_delay_max=rate_delay_max,
-        )
+        session = RequestsRotating(proxies=proxies, has_retry=has_retry, delay=delay, clear_cookies=False, flaresolverr_url=flaresolverr_url)
 
     if ca_cert:
         session.verify = ca_cert
+    
+    # Initialize RateLimiter if parameters are provided
+    if rate_delay_min is not None and rate_delay_max is not None:
+         session.rate_limiter = RateLimiter(rate_delay_min, rate_delay_max)
 
     return session
+
+def flaresolverr_request(flaresolverr_url, method, url, **kwargs):
+    """
+    Helper to execute requests via Flaresolverr.
+    Returns a requests.Response object if successful, or None to fall back.
+    """
+    # print(f"DEBUG: Flaresolverr request to {flaresolverr_url} for {url}")
+    method_upper = method.upper()
+    if method_upper not in ["GET", "POST"]:
+        return None
+
+    # Flaresolverr supports GET and POST via its v1/request command
+    payload = {
+        "cmd": f"request.{method_upper.lower()}",
+        "url": url,
+        "maxTimeout": 60000,
+    }
+    
+    # Handle POST data
+    if method_upper == "POST":
+        if kwargs.get("data"):
+            if isinstance(kwargs["data"], dict):
+                from urllib.parse import urlencode
+                payload["postData"] = urlencode(kwargs["data"])
+            else:
+                payload["postData"] = str(kwargs["data"])
+        elif kwargs.get("json"):
+            import json
+            payload["postData"] = json.dumps(kwargs["json"])
+            # Start with correct header for JSON
+            headers = kwargs.get("headers", {})
+            if "Content-Type" not in headers:
+                 headers["Content-Type"] = "application/json"
+                 # NOTE: We don't update kwargs["headers"] here because we don't pass it to flaresolverr
+                 # We only set it for the instruction to Flaresolverr if needed, but Flaresolverr v1 doesn't take headers param easily
+                 # except via implicit browser behavior.
+
+    try:
+        # Flaresolverr API endpoint is at /v1
+        endpoint = flaresolverr_url.rstrip('/') + '/v1'
+        fr_resp = requests.post(endpoint, json=payload, headers={"Content-Type": "application/json"})
+        fr_resp.raise_for_status()
+        fr_data = fr_resp.json()
+        
+        if fr_data.get("status") == "ok":
+            solution = fr_data.get("solution", {})
+            # Reconstruct a requests.Response object
+            resp = requests.Response()
+            resp.status_code = solution.get("status", 200)
+            resp._content = solution.get("response", "").encode('utf-8')
+            resp.url = solution.get("url", url)
+            
+            # Attach Flaresolverr metadata for session injection
+            resp.flaresolverr_cookies = solution.get("cookies", [])
+            resp.flaresolverr_user_agent = solution.get("userAgent", "")
+            
+            return resp
+        else:
+            create_logger("Flaresolverr").warning(f"Flaresolverr returned status '{fr_data.get('status')}': {fr_data.get('message', '')}. Falling back.")
+    except Exception as e:
+        create_logger("Flaresolverr").error(f"Flaresolverr request failed: {e}. Falling back.")
+    
+    return None
 
 
 def set_logger_level(verbose: int):
