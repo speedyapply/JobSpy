@@ -49,12 +49,98 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    rate_delay_min: int | float | None = None,
+    rate_delay_max: int | float | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
-    Scrapes job data from job boards concurrently
-    :return: Pandas DataFrame containing job data
+    Scrape job postings from multiple job boards concurrently.
+
+    This is the main entry point for JobSpy. It searches specified job boards
+    in parallel and returns aggregated results as a pandas DataFrame.
+
+    Args:
+        site_name: Job board(s) to search. Options: "linkedin", "indeed",
+            "zip_recruiter", "glassdoor", "google", "bayt", "naukri".
+            Can be a single string, list of strings, or Site enum(s).
+            Default: all supported sites.
+
+        search_term: Job title, keywords, or skills to search for.
+            Supports Boolean operators for Indeed (AND, OR, -, "exact match").
+            Example: '"software engineer" python -junior'
+
+        google_search_term: Custom search term specifically for Google Jobs.
+            Use exact syntax from Google Jobs search box for best results.
+
+        location: Geographic location (city, state/province, country) or "Remote".
+            Examples: "San Francisco, CA", "New York, NY", "Remote", "London, UK"
+
+        distance: Search radius in miles from location. Default: 50.
+
+        is_remote: If True, filter for remote jobs only. Default: False.
+
+        job_type: Filter by employment type. Options: "fulltime", "parttime",
+            "internship", "contract". Default: None (all types).
+
+        easy_apply: Filter for easy apply jobs (site-hosted applications).
+            Note: LinkedIn easy apply filter may not work reliably.
+
+        results_wanted: Number of job results to retrieve per site. Default: 15.
+            Max ~1000 per search due to job board limitations.
+
+        country_indeed: Country code for Indeed/Glassdoor searches.
+            Default: "usa". See README for full list of supported countries.
+
+        proxies: List of proxy servers for avoiding rate limits.
+            Format: ["user:pass@host:port", "host:port", "localhost"].
+            Recommended for LinkedIn scraping.
+
+        ca_cert: Path to CA certificate file for proxy SSL verification.
+
+        description_format: Format for job descriptions. Options: "markdown", "html".
+            Default: "markdown".
+
+        linkedin_fetch_description: If True, fetch full descriptions for LinkedIn
+            jobs. Slower but provides more detail. Default: False.
+
+        linkedin_company_ids: List of LinkedIn company IDs to search.
+            Useful for targeting specific companies on LinkedIn.
+
+        offset: Start search from this result number. Default: 0.
+            Useful for pagination through large result sets.
+
+        hours_old: Filter jobs posted within the last N hours.
+            Examples: 24 (last day), 72 (last 3 days), 168 (last week).
+
+        enforce_annual_salary: If True, convert all salaries to annual.
+            Default: False.
+
+        verbose: Logging verbosity. 0=errors only, 1=warnings, 2=all. Default: 0.
+
+    Returns:
+        pd.DataFrame: DataFrame containing job postings with columns:
+            - site: Source job board
+            - title: Job title
+            - company: Company name
+            - location: Job location
+            - job_type: Employment type (fulltime, parttime, etc.)
+            - min_amount, max_amount: Salary range
+            - interval: Salary period (yearly, hourly, etc.)
+            - currency: Salary currency
+            - date_posted: When job was posted
+            - job_url: URL to job posting
+            - description: Job description (markdown format)
+            - is_remote: Whether job is remote
+            - company_url: Company website
+            - And additional site-specific fields
+
+    Example:
+        >>> from jobspy import scrape_jobs
+        >>> import json
+        >>>
+        >>> # Basic search
     """
+
     SCRAPER_MAPPING = {
         Site.LINKEDIN: LinkedIn,
         Site.INDEED: Indeed,
@@ -103,7 +189,13 @@ def scrape_jobs(
 
     def scrape_site(site: Site) -> Tuple[str, JobResponse]:
         scraper_class = SCRAPER_MAPPING[site]
-        scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
+        scraper = scraper_class(
+            proxies=proxies, 
+            ca_cert=ca_cert, 
+            user_agent=user_agent,
+            rate_delay_min=rate_delay_min,
+            rate_delay_max=rate_delay_max,
+        )
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         cap_name = site.value.capitalize()
         site_name = "ZipRecruiter" if cap_name == "Zip_recruiter" else cap_name
