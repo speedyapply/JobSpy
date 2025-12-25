@@ -11,14 +11,14 @@ from jobspy.model import Compensation, CompensationInterval
 
 
 def find_job_cards(soup: BeautifulSoup) -> List[Tag]:
-    cards = soup.find_all("div", attrs={"internshipid": True})
-    if cards:
-        return cards
-
-    return soup.find_all(
+    cards = soup.find_all(
         "div",
         class_=lambda c: c and "individual_internship" in c,
     )
+    if cards:
+        return cards
+
+    return soup.find_all("div", attrs={"internshipid": True})
 
 
 def parse_location(card: Tag) -> tuple[str | None, bool]:

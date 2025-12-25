@@ -50,6 +50,7 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    internshala_search_term: str | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -90,6 +91,7 @@ def scrape_jobs(
         country=country_enum,
         search_term=search_term,
         google_search_term=google_search_term,
+        internshala_search_term=internshala_search_term,
         location=location,
         distance=distance,
         is_remote=is_remote,

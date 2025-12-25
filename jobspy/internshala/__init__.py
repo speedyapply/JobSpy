@@ -4,13 +4,13 @@ import random
 import time
 from datetime import datetime, timedelta, date
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from jobspy.exception import InternshalaException
-from jobspy.internshala.constant import headers, CATEGORY_PATHS
+from jobspy.internshala.constant import headers
 from jobspy.internshala.util import (
     find_job_cards,
     parse_location,
@@ -65,19 +65,32 @@ class Internshala(Scraper):
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
+        self.country = Country.INDIA
         job_list: list[JobPost] = []
         seen_urls: set[str] = set()
 
-        hours_limit = 24
-        if scraper_input.hours_old is not None:
-            hours_limit = min(hours_limit, scraper_input.hours_old)
+        hours_limit = scraper_input.hours_old
         posted_cutoff: Optional[datetime] = None
         if hours_limit is not None:
             posted_cutoff = datetime.utcnow() - timedelta(hours=hours_limit)
 
         results_wanted = scraper_input.results_wanted or 15
 
-        for path in CATEGORY_PATHS:
+        query = (scraper_input.internshala_search_term or scraper_input.search_term or "").strip()
+        paths: list[tuple[str, str]]
+        if query:
+            encoded_query = quote(query.lower(), safe="")
+            paths = [
+                ("internship", f"/internships/keywords-{encoded_query}/"),
+                ("job", f"/jobs/keywords-{encoded_query}/"),
+            ]
+        else:
+            paths = [
+                ("internship", "/internships/"),
+                ("job", "/jobs/"),
+            ]
+
+        for kind, path in paths:
             if len(job_list) >= results_wanted:
                 break
 
@@ -109,8 +122,14 @@ class Internshala(Scraper):
 
                 page_added = 0
                 for card in cards:
+                    employment_type = (card.get("employment_type") or "").strip().lower()
+                    if kind == "job" and employment_type and employment_type != "job":
+                        continue
+                    if kind == "internship" and employment_type and employment_type != "internship":
+                        continue
+
                     try:
-                        job_post = self._process_card(card, posted_cutoff)
+                        job_post = self._process_card(card, posted_cutoff, kind)
                     except InternshalaException as e:
                         log.error(f"Internshala error while processing card: {e}")
                         continue
@@ -139,9 +158,9 @@ class Internshala(Scraper):
 
         return JobResponse(jobs=job_list[:results_wanted])
 
-    def _process_card(self, card: Tag, posted_cutoff: Optional[datetime]) -> Optional[JobPost]:
-        
-        link = card.find("a", href=lambda h: h and "/internship/detail/" in h)
+    def _process_card(self, card: Tag, posted_cutoff: Optional[datetime], kind: str) -> Optional[JobPost]:
+
+        link = card.find("a", href=lambda h: h and ("/internship/detail/" in h or "/job/detail/" in h))
         if not link:
             return None
 
@@ -221,6 +240,13 @@ class Internshala(Scraper):
 
         location_obj = Location(city=location_text, country=self.country) if location_text else Location(country=self.country)
 
+        if kind == "job":
+            job_types = [JobType.FULL_TIME]
+            listing_type = "job"
+        else:
+            job_types = [JobType.INTERNSHIP]
+            listing_type = "internship"
+
         job_post = JobPost(
             id=f"internshala-{hash(job_url)}",
             title=title,
@@ -228,12 +254,12 @@ class Internshala(Scraper):
             job_url=job_url,
             location=location_obj,
             description=description,
-            job_type=[JobType.INTERNSHIP],
+            job_type=job_types,
             compensation=stipend_comp,
             date_posted=date_posted,
             emails=emails,
             is_remote=is_remote,
-            listing_type="internship",
+            listing_type=listing_type,
         )
         return job_post
 
