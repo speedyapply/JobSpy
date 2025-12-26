@@ -4,7 +4,7 @@
 
 ## Features
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, & other job boards concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, **Internshala**, & other job boards concurrently
 - Aggregates the job postings in a dataframe
 - Proxies support to bypass blocking
 
@@ -25,8 +25,9 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "google", "internshala"], # "glassdoor", "bayt", "naukri", "bdjobs"
     search_term="software engineer",
+    internshala_search_term="software engineer",
     google_search_term="software engineer jobs near San Francisco, CA since yesterday",
     location="San Francisco, CA",
     results_wanted=20,
@@ -59,13 +60,18 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, internshala
 |    (default is all)
 │
 ├── search_term (str)
 |
 ├── google_search_term (str)
 |     search term for google jobs. This is the only param for filtering google jobs.
+│
+├── internshala_search_term (str)
+|     optional query string used only for Internshala.
+|     Builds both /internships/keywords-<query>/ and /jobs/keywords-<query>/ URLs.
+|     Falls back to search_term if omitted.
 │
 ├── location (str)
 │
@@ -173,6 +179,11 @@ You can specify the following countries when searching on Indeed (use the exact 
 
 Bayt only uses the search_term parameter currently and searches internationally
 
+### **Internshala**
+
+Internshala searches internships and jobs listed on Internshala.com and is primarily focused on roles in India.
+It currently ignores the `location` filter and instead uses the location reported in each posting card (typically an Indian city).
+
 
 
 ## Notes
@@ -227,6 +238,7 @@ JobPost
 ├── is_remote
 ├── description
 ├── job_type: fulltime, parttime, internship, contract
+├── listing_type: site-specific category (e.g. job, internship)
 ├── job_function
 │   ├── interval: yearly, monthly, weekly, daily, hourly
 │   ├── min_amount
