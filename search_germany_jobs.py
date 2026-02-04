@@ -128,8 +128,19 @@ def search_germany_it_jobs():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = f"germany_it_jobs_{timestamp}.csv"
         
-        # Save to CSV
-        combined_jobs.to_csv(
+        # Define columns to include in CSV output (ensure title is included)
+        csv_columns = [
+            'title', 'company', 'location', 'job_type', 'site', 
+            'date_posted', 'job_url', 'job_url_direct', 'description',
+            'is_remote', 'salary_source', 'interval', 'min_amount', 
+            'max_amount', 'currency', 'company_industry', 'company_url',
+            'job_level', 'job_function'
+        ]
+        # Filter to only columns that exist in the dataframe
+        columns_to_save = [col for col in csv_columns if col in combined_jobs.columns]
+        
+        # Save to CSV with selected columns
+        combined_jobs[columns_to_save].to_csv(
             output_file, 
             quoting=csv.QUOTE_NONNUMERIC, 
             escapechar="\\", 
@@ -138,6 +149,7 @@ def search_germany_it_jobs():
         
         print(f"Total jobs found: {len(combined_jobs)}")
         print(f"Results saved to: {output_file}")
+        print(f"Columns saved: {', '.join(columns_to_save)}")
         print()
         print("Sample of results (first 5 jobs):")
         print("-" * 80)
