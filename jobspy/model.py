@@ -293,7 +293,7 @@ class Site(Enum):
     BAYT = "bayt"
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"  # Add this line
-
+    INTERNSHALA = "internshala"
 
 class SalarySource(Enum):
     DIRECT_DATA = "direct_data"
@@ -304,6 +304,7 @@ class ScraperInput(BaseModel):
     site_type: list[Site]
     search_term: str | None = None
     google_search_term: str | None = None
+    internshala_search_term: str | None = None
 
     location: str | None = None
     country: Country | None = Country.USA

@@ -12,6 +12,7 @@ from jobspy.google import Google
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
+from jobspy.internshala import Internshala
 from jobspy.model import JobType, Location, JobResponse, Country
 from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
@@ -49,6 +50,7 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    internshala_search_term: str | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -64,6 +66,7 @@ def scrape_jobs(
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.INTERNSHALA: Internshala,    
     }
     set_logger_level(verbose)
     job_type = get_enum_from_value(job_type) if job_type else None
@@ -88,6 +91,7 @@ def scrape_jobs(
         country=country_enum,
         search_term=search_term,
         google_search_term=google_search_term,
+        internshala_search_term=internshala_search_term,
         location=location,
         distance=distance,
         is_remote=is_remote,
