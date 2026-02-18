@@ -209,6 +209,10 @@ class LinkedIn(Scraper):
             if metadata_card
             else None
         )
+        if not datetime_tag and metadata_card:
+            datetime_tag = metadata_card.find(
+                "time", class_="job-search-card__listdate--new"
+            )
         date_posted = None
         if datetime_tag and "datetime" in datetime_tag.attrs:
             datetime_str = datetime_tag["datetime"]
