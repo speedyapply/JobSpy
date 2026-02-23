@@ -16,9 +16,10 @@ from jobspy.linkedin.constant import headers
 from jobspy.linkedin.util import (
     is_job_remote,
     job_type_code,
+    parse_job_datetime,
     parse_job_type,
     parse_job_level,
-    parse_company_industry
+    parse_company_industry,
 )
 from jobspy.model import (
     JobPost,
@@ -51,7 +52,10 @@ class LinkedIn(Scraper):
     jobs_per_page = 25
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes LinkedInScraper with the LinkedIn job search url
@@ -213,13 +217,15 @@ class LinkedIn(Scraper):
             datetime_tag = metadata_card.find(
                 "time", class_="job-search-card__listdate--new"
             )
+
         date_posted = None
-        if datetime_tag and "datetime" in datetime_tag.attrs:
-            datetime_str = datetime_tag["datetime"]
-            try:
-                date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
-            except:
-                date_posted = None
+        time_posted = None
+        if datetime_tag:
+            datetime_posted = parse_job_datetime(datetime_tag)
+            if datetime_posted:
+                date_posted = datetime_posted.date()
+                time_posted = datetime_posted.time()
+
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
@@ -234,6 +240,7 @@ class LinkedIn(Scraper):
             location=location,
             is_remote=is_remote,
             date_posted=date_posted,
+            time_posted=time_posted,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
             compensation=compensation,
             job_type=job_details.get("job_type"),

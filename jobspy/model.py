@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Optional
-from datetime import date
+from datetime import date, time
 from enum import Enum
 from pydantic import BaseModel
 
@@ -236,6 +236,7 @@ class DescriptionFormat(Enum):
     HTML = "html"
     PLAIN = "plain"
 
+
 class JobPost(BaseModel):
     id: str | None = None
     title: str
@@ -251,6 +252,7 @@ class JobPost(BaseModel):
     job_type: list[JobType] | None = None
     compensation: Compensation | None = None
     date_posted: date | None = None
+    time_posted: time | None = None
     emails: list[str] | None = None
     is_remote: bool | None = None
     listing_type: str | None = None
@@ -273,12 +275,15 @@ class JobPost(BaseModel):
     job_function: str | None = None
 
     # Naukri specific
-    skills: list[str] | None = None  #from tagsAndSkills
-    experience_range: str | None = None  #from experienceText
-    company_rating: float | None = None  #from ambitionBoxData.AggregateRating
-    company_reviews_count: int | None = None  #from ambitionBoxData.ReviewsCount
-    vacancy_count: int | None = None  #from vacancy
-    work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
+    skills: list[str] | None = None  # from tagsAndSkills
+    experience_range: str | None = None  # from experienceText
+    company_rating: float | None = None  # from ambitionBoxData.AggregateRating
+    company_reviews_count: int | None = None  # from ambitionBoxData.ReviewsCount
+    vacancy_count: int | None = None  # from vacancy
+    work_from_home_type: str | None = (
+        None  # from clusters.wfhType (e.g., "Hybrid", "Remote")
+    )
+
 
 class JobResponse(BaseModel):
     jobs: list[JobPost] = []
@@ -324,7 +329,11 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        site: Site,
+        proxies: list[str] | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         self.site = site
         self.proxies = proxies

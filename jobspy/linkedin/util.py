@@ -1,7 +1,11 @@
+from datetime import datetime
+
 from bs4 import BeautifulSoup
 
 from jobspy.model import JobType, Location
 from jobspy.util import get_enum_from_job_type
+
+import dateparser
 
 
 def job_type_code(job_type_enum: JobType) -> str:
@@ -85,12 +89,25 @@ def parse_company_industry(soup_industry: BeautifulSoup) -> str | None:
     return industry
 
 
+def parse_job_datetime(soup_datetime: BeautifulSoup) -> datetime:
+    try:
+        text = soup_datetime.get_text(strip=True)
+        parsed_datetime = dateparser.parse(text)
+        if not parsed_datetime:
+            parsed_datetime = datetime.strptime(
+                soup_datetime.get("datetime"), "%Y-%m-%d"
+            )
+        return parsed_datetime
+    except:
+        return None
+
+
 def is_job_remote(title: dict, description: str, location: Location) -> bool:
     """
     Searches the title, location, and description to check if job is remote
     """
     remote_keywords = ["remote", "work from home", "wfh"]
     location = location.display_location()
-    full_string = f'{title} {description} {location}'.lower()
+    full_string = f"{title} {description} {location}".lower()
     is_remote = any(keyword in full_string for keyword in remote_keywords)
     return is_remote
