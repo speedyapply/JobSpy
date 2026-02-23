@@ -1,0 +1,9 @@
+python-jobspy
+numpy>=1.26.4
+markdownify
+regex
+tls-client==1.0.1
+
+# Optional: maybe if you might think of plan on exporting to Excel later
+pandas
+openpyxl
