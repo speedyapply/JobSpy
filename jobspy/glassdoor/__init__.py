@@ -121,7 +121,16 @@ class Glassdoor(Scraper):
                 raise GlassdoorException(exc_msg)
             res_json = response.json()[0]
             if "errors" in res_json:
-                raise ValueError("Error encountered in API response")
+                # Only treat errors on the jobListings field as fatal.
+                # Glassdoor commonly returns non-critical 503s on peripheral
+                # fields (e.g. jobsPageSeoData) while the job data is intact.
+                job_errors = [
+                    e for e in res_json["errors"]
+                    if "jobListings" in str(e.get("path", []))
+                    and "jobsPageSeoData" not in str(e.get("path", []))
+                ]
+                if job_errors:
+                    raise ValueError(f"Error encountered in jobListings API response: {job_errors}")
         except (
             requests.exceptions.ReadTimeout,
             GlassdoorException,
@@ -151,9 +160,10 @@ class Glassdoor(Scraper):
 
     def _get_csrf_token(self):
         """
-        Fetches csrf token needed for API by visiting a generic page
+        Fetches csrf token needed for API by visiting the homepage.
+        Previously used /Job/computer-science-jobs.htm which now returns 404.
         """
-        res = self.session.get(f"{self.base_url}/Job/computer-science-jobs.htm")
+        res = self.session.get(f"{self.base_url}/")
         pattern = r'"token":\s*"([^"]+)"'
         matches = re.findall(pattern, res.text)
         token = None
