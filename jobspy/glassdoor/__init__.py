@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import json
 import requests
+from urllib.parse import quote
 from typing import Tuple
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -120,7 +121,11 @@ class Glassdoor(Scraper):
                 exc_msg = f"bad response status code: {response.status_code}"
                 raise GlassdoorException(exc_msg)
             res_json = response.json()[0]
-            if "errors" in res_json:
+            if "errors" in res_json and (
+                "data" not in res_json
+                or not res_json["data"]
+                or "jobListings" not in res_json["data"]
+            ):
                 raise ValueError("Error encountered in API response")
         except (
             requests.exceptions.ReadTimeout,
@@ -258,7 +263,7 @@ class Glassdoor(Scraper):
     def _get_location(self, location: str, is_remote: bool) -> (int, str):
         if not location or is_remote:
             return "11047", "STATE"  # remote options
-        url = f"{self.base_url}/findPopularLocationAjax.htm?maxLocationsToReturn=10&term={location}"
+        url = f"{self.base_url}/findPopularLocationAjax.htm?maxLocationsToReturn=10&term={quote(location)}"
         res = self.session.get(url)
         if res.status_code != 200:
             if res.status_code == 429:
