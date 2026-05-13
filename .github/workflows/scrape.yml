@@ -55,15 +55,20 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Stage first so this works whether the files are newly created
           # (untracked) or just modified — `git diff` alone doesn't see
-          # untracked files. emea-entry-level.md is a stateless render —
-          # not backed by jobs.db, but committed so GitHub renders the
-          # latest snapshot at the URL the user shares.
-          git add monitor/jobs.db JOBS.md emea-entry-level.md
-          if git diff --cached --quiet -- monitor/jobs.db JOBS.md emea-entry-level.md; then
+          # untracked files. emea-entry-level.md, INDEX.md, and the slice
+          # files are stateless renders — not backed by jobs.db, but
+          # committed so GitHub renders the latest snapshot at the URLs
+          # the user shares.
+          git add monitor/jobs.db JOBS.md INDEX.md emea-entry-level.md \
+                  emea-junior-sde.md emea-junior-mle.md \
+                  emea-internships.md emea-quant.md \
+                  na-junior-sde.md na-junior-mle.md \
+                  na-internships.md na-quant.md
+          if git diff --cached --quiet; then
             echo "no changes to commit; skipping"
             exit 0
           fi
-          git commit -m "chore(monitor): refresh jobs.db + JOBS.md + emea-entry-level.md [skip ci]"
+          git commit -m "chore(monitor): refresh jobs.db + rendered markdown [skip ci]"
           # Push to the branch the workflow ran on. Tolerate a non-fast-forward
           # if a concurrent run beat us — the next cron will pick up the data.
           git push origin HEAD:${GITHUB_REF#refs/heads/} || echo "push failed; will retry next run"

@@ -79,10 +79,18 @@ _MIGRATIONS = [
 
 
 def setup_db(path: str | Path) -> sqlite3.Connection:
-    """Open the SQLite DB and ensure the schema exists. Caller closes."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(path))
+    """Open the SQLite DB and ensure the schema exists. Caller closes.
+
+    The literal string `:memory:` short-circuits the path/mkdir dance and
+    opens a transient in-process DB — used by `run.py --dry-run` so a
+    smoke test doesn't have to touch the on-disk `jobs.db`.
+    """
+    if str(path) == ":memory:":
+        conn = sqlite3.connect(":memory:")
+    else:
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
     conn.executescript(_SCHEMA_TABLES)
     for stmt in _MIGRATIONS:

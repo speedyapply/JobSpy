@@ -1,0 +1,178 @@
+# Slice definitions consumed by monitor/render_md.py:render_slices.
+#
+# Each slice produces ONE markdown file in the repo root with this layout:
+#
+#   # {title}
+#   [Last updated, totals, ToC]
+#   ---
+#   ## New in last 24h    (first_seen >= now-24h)
+#   ## New in last 7 days (now-7d <= first_seen < now-24h)
+#   ## All active
+#     ### FAANG+ & AI Labs / Quant & Finance / Other
+#
+# Slices draw from the currently-active rows in jobs.db, so the global
+# filters/allowlist that built JOBS.md already apply. Each slice's own
+# `filters` block then narrows that pool further.
+#
+# Filter fields (all optional — omit to disable the gate):
+#   regions: [emea, north_america]   — row.region must be in this set
+#   title_keywords_any: [...]         — title must contain at least one (substring)
+#   title_keywords_none: [...]        — title may not contain any (substring)
+#   kinds: [newgrad, intern]          — uses render_md._classify_intern_or_newgrad
+#
+# `index_label` is the short link text used by INDEX.md — defaults to
+# the slice's title. Slices are grouped in INDEX.md by their primary
+# `regions` entry; order within a region preserves the order here.
+#
+# Sort: every section is first_seen DESC. No score-based sort.
+
+slices:
+  - name: emea_junior_sde
+    filename: emea-junior-sde.md
+    title: "EMEA Junior SDE Roles"
+    index_label: "Junior SDE"
+    filters:
+      regions: [emea]
+      title_keywords_any:
+        - software engineer
+        - software developer
+        - backend
+        - sde
+        - swe
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [newgrad, intern]
+
+  - name: emea_junior_mle
+    filename: emea-junior-mle.md
+    title: "EMEA Junior ML Engineer / Applied Scientist Roles"
+    index_label: "Junior MLE / Applied Scientist"
+    filters:
+      regions: [emea]
+      title_keywords_any:
+        - machine learning
+        - ml engineer
+        - applied scientist
+        - ai engineer
+        - data scientist
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+      kinds: [newgrad, intern]
+
+  - name: na_junior_sde
+    filename: na-junior-sde.md
+    title: "North America Junior SDE Roles"
+    index_label: "Junior SDE"
+    filters:
+      regions: [north_america]
+      title_keywords_any:
+        - software engineer
+        - software developer
+        - backend
+        - sde
+        - swe
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [newgrad, intern]
+
+  - name: na_junior_mle
+    filename: na-junior-mle.md
+    title: "North America Junior ML Engineer / Applied Scientist Roles"
+    index_label: "Junior MLE / Applied Scientist"
+    filters:
+      regions: [north_america]
+      title_keywords_any:
+        - machine learning
+        - ml engineer
+        - applied scientist
+        - ai engineer
+        - data scientist
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+      kinds: [newgrad, intern]
+
+  - name: emea_intern_only
+    filename: emea-internships.md
+    title: "EMEA Internships"
+    index_label: "Internships"
+    filters:
+      regions: [emea]
+      title_keywords_any:
+        - software
+        - engineer
+        - developer
+        - scientist
+        - machine learning
+        - ai
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [intern]
+
+  - name: na_intern_only
+    filename: na-internships.md
+    title: "North America Internships"
+    index_label: "Internships"
+    filters:
+      regions: [north_america]
+      title_keywords_any:
+        - software
+        - engineer
+        - developer
+        - scientist
+        - machine learning
+        - ai
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [intern]
+
+  - name: emea_quant
+    filename: emea-quant.md
+    title: "EMEA Quant & Trading Roles"
+    index_label: "Quant & Finance"
+    filters:
+      regions: [emea]
+      title_keywords_any:
+        - quant
+        - quantitative
+        - trader
+        - trading
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [newgrad, intern]
+
+  - name: na_quant
+    filename: na-quant.md
+    title: "North America Quant & Trading Roles"
+    index_label: "Quant & Finance"
+    filters:
+      regions: [north_america]
+      title_keywords_any:
+        - quant
+        - quantitative
+        - trader
+        - trading
+      title_keywords_none:
+        - senior
+        - staff
+        - lead
+        - principal
+      kinds: [newgrad, intern]

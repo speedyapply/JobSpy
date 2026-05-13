@@ -110,6 +110,38 @@ def _glassdoor_supported(country_indeed: str) -> bool:
         return country_indeed.lower() not in _GLASSDOOR_UNAVAILABLE_COUNTRIES_FALLBACK
 
 
+def _slim_cfg_for_dry_run(cfg: dict) -> dict:
+    """Truncate cities and role_templates to the first 2 each.
+
+    Combined with `_slim_searches_for_dry_run` this produces ~16 concrete
+    searches (2 cities × 2 templates × ~4 sites × 1 term) — enough to
+    exercise every code path against live APIs without burning the full
+    ~600-search budget of a real run.
+    """
+    cfg = dict(cfg)
+    cfg["cities"] = list(cfg.get("cities") or [])[:2]
+    cfg["role_templates"] = list(cfg.get("role_templates") or [])[:2]
+    return cfg
+
+
+def _slim_searches_for_dry_run(searches: list[dict]) -> list[dict]:
+    """Keep only the FIRST search per (search_name, site) tuple.
+
+    The real pipeline runs Indeed against several term variants per
+    (template, city) to widen recall. A dry run only needs one per site
+    to validate the pipeline's shape.
+    """
+    seen: set[tuple[str, str]] = set()
+    pruned: list[dict] = []
+    for s in searches:
+        key = (s["name"], s["site"])
+        if key in seen:
+            continue
+        seen.add(key)
+        pruned.append(s)
+    return pruned
+
+
 def expand_searches(cfg: dict) -> list[dict]:
     """Cross-product cities × role_templates × sites × search_terms.
 
@@ -665,15 +697,71 @@ def main(argv: list[str] | None = None) -> int:
             "(intern + new grad, no company allowlist)"
         ),
     )
+    parser.add_argument(
+        "--slices-config",
+        default=str(Path(__file__).parent / "slices.yaml"),
+        help=(
+            "path to the slices YAML — named, filtered views (e.g. EMEA "
+            "Junior SDE) rendered alongside JOBS.md"
+        ),
+    )
+    parser.add_argument(
+        "--slices-output-dir",
+        default=str(Path(__file__).parent.parent),
+        help="directory to write slice markdown files into (defaults to repo root)",
+    )
+    parser.add_argument(
+        "--index-md",
+        default=str(Path(__file__).parent.parent / "INDEX.md"),
+        help=(
+            "path to the generated INDEX.md (table of contents linking "
+            "every slice). Overwritten each run; do NOT hand-edit."
+        ),
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Smoke-test the pipeline against a slimmed search set "
+            "(2 cities x 2 templates x 1 term per site = ~16 searches). "
+            "Uses :memory: SQLite, skips all ntfy notifications, writes "
+            "health JSON to /tmp/, and renders all markdown to "
+            "/tmp/jobs-dryrun/. Lets you validate config / slice / "
+            "external-source edits before committing real data."
+        ),
+    )
     args = parser.parse_args(argv)
 
+    # Dry-run overrides are applied here (after parse_args) so they always
+    # take precedence over user-supplied paths — `--dry-run` is meant to be
+    # a one-flag toggle to a fully sandboxed run.
+    if args.dry_run:
+        args.db = ":memory:"
+        args.log_dir = "/tmp"
+        dryrun_dir = Path("/tmp/jobs-dryrun")
+        dryrun_dir.mkdir(parents=True, exist_ok=True)
+        args.md = str(dryrun_dir / "JOBS.md")
+        args.md_emea_entry_level = str(dryrun_dir / "emea-entry-level.md")
+        args.slices_output_dir = str(dryrun_dir)
+        args.index_md = str(dryrun_dir / "INDEX.md")
+
     _setup_logging(Path(args.log_dir))
+    if args.dry_run:
+        log.info(
+            "DRY RUN mode: slimmed cfg, :memory: DB, ntfy disabled, "
+            "output -> %s",
+            dryrun_dir,
+        )
 
     run_started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     log.info("monitor start: run_started_at=%s", run_started_at)
 
     cfg = load_config(args.config)
+    if args.dry_run:
+        cfg = _slim_cfg_for_dry_run(cfg)
     searches = expand_searches(cfg)
+    if args.dry_run:
+        searches = _slim_searches_for_dry_run(searches)
     log.info("expanded %d concrete searches", len(searches))
 
     conn = dbmod.setup_db(args.db)
@@ -688,6 +776,11 @@ def main(argv: list[str] | None = None) -> int:
     # SimplifyJobs); rendered to a parallel markdown file at end of run.
     # Never written to jobs.db — purely a presentation feed.
     broader_emea_rows: list[dict] = []
+
+    # Populated only when render_slices runs. Declared up front so the
+    # dry-run summary line can read it safely even if slice rendering
+    # got skipped (missing slices.yaml, etc.).
+    slice_stats: dict[str, dict[str, int]] = {}
 
     try:
         linkedin_delay = _linkedin_delay_seconds()
@@ -766,17 +859,25 @@ def main(argv: list[str] | None = None) -> int:
             log.warning("[health] could not write JSON dump: %s", e)
 
         new_jobs = dbmod.fetch_new_since(conn, run_started_at)
-        if new_jobs:
+        if new_jobs and not args.dry_run:
             sent = notify.send_digest(new_jobs, topic=os.environ.get("NTFY_TOPIC"))
             log.info("notification sent=%s", sent)
+        elif new_jobs:
+            log.info(
+                "DRY RUN: skipping ntfy digest (%d new jobs would have been sent)",
+                len(new_jobs),
+            )
         else:
             log.info("no new jobs; skipping ntfy")
 
         if health.has_warnings():
-            sent_alert = notify.send_health_alert(
-                health, topic=os.environ.get("NTFY_TOPIC")
-            )
-            log.info("[health] alert sent=%s", sent_alert)
+            if args.dry_run:
+                log.info("DRY RUN: skipping ntfy health alert")
+            else:
+                sent_alert = notify.send_health_alert(
+                    health, topic=os.environ.get("NTFY_TOPIC")
+                )
+                log.info("[health] alert sent=%s", sent_alert)
 
         # Render JOBS.md from the current DB state regardless of whether this
         # run added anything — gone-jobs disappear, ages tick up.
@@ -797,8 +898,61 @@ def main(argv: list[str] | None = None) -> int:
             "rendered %d EMEA entry-level rows to %s",
             n_emea, args.md_emea_entry_level,
         )
+
+        # Slice files — named, filtered views (EMEA junior SDE, NA interns,
+        # quant, etc.). Additive to JOBS.md / emea-entry-level.md; driven
+        # by slices.yaml so non-code edits can add a new view. After the
+        # slices write, INDEX.md links them all with current counts.
+        slices_path = Path(args.slices_config)
+        if slices_path.exists():
+            try:
+                with open(slices_path, "r", encoding="utf-8") as f:
+                    slices_cfg = yaml.safe_load(f) or {}
+                slice_stats = render_md_mod.render_slices(
+                    active, slices_cfg, args.slices_output_dir
+                )
+                if slice_stats:
+                    summary = ", ".join(
+                        f"{name} ({st.get('total', 0)})"
+                        for name, st in slice_stats.items()
+                    )
+                    log.info(
+                        "rendered %d slice files: %s",
+                        len(slice_stats), summary,
+                    )
+                    try:
+                        render_md_mod.render_index(
+                            slices_cfg,
+                            slice_stats,
+                            args.index_md,
+                            broader_emea_count=n_emea,
+                        )
+                        log.info("rendered INDEX.md to %s", args.index_md)
+                    except Exception as e:
+                        log.exception("failed to render INDEX.md: %s", e)
+                else:
+                    log.info(
+                        "slices config %s has no slices; nothing rendered",
+                        slices_path,
+                    )
+            except Exception as e:
+                log.exception("failed to render slice files: %s", e)
+        else:
+            log.info(
+                "slices config %s not found; skipping slice + INDEX rendering",
+                slices_path,
+            )
     finally:
         conn.close()
+
+    if args.dry_run:
+        # Loud, single-line summary so a developer scanning the tail of
+        # stdout knows whether the dry run completed cleanly. Uses print()
+        # rather than log.info so it stays unprefixed and easy to grep for.
+        print(
+            f"DRY RUN: would have upserted {total_new} rows, "
+            f"would have rendered {len(slice_stats)} slice files."
+        )
 
     # Non-zero exit when any source is BROKEN/SILENT — this lets a
     # cron / CI runner fail loudly instead of pretending success.

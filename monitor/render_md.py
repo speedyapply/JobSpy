@@ -12,9 +12,9 @@ want a fourth bucket, add a constant + classify branch below.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 
 # Tier membership is matched as case-insensitive substring against the company
@@ -554,3 +554,382 @@ def render_md(active_rows: Iterable[dict], output_path: str | Path) -> int:
 
     Path(output_path).write_text("\n".join(out), encoding="utf-8")
     return len(rows)
+
+
+# --------------------------------------------------------------------------- #
+# Slice rendering — named, filtered views (e.g. EMEA Junior SDE) with
+# freshness-first layout (24h / 7d / All active). Driven by slices.yaml.
+# --------------------------------------------------------------------------- #
+
+
+def _parse_iso(s: str | None) -> datetime | None:
+    """Parse an ISO8601 string into an aware UTC datetime, or None on failure."""
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def _first_seen_sort_key(r: dict) -> str:
+    """Strict first_seen DESC ordering (used by slice views).
+
+    Differs from the JOBS.md `_sort_key` which falls back to date_posted —
+    slice files explicitly want pipeline-first-sighting order, so a stale
+    `date_posted` from a long-stale source doesn't outrank a freshly-found
+    row.
+    """
+    return r.get("first_seen") or ""
+
+
+def _matches_slice_filters(r: dict, sfilters: dict) -> bool:
+    """Apply a slice's filter block (regions / title keywords / kinds).
+
+    Reuses `_classify_intern_or_newgrad` for the kinds gate so intern
+    detection stays consistent with emea-entry-level.md.
+    """
+    regions = sfilters.get("regions")
+    if regions:
+        wanted = {(x or "").lower() for x in regions if x}
+        if (r.get("region") or "").lower() not in wanted:
+            return False
+
+    title = (r.get("title") or "").lower()
+    any_kws = [(k or "").lower() for k in (sfilters.get("title_keywords_any") or []) if k]
+    if any_kws and not any(tok in title for tok in any_kws):
+        return False
+    none_kws = [(k or "").lower() for k in (sfilters.get("title_keywords_none") or []) if k]
+    if none_kws and any(tok in title for tok in none_kws):
+        return False
+
+    kinds = sfilters.get("kinds")
+    if kinds:
+        wanted_kinds = {(k or "").lower() for k in kinds if k}
+        if _classify_intern_or_newgrad(r) not in wanted_kinds:
+            return False
+
+    return True
+
+
+def _bucket_tiers(
+    rows: list[dict],
+    sort_key: Callable[[dict], object],
+) -> dict[str, list[dict]]:
+    """Bucket rows into FAANG / Quant / Other and sort each bucket.
+
+    Assumes the caller already deduped at the slice level — we avoid the
+    per-tier dedup that `_split_tiers` does to keep cross-source duplicates
+    from sneaking back in via different tier classifications.
+    """
+    by_tier: dict[str, list[dict]] = {k: [] for k, _ in _TIER_ORDER}
+    for r in rows:
+        by_tier[classify(r.get("company") or "")].append(r)
+    for tier_key in by_tier:
+        by_tier[tier_key].sort(key=sort_key, reverse=True)
+    return by_tier
+
+
+def _slice_marker_token(name: str) -> str:
+    """Convert a slice name into a safe HTML-comment marker token."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", name or "slice").strip("_").upper() or "SLICE"
+
+
+def render_slice(
+    rows: Iterable[dict],
+    slice_def: dict,
+    output_path: str | Path,
+) -> dict[str, int]:
+    """Render one slice markdown file. Returns stats counts.
+
+    Stats keys:
+      - total:    deduped row count written to the file
+      - new_24h:  rows with first_seen >= now-24h
+      - new_7d:   rows with now-7d <= first_seen < now-24h (exclusive bucket)
+
+    Callers wanting "new this week" should add new_24h + new_7d.
+
+    Layout:
+        # {title}
+        [last updated, totals, ToC]
+        ---
+        ## New in last 24h
+        ## New in last 7 days
+        ## All active
+          ### FAANG+ & AI Labs / Quant & Finance / Other
+
+    The 24h and 7d sections are deliberately at the top so freshness is
+    visible without scanning the Age column on a long table. Both are
+    subsets of "All active" — every row is also classified into a tier
+    bucket below.
+
+    Sort everywhere is first_seen DESC; we never reach for a score-based
+    or date_posted-based ordering here.
+    """
+    name = slice_def.get("name") or "slice"
+    title = slice_def.get("title") or name
+    sfilters = slice_def.get("filters") or {}
+
+    matching = [r for r in rows if _matches_slice_filters(r, sfilters)]
+    # Dedup once at the slice level so the 24h, 7d, and All-active sections
+    # all draw from the same canonical pool.
+    deduped, collapsed = _dedupe_by_signature(matching)
+    deduped.sort(key=_first_seen_sort_key, reverse=True)
+
+    has_salary = any(_has_salary(r) for r in deduped)
+
+    now = datetime.now(timezone.utc)
+    cutoff_24h = now - timedelta(hours=24)
+    cutoff_7d = now - timedelta(days=7)
+
+    last_24h: list[dict] = []
+    last_7d: list[dict] = []
+    for r in deduped:
+        dt = _parse_iso(r.get("first_seen"))
+        if dt is None:
+            continue
+        if dt >= cutoff_24h:
+            last_24h.append(r)
+        elif dt >= cutoff_7d:
+            last_7d.append(r)
+
+    by_tier = _bucket_tiers(deduped, _first_seen_sort_key)
+    marker_token = _slice_marker_token(name)
+
+    now_str = now.strftime("%Y-%m-%d %H:%M UTC")
+    dedup_note = (
+        f" · {collapsed} cross-source duplicates merged" if collapsed else ""
+    )
+
+    out: list[str] = []
+    out.append(f"# {title}")
+    out.append("")
+    out.append(
+        f"Last updated: **{now_str}** · **{len(deduped)}** active roles · "
+        f"[last 24h](#new-24h) ({len(last_24h)}) · "
+        f"[last 7 days](#new-7d) ({len(last_7d)}){dedup_note}. "
+        "Generated from `monitor/jobs.db` after the latest scrape — see "
+        "[monitor/](monitor/) for how this works."
+    )
+    out.append("")
+    out.append("---")
+    out.append("")
+
+    out.append('<a name="new-24h"></a>')
+    out.append("## New in last 24h")
+    out.append("")
+    out.append(
+        f"<!-- TABLE_SLICE_{marker_token}_24H_START -->"
+    )
+    out.append(_render_section(last_24h, has_salary))
+    out.append(f"<!-- TABLE_SLICE_{marker_token}_24H_END -->")
+    out.append("")
+    out.append("---")
+    out.append("")
+
+    out.append('<a name="new-7d"></a>')
+    out.append("## New in last 7 days")
+    out.append("")
+    out.append(f"<!-- TABLE_SLICE_{marker_token}_7D_START -->")
+    out.append(_render_section(last_7d, has_salary))
+    out.append(f"<!-- TABLE_SLICE_{marker_token}_7D_END -->")
+    out.append("")
+    out.append("---")
+    out.append("")
+
+    out.append('<a name="all-active"></a>')
+    out.append("## All active")
+    out.append("")
+    toc_bits = [
+        f"[{tier_heading}](#all-{tier_key}) ({len(by_tier[tier_key])})"
+        for tier_key, tier_heading in _TIER_ORDER
+    ]
+    out.append("**Sections:** " + " · ".join(toc_bits))
+    out.append("")
+
+    for tier_key, tier_heading in _TIER_ORDER:
+        anchor = f"all-{tier_key}"
+        marker = f"TABLE_SLICE_{marker_token}_{tier_key.upper()}"
+        out.append(f'<a name="{anchor}"></a>')
+        out.append(f"### {tier_heading}")
+        out.append("")
+        out.append(f"<!-- {marker}_START -->")
+        out.append(_render_section(by_tier[tier_key], has_salary))
+        out.append(f"<!-- {marker}_END -->")
+        out.append("")
+
+    while out and out[-1] in ("", "---"):
+        out.pop()
+    out.append("")
+
+    Path(output_path).write_text("\n".join(out), encoding="utf-8")
+    return {
+        "total": len(deduped),
+        "new_24h": len(last_24h),
+        "new_7d": len(last_7d),
+    }
+
+
+def render_slices(
+    active_rows: Iterable[dict],
+    slices_config: dict | list,
+    output_dir: str | Path,
+) -> dict[str, dict[str, int]]:
+    """Render every slice defined in `slices_config` into `output_dir`.
+
+    `slices_config` accepts either the full parsed slices.yaml (dict with
+    a top-level `slices:` key) or a bare list of slice definitions.
+
+    Each slice writes one file named by its `filename` field (default
+    `<name>.md`). Returns `{slice_name: {total, new_24h, new_7d}}` so the
+    caller can build a summary line at end of run and feed counts into
+    INDEX.md without re-running the filter/dedup pass.
+
+    Additive to render_md / render_emea_entry_level — slice files are a
+    parallel surface, not a replacement.
+    """
+    if isinstance(slices_config, dict):
+        slices = slices_config.get("slices") or []
+    elif isinstance(slices_config, list):
+        slices = slices_config
+    else:
+        slices = []
+
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    rows = list(active_rows)
+
+    stats: dict[str, dict[str, int]] = {}
+    for s in slices:
+        if not isinstance(s, dict):
+            continue
+        name = (s.get("name") or "").strip()
+        if not name:
+            continue
+        filename = s.get("filename") or f"{name}.md"
+        stats[name] = render_slice(rows, s, out_dir / filename)
+    return stats
+
+
+# --------------------------------------------------------------------------- #
+# INDEX.md — generated landing page that links every slice with current counts.
+# Distinct from README.md, which is the hand-maintained project landing page.
+# --------------------------------------------------------------------------- #
+
+
+# Display order + heading text for grouping slices in INDEX.md. A slice's
+# "primary region" is the first entry in its `filters.regions`; anything
+# unrecognized (or missing) falls into "other".
+_INDEX_REGION_GROUPS: list[tuple[str, str]] = [
+    ("emea", "EMEA"),
+    ("north_america", "North America"),
+    ("other", "Other"),
+]
+
+
+def render_index(
+    slices_config: dict | list,
+    slices_stats: dict[str, dict[str, int]],
+    output_path: str | Path,
+    broader_emea_count: int | None = None,
+) -> None:
+    """Render INDEX.md — generated table of contents for the rendered files.
+
+    Groups slices by their primary `regions` entry, preserves the order
+    given in slices.yaml within each group, and links each entry with
+    `{total} active, {total_in_7d} new this week`. Slices missing from
+    `slices_stats` (e.g. malformed config rows) are silently skipped.
+
+    `broader_emea_count` is the number of rows in `emea-entry-level.md`
+    — passed in by the caller so INDEX.md can advertise the wider view.
+
+    INDEX.md is overwritten on every run; it's a generated artifact and
+    must NOT be hand-edited. README.md is the hand-maintained landing page.
+    """
+    if isinstance(slices_config, dict):
+        slices = slices_config.get("slices") or []
+    elif isinstance(slices_config, list):
+        slices = slices_config
+    else:
+        slices = []
+
+    grouped: dict[str, list[dict]] = {key: [] for key, _ in _INDEX_REGION_GROUPS}
+    for s in slices:
+        if not isinstance(s, dict):
+            continue
+        name = (s.get("name") or "").strip()
+        if not name or name not in slices_stats:
+            continue
+        regions = (s.get("filters") or {}).get("regions") or []
+        primary = (regions[0] if regions else "other").lower()
+        if primary not in grouped:
+            primary = "other"
+        grouped[primary].append(s)
+
+    out: list[str] = []
+    out.append("# Job Tracker")
+    out.append("")
+    out.append(
+        "Auto-generated tracker of junior tech roles in EMEA and North "
+        "America. Updated twice daily via GitHub Actions."
+    )
+    out.append("")
+    out.append("## Browse by slice")
+    out.append("")
+
+    for region_key, heading in _INDEX_REGION_GROUPS:
+        bucket = grouped[region_key]
+        if not bucket:
+            continue
+        out.append(f"### {heading}")
+        for s in bucket:
+            name = s["name"]
+            label = s.get("index_label") or s.get("title") or name
+            filename = s.get("filename") or f"{name}.md"
+            st = slices_stats[name]
+            total = st.get("total", 0)
+            new_this_week = st.get("new_24h", 0) + st.get("new_7d", 0)
+            out.append(
+                f"- [{label}]({filename}) — {total} active, "
+                f"{new_this_week} new this week"
+            )
+        out.append("")
+
+    if broader_emea_count is not None:
+        out.append("## Wider browse (no curated company allowlist)")
+        out.append("")
+        out.append(
+            f"- [EMEA entry-level (all companies)](emea-entry-level.md) — "
+            f"{broader_emea_count} active roles, allowlist gate dropped"
+        )
+        out.append("")
+
+    out.append("## How this works")
+    out.append("")
+    out.append(
+        "Generated by `monitor/run.py` after each scheduled scrape — see "
+        "[`monitor/`](monitor/) for the pipeline. Per-slice files are "
+        "filtered views of `monitor/jobs.db`; [`JOBS.md`](JOBS.md) is the "
+        "full Region × Tier table that covers every active row. INDEX.md "
+        "is overwritten on every run."
+    )
+    out.append("")
+    out.append("## Coverage")
+    out.append("")
+    out.append(
+        "- Sources: Indeed (CI + local), LinkedIn / Glassdoor / Bayt "
+        "(local only), SimplifyJobs/New-Grad-Positions, "
+        "SimplifyJobs/Summer2026-Internships"
+    )
+    out.append(
+        "- Cities: London, Dublin, Amsterdam, Berlin, Munich, Zurich, "
+        "Paris, Stockholm, Madrid, Barcelona, Vienna, Edinburgh, "
+        "Cambridge UK, Manchester"
+    )
+    out.append("- Refresh: 07:00 UTC, 15:00 UTC")
+    out.append("")
+
+    Path(output_path).write_text("\n".join(out), encoding="utf-8")
