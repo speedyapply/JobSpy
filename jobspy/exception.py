@@ -43,3 +43,7 @@ class NaukriException(Exception):
 class BDJobsException(Exception):
     def __init__(self, message=None):
         super().__init__(message or "An error occurred with BDJobs")
+
+class WttjException(Exception):
+    def __init__(self, message=None):
+        super().__init__(message or "An error occurred with WTTJ")
