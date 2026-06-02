@@ -294,6 +294,8 @@ class Site(Enum):
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"  # Add this line
 
+    REMOTEOK = "remoteok"
+
 
 class SalarySource(Enum):
     DIRECT_DATA = "direct_data"
