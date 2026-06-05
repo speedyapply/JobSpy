@@ -194,6 +194,7 @@ def scrape_jobs(
             job_data["company_reviews_count"] = job_data.get("company_reviews_count")
             job_data["vacancy_count"] = job_data.get("vacancy_count")
             job_data["work_from_home_type"] = job_data.get("work_from_home_type")
+            job_data["workplace_type"] = job_data.get("workplace_type")
 
             job_df = pd.DataFrame([job_data])
             jobs_dfs.append(job_df)

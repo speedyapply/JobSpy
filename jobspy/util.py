@@ -342,6 +342,7 @@ desired_order = [
     "is_remote",
     "job_level",
     "job_function",
+    "workplace_type",
     "listing_type",
     "emails",
     "description",

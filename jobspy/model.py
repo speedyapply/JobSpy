@@ -271,6 +271,7 @@ class JobPost(BaseModel):
 
     # LinkedIn only atm
     job_function: str | None = None
+    workplace_type: str | None = None
 
     # Naukri specific
     skills: list[str] | None = None  #from tagsAndSkills

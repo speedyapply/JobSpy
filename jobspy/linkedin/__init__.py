@@ -18,7 +18,8 @@ from jobspy.linkedin.util import (
     job_type_code,
     parse_job_type,
     parse_job_level,
-    parse_company_industry
+    parse_company_industry,
+    parse_workplace_type,
 )
 from jobspy.model import (
     JobPost,
@@ -225,6 +226,9 @@ class LinkedIn(Scraper):
             job_details = self._get_job_details(job_id)
             description = job_details.get("description")
         is_remote = is_job_remote(title, description, location)
+        workplace_type = job_details.get("workplace_type")
+        if workplace_type and workplace_type.lower() == "remote":
+            is_remote = True
 
         return JobPost(
             id=f"li-{job_id}",
@@ -244,6 +248,7 @@ class LinkedIn(Scraper):
             emails=extract_emails_from_text(description),
             company_logo=job_details.get("company_logo"),
             job_function=job_details.get("job_function"),
+            workplace_type=workplace_type,
         )
 
     def _get_job_details(self, job_id: str) -> dict:
@@ -296,6 +301,7 @@ class LinkedIn(Scraper):
             "job_level": parse_job_level(soup),
             "company_industry": parse_company_industry(soup),
             "job_type": parse_job_type(soup),
+            "workplace_type": parse_workplace_type(soup),
             "job_url_direct": self._parse_job_url_direct(soup),
             "company_logo": company_logo,
             "job_function": job_function,
