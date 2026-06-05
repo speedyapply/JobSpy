@@ -238,6 +238,7 @@ class LinkedIn(Scraper):
             compensation=compensation,
             job_type=job_details.get("job_type"),
             job_level=job_details.get("job_level", "").lower(),
+            applicants=job_details.get("applicants"),
             company_industry=job_details.get("company_industry"),
             description=job_details.get("description"),
             job_url_direct=job_details.get("job_url_direct"),
@@ -291,6 +292,7 @@ class LinkedIn(Scraper):
             if (logo_image := soup.find("img", {"class": "artdeco-entity-image"}))
             else None
         )
+        applicants = self._parse_applicants(soup)
         return {
             "description": description,
             "job_level": parse_job_level(soup),
@@ -299,7 +301,23 @@ class LinkedIn(Scraper):
             "job_url_direct": self._parse_job_url_direct(soup),
             "company_logo": company_logo,
             "job_function": job_function,
+            "applicants": applicants,
         }
+
+    def _parse_applicants(self, soup: BeautifulSoup) -> str | None:
+        applicants_caption = soup.find(
+            class_=lambda x: x and "num-applicants__caption" in x
+        )
+        if applicants_caption:
+            return applicants_caption.get_text(separator=" ", strip=True)
+
+        applicants_figure = soup.find(
+            "figure", class_=lambda x: x and "num-applicants__figure" in x
+        )
+        if applicants_figure:
+            return applicants_figure.get_text(separator=" ", strip=True)
+
+        return None
 
     def _get_location(self, metadata_card: Optional[Tag]) -> Location:
         """

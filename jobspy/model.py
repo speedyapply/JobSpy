@@ -257,6 +257,7 @@ class JobPost(BaseModel):
 
     # LinkedIn specific
     job_level: str | None = None
+    applicants: str | None = None
 
     # LinkedIn and Indeed specific
     company_industry: str | None = None
