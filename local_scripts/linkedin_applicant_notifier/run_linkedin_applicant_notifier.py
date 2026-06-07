@@ -37,11 +37,11 @@ APPLICANT_LIMIT = int(os.getenv("JOB_APPLICANT_LIMIT", "200"))
 MAX_YOE_REQUIRED = int(os.getenv("JOB_MAX_YOE_REQUIRED", "0"))
 YOE_CHECKPOINT_PATH = os.getenv("YOE_CHECKPOINT_PATH", "yoe_checkpoint.csv")
 EXCLUDED_COMPANIES_RAW = os.getenv("JOB_EXCLUDED_COMPANIES", "")
-EXCLUDED_COMPANIES_FILE = os.getenv(
-    "JOB_EXCLUDED_COMPANIES_FILE", "excluded_companies.txt"
+EXCLUDED_COMPANIES_FILE = (
+    os.getenv("JOB_EXCLUDED_COMPANIES_FILE") or "excluded_companies.txt"
 )
 EXCLUDED_COMPANY_KEYWORDS_RAW = os.getenv("JOB_EXCLUDED_COMPANY_KEYWORDS", "")
-EXCLUDED_COMPANY_KEYWORDS_FILE = os.getenv("JOB_EXCLUDED_COMPANY_KEYWORDS_FILE", "")
+EXCLUDED_COMPANY_KEYWORDS_FILE = os.getenv("JOB_EXCLUDED_COMPANY_KEYWORDS_FILE") or ""
 
 FINAL_COLUMNS = [
     "id",
@@ -228,6 +228,12 @@ def filter_excluded_companies(df: pd.DataFrame) -> pd.DataFrame:
     if not excluded_exact and not excluded_keywords:
         print("Company filter: no excluded companies configured")
         return df
+
+    print(
+        "Company filter: loaded "
+        f"{len(excluded_exact)} exact exclusions and "
+        f"{len(excluded_keywords)} keyword exclusions"
+    )
 
     work = df.copy()
     if "company" not in work.columns:
