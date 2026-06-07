@@ -1,0 +1,9 @@
+# One exact company name per line.
+# Lines starting with # are ignored.
+Revature
+DataAnnotation
+Jack & Jill
+Turing
+Deloitte
+Jobs via Dice
+Brain Corp

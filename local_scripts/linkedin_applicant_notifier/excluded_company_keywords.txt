@@ -1,0 +1,5 @@
+# One company-name keyword or phrase per line.
+# Lines starting with # are ignored.
+consulting
+staffing
+recruiting

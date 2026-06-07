@@ -8,3 +8,15 @@
 *.pyc
 .env
 dist
+
+# Personal job scraper outputs
+/jobs_master.csv
+/yoe_checkpoint.csv
+/yoe_llm_cache.sqlite3
+/notified_keys.txt
+/reports/
+/local_scripts/linkedin_applicant_notifier/jobs_master.csv
+/local_scripts/linkedin_applicant_notifier/yoe_checkpoint.csv
+/local_scripts/linkedin_applicant_notifier/yoe_llm_cache.sqlite3
+/local_scripts/linkedin_applicant_notifier/notified_keys.txt
+/local_scripts/linkedin_applicant_notifier/reports/
