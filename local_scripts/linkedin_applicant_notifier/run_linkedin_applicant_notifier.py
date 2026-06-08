@@ -172,11 +172,8 @@ def prepare_jobs_for_dedupe(df: pd.DataFrame) -> pd.DataFrame:
 def internal_dedupe_new_batch(df: pd.DataFrame) -> pd.DataFrame:
     work = df.copy()
     if "site" in work.columns and "id" in work.columns:
-        work = work.drop_duplicates(subset=["site", "id"], keep="first")
-    return work.drop_duplicates(
-        subset=["title_norm", "company_norm", "location_norm"],
-        keep="first",
-    )
+        return work.drop_duplicates(subset=["site", "id"], keep="first")
+    return work
 
 
 def filter_new_vs_master(
@@ -193,26 +190,11 @@ def filter_new_vs_master(
             zip(master_work["site"].astype(str), master_work["id"].astype(str))
         )
 
-    title_company_location_keys = set(
-        zip(
-            master_work["title_norm"],
-            master_work["company_norm"],
-            master_work["location_norm"],
-        )
-    )
-
     keep_rows = []
     for _, row in new_jobs.iterrows():
         site_id_key = (str(row.get("site", "")), str(row.get("id", "")))
-        title_company_location_key = (
-            row.get("title_norm", ""),
-            row.get("company_norm", ""),
-            row.get("location_norm", ""),
-        )
 
         if site_id_key in site_id_keys:
-            continue
-        if title_company_location_key in title_company_location_keys:
             continue
         keep_rows.append(row)
 
