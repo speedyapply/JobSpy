@@ -20,7 +20,7 @@ def enrich_jobs_with_yoe(
         if column not in work.columns:
             work[column] = ""
 
-    for column in ["yoe_required", "extracted_time"]:
+    for column in ["yoe_required", "skill_fit", "extracted_time"]:
         if column not in work.columns:
             work[column] = ""
 
@@ -31,6 +31,7 @@ def enrich_jobs_with_yoe(
             job_description=str(row.get(description_col, "") or ""),
         )
         work.at[index, "yoe_required"] = info.get("yoe_required", 0)
+        work.at[index, "skill_fit"] = info.get("skill_fit", False)
         work.at[index, "extracted_time"] = info.get("extracted_time", "")
 
         if checkpoint_every and (int(index) + 1) % checkpoint_every == 0:

@@ -54,6 +54,7 @@ FINAL_COLUMNS = [
     "date_posted",
     "applicants",
     "yoe_required",
+    "skill_fit",
     "extracted_time",
 ]
 
@@ -309,12 +310,30 @@ def filter_by_max_yoe(df: pd.DataFrame) -> pd.DataFrame:
     return filtered
 
 
+def filter_by_skill_fit(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return df
+
+    work = df.copy()
+    if "skill_fit" not in work.columns:
+        work["skill_fit"] = False
+
+    skill_fit = work["skill_fit"].map(
+        lambda value: value
+        if isinstance(value, bool)
+        else str(value).strip().lower() in {"true", "1", "yes", "y"}
+    )
+    filtered = work.loc[skill_fit].copy()
+    print(f"Skill-fit filter: kept {len(filtered)} of {len(work)} jobs")
+    return filtered
+
+
 def build_markdown_report(df: pd.DataFrame) -> str:
     now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     lines = [
         (
             f"# LinkedIn jobs under {APPLICANT_LIMIT} applicants and "
-            f"YOE <= {MAX_YOE_REQUIRED} ({now})"
+            f"YOE <= {MAX_YOE_REQUIRED}, skill fit only ({now})"
         ),
         "",
     ]
@@ -489,27 +508,30 @@ def main() -> None:
     )
 
     jobs_to_notify = filter_by_max_yoe(enriched_jobs)
+    jobs_to_notify = filter_by_skill_fit(jobs_to_notify)
     jobs_to_notify = keep_final_columns(jobs_to_notify)
     write_markdown_report(jobs_to_notify)
 
     if jobs_to_notify.empty:
-        print("No new jobs under applicant and YOE limits to notify.")
+        print("No new jobs under applicant, YOE, and skill-fit limits to notify.")
+        save_master(master, keep_final_columns(enriched_jobs))
+        print(f"Wrote report: {REPORT_MD_PATH}")
         return
 
     email_sent = send_email(
         subject=(
             f"[LinkedIn jobs under {APPLICANT_LIMIT} applicants, "
-            f"YOE <= {MAX_YOE_REQUIRED}] "
+            f"YOE <= {MAX_YOE_REQUIRED}, skill fit] "
             f"{len(jobs_to_notify)} new jobs"
         ),
         body_text=(
             f"LinkedIn jobs under {APPLICANT_LIMIT} applicants "
-            f"and YOE <= {MAX_YOE_REQUIRED}:\n\n"
+            f"and YOE <= {MAX_YOE_REQUIRED}, filtered for skill fit:\n\n"
             + df_to_plain_table(jobs_to_notify)
         ),
         body_html=(
             f"<h3>LinkedIn jobs under {APPLICANT_LIMIT} applicants "
-            f"and YOE <= {MAX_YOE_REQUIRED}</h3>"
+            f"and YOE <= {MAX_YOE_REQUIRED}, filtered for skill fit</h3>"
             + df_to_html_table(jobs_to_notify)
         ),
     )

@@ -19,7 +19,7 @@ if not API_KEY:
 BASE_URL = "https://api.novita.ai/openai"
 MODEL_ID = os.getenv("NOVITA_MODEL_ID", "meta-llama/llama-3.1-8b-instruct")
 DB_PATH = os.getenv("YOE_LLM_CACHE_DB", "yoe_llm_cache.sqlite3")
-PROMPT_VERSION = "yoe-required-v1"
+PROMPT_VERSION = "yoe-required-and-skill-fit-v1"
 
 MIN_SECONDS_BETWEEN_CALLS = float(os.getenv("YOE_LLM_MIN_SECONDS", "1.25"))
 MAX_RETRIES = 6
@@ -30,12 +30,13 @@ client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 SYSTEM_TEMPLATE = """You are an information extraction assistant.
 You MUST output only valid JSON. No markdown, no code fences, no explanations."""
 
-USER_TEMPLATE = """Extract the minimum required PROFESSIONAL software engineering years of experience from this job posting.
+USER_TEMPLATE = """Extract the minimum required PROFESSIONAL software engineering years of experience and whether this job is a good skill fit.
 
 Return strict JSON with exactly these keys:
 1) "yoe_required": integer
+2) "skill_fit": boolean
 
-Rules:
+YOE rules:
 - Count only required professional work experience.
 - Do not count education requirements as years of experience.
 - Degree requirements alone always count as 0 years.
@@ -54,6 +55,23 @@ Rules:
 - If the years of experience are listed as preferred, nice-to-have, a plus, desired, or optional, do not count them.
 - If the posting says “new grad,” “entry level,” “university grad,” “recent graduate,” or “no experience required,” output 0.
 - If no required professional YOE is clearly specified, output 0.
+- Return only the required JSON object.
+
+Skill-fit profile:
+- Programming: Java, Python, Go, JavaScript, TypeScript, C++, C#, SQL, Bash, HTML, CSS.
+- Backend: Spring Boot, Node.js, Express.js, FastAPI, Django, Flask, REST APIs, GraphQL, gRPC, WebSockets, OAuth2, JWT, RBAC, microservices.
+- Frontend: React, Angular, Next.js, Redux Toolkit, TypeScript, dashboards, real-time visualization.
+- Cloud: AWS, Azure, GCP, EC2, EKS, S3, RDS, Lambda, Glue, EMR, Redshift, VMs, Blob Storage, ADLS Gen2, Kubernetes, BigQuery, Dataflow.
+- Databases: PostgreSQL, MongoDB, Redis, Cassandra, MySQL, SQL Server, SQLite, Pinecone, Neo4j, InfluxDB, Elasticsearch, ClickHouse, DuckDB.
+- DevOps/infrastructure: Docker, Kubernetes, Terraform, GitHub Actions, Jenkins, CI/CD, Helm, Git, Prometheus, Grafana, Ansible, Jira, Karpenter, HPA, monitoring.
+- Data engineering: PySpark, Spark, Flink, Kafka, Airflow, Hadoop, Hive, Iceberg, Hudi, Delta Lake, dbt, Snowflake, Databricks, NiFi, Debezium, ETL/ELT, data lakes, warehouses, streaming.
+- AI/ML/LLM: LangChain, RAG, LangGraph, MCP, Hugging Face, vector embeddings, BM25, TensorFlow, Keras, OpenCV, NLTK, scikit-learn.
+
+Skill-fit rules:
+- skill_fit=true for software engineer, backend, full stack, Java backend, cloud, platform, DevOps, infrastructure, data engineer, big data, ML, AI, LLM, RAG, or distributed systems roles that overlap with the profile.
+- skill_fit=true if the job uses several listed technologies even when the title is broad.
+- skill_fit=false only when the role is clearly outside this profile, such as sales, marketing, customer support, help desk, product/project manager, business analyst, recruiter, pure UI/UX design, mechanical/electrical/civil engineering, embedded hardware, ERP admin, Salesforce-only admin, ServiceNow-only admin, manual QA with no automation/software engineering, or roles dominated by skills not in the profile.
+- Be conservative: if it is plausibly a software/backend/full-stack/data/cloud/platform/AI engineering role, output true.
 - Return only the required JSON object.
 
 Company: {company}
@@ -152,9 +170,24 @@ def _coerce_yoe(value: Any) -> int:
     return 0
 
 
+def _coerce_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"true", "yes", "y", "1", "fit", "match"}:
+            return True
+        if text in {"false", "no", "n", "0", "not_fit", "not fit", "no_match"}:
+            return False
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return False
+
+
 def _validate_output(data: dict[str, Any]) -> dict[str, Any]:
     return {
         "yoe_required": _coerce_yoe(data.get("yoe_required", 0)),
+        "skill_fit": _coerce_bool(data.get("skill_fit", False)),
         "extracted_time": "",
     }
 
@@ -192,6 +225,7 @@ def extract_yoe_requirement(company: str, title: str, job_description: str) -> d
     if not jd:
         return {
             "yoe_required": 0,
+            "skill_fit": False,
             "extracted_time": _utc_now_iso(),
         }
 
@@ -208,8 +242,7 @@ def extract_yoe_requirement(company: str, title: str, job_description: str) -> d
         job_description=jd,
     )
 
-    validated = _validate_output(_call_llm(user_prompt, max_tokens=40))
+    validated = _validate_output(_call_llm(user_prompt, max_tokens=80))
     validated["extracted_time"] = _utc_now_iso()
     _cache_set(cache_key, validated)
     return validated
-
