@@ -403,6 +403,7 @@ def send_email(subject: str, body_text: str, body_html: str | None = None) -> bo
     user = os.getenv("SMTP_USER", "").strip()
     password = os.getenv("SMTP_PASS", "").strip()
     to_addr = os.getenv("EMAIL_TO", "").strip()
+    bcc_addrs = split_env_list(os.getenv("EMAIL_BCC", ""))
     from_addr = os.getenv("EMAIL_FROM", "").strip() or user
 
     if not (host and user and password and to_addr):
@@ -413,6 +414,8 @@ def send_email(subject: str, body_text: str, body_html: str | None = None) -> bo
     msg["Subject"] = subject
     msg["From"] = from_addr
     msg["To"] = to_addr
+    if bcc_addrs:
+        msg["Bcc"] = ", ".join(bcc_addrs)
     msg.set_content(body_text)
     if body_html:
         msg.add_alternative(body_html, subtype="html")
