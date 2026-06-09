@@ -23,6 +23,7 @@ from jobspy.util import (
     convert_to_annual,
     desired_order,
 )
+from jobspy.xing import Xing
 from jobspy.ziprecruiter import ZipRecruiter
 
 
@@ -38,7 +39,7 @@ def scrape_jobs(
     job_type: str | None = None,
     easy_apply: bool | None = None,
     results_wanted: int = 15,
-    country_indeed: str = "usa",
+    country_indeed: str = "de",
     proxies: list[str] | str | None = None,
     ca_cert: str | None = None,
     description_format: str = "markdown",
@@ -49,6 +50,8 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    xing_cookies: dict[str, str] | None = None,
+    xing_search_url: str | None = None,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -64,6 +67,7 @@ def scrape_jobs(
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.XING: Xing,
     }
     set_logger_level(verbose)
     job_type = get_enum_from_value(job_type) if job_type else None
@@ -103,11 +107,23 @@ def scrape_jobs(
 
     def scrape_site(site: Site) -> Tuple[str, JobResponse]:
         scraper_class = SCRAPER_MAPPING[site]
-        scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
+        scraper_kwargs = {
+            "proxies": proxies,
+            "ca_cert": ca_cert,
+            "user_agent": user_agent,
+        }
+        if site == Site.XING:
+            scraper_kwargs["cookies"] = xing_cookies
+            scraper_kwargs["search_url_override"] = xing_search_url
+        scraper = scraper_class(**scraper_kwargs)
         scraped_data: JobResponse = scraper.scrape(scraper_input)
         cap_name = site.value.capitalize()
-        site_name = "ZipRecruiter" if cap_name == "Zip_recruiter" else cap_name
-        site_name = "LinkedIn" if cap_name == "Linkedin" else cap_name
+        if cap_name == "Zip_recruiter":
+            site_name = "ZipRecruiter"
+        elif cap_name == "Linkedin":
+            site_name = "LinkedIn"
+        else:
+            site_name = cap_name
         create_logger(site_name).info(f"finished scraping")
         return site.value, scraped_data
 
@@ -167,7 +183,7 @@ def scrape_jobs(
                 ):
                     convert_to_annual(job_data)
             else:
-                if country_enum == Country.USA:
+                if country_enum == Country.DE:
                     (
                         job_data["interval"],
                         job_data["min_amount"],

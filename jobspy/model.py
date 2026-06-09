@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from datetime import date
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class JobType(Enum):
@@ -281,7 +281,7 @@ class JobPost(BaseModel):
     work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
 
 class JobResponse(BaseModel):
-    jobs: list[JobPost] = []
+    jobs: list[JobPost] = Field(default_factory=list)
 
 
 class Site(Enum):
@@ -293,6 +293,7 @@ class Site(Enum):
     BAYT = "bayt"
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"  # Add this line
+    XING = "xing"
 
 
 class SalarySource(Enum):
