@@ -64,3 +64,8 @@ Infosys
 Visa
 Bain & Company
 PwC
+Bosch USA
+Tata Consultancy Services
+Northrop Grumman
+MicroAI
+Red Hat

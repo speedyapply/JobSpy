@@ -58,7 +58,7 @@ YOE rules:
 - Return only the required JSON object.
 
 Skill-fit profile:
-- Programming: Java, Python, Go, JavaScript, TypeScript, C++, C#, SQL, Bash, HTML, CSS.
+- Programming: Java, Python, Go, JavaScript, TypeScript, SQL, Bash, HTML, CSS.
 - Backend: Spring Boot, Node.js, Express.js, FastAPI, Django, Flask, REST APIs, GraphQL, gRPC, WebSockets, OAuth2, JWT, RBAC, microservices.
 - Frontend: React, Angular, Next.js, Redux Toolkit, TypeScript, dashboards, real-time visualization.
 - Cloud: AWS, Azure, GCP, EC2, EKS, S3, RDS, Lambda, Glue, EMR, Redshift, VMs, Blob Storage, ADLS Gen2, Kubernetes, BigQuery, Dataflow.
