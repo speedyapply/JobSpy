@@ -47,7 +47,9 @@ class SolidJobs(Scraper):
         ca_cert: str | None = None,
         user_agent: str | None = None,
     ):
-        super().__init__(Site.SOLIDJOBS, proxies=proxies, ca_cert=ca_cert)
+        super().__init__(
+            Site.SOLIDJOBS, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
+        )
         self.scraper_input = None
         self.session = None
 
@@ -57,6 +59,8 @@ class SolidJobs(Scraper):
             proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True
         )
         self.session.headers.update(headers)
+        if self.user_agent:
+            self.session.headers["User-Agent"] = self.user_agent
 
         results_wanted = scraper_input.results_wanted or 15
         job_list: list[JobPost] = []
@@ -86,7 +90,7 @@ class SolidJobs(Scraper):
                 break
             for offer in offers:
                 key = offer.get("jobOfferKey")
-                if key in seen_keys:
+                if not key or key in seen_keys:
                     continue
                 seen_keys.add(key)
                 if not self._matches_filters(offer):
@@ -125,7 +129,8 @@ class SolidJobs(Scraper):
         if self.scraper_input.is_remote and not offer.get("isRemote"):
             return False
         if self.scraper_input.job_type:
-            if self._map_job_type(offer.get("contractTime")) != self.scraper_input.job_type:
+            offer_job_type = self._map_job_type(offer.get("contractTime"))
+            if offer_job_type != self.scraper_input.job_type:
                 return False
         location = self.scraper_input.location
         if location:
@@ -134,15 +139,17 @@ class SolidJobs(Scraper):
                 return False
         search_term = self.scraper_input.search_term
         if search_term:
+            skills = offer.get("skills") or []
             haystack = " ".join(
                 [
                     offer.get("title") or "",
                     offer.get("company") or "",
-                    " ".join(skill.get("name", "") for skill in offer.get("skills") or []),
+                    " ".join(skill.get("name", "") for skill in skills),
                 ]
             ).lower()
             # No free text endpoint, so require every search token to be present.
-            if not all(token in haystack for token in search_term.lower().split()):
+            tokens = search_term.lower().split()
+            if not all(token in haystack for token in tokens):
                 return False
         return True
 
@@ -173,7 +180,11 @@ class SolidJobs(Scraper):
             date_posted=self._parse_date(offer.get("validFrom")),
             is_remote=offer.get("isRemote"),
             job_level=offer.get("experienceLevel"),
-            skills=[skill.get("name") for skill in offer.get("skills") or [] if skill.get("name")]
+            skills=[
+                skill.get("name")
+                for skill in offer.get("skills") or []
+                if skill.get("name")
+            ]
             or None,
         )
 
@@ -206,7 +217,7 @@ class SolidJobs(Scraper):
             interval=interval,
             min_amount=salary.get("from"),
             max_amount=salary.get("to"),
-            currency=salary.get("currency", "PLN"),
+            currency=salary.get("currency") or "PLN",
         )
 
     @staticmethod
