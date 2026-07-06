@@ -231,6 +231,7 @@ class LinkedIn(Scraper):
             title=title,
             company_name=company,
             company_url=company_url,
+            company_linkedin_id=job_details.get("company_linkedin_id"),
             location=location,
             is_remote=is_remote,
             date_posted=date_posted,
@@ -291,8 +292,15 @@ class LinkedIn(Scraper):
             if (logo_image := soup.find("img", {"class": "artdeco-entity-image"}))
             else None
         )
+        company_id_tag = soup.find("meta", attrs={"name": "companyId"})
+        company_linkedin_id = (
+            company_id_tag.get("content")
+            if company_id_tag and company_id_tag.get("content", "").isdigit()
+            else None
+        )
         return {
             "description": description,
+            "company_linkedin_id": company_linkedin_id,
             "job_level": parse_job_level(soup),
             "company_industry": parse_company_industry(soup),
             "job_type": parse_job_type(soup),

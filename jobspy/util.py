@@ -353,6 +353,7 @@ desired_order = [
     "company_num_employees",
     "company_revenue",
     "company_description",
+    "company_linkedin_id",
     # naukri-specific fields
     "skills",
     "experience_range",

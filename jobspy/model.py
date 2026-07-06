@@ -256,6 +256,7 @@ class JobPost(BaseModel):
     listing_type: str | None = None
 
     # LinkedIn specific
+    company_linkedin_id: str | None = None
     job_level: str | None = None
 
     # LinkedIn and Indeed specific

@@ -33,7 +33,7 @@ jobs = scrape_jobs(
     hours_old=72,
     country_indeed='USA',
     
-    # linkedin_fetch_description=True # gets more info such as description, direct job url (slower)
+    # linkedin_fetch_description=True # gets more info such as description, direct job url, linkedin company id (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
 )
 print(f"Found {len(jobs)} jobs")
@@ -105,7 +105,7 @@ Optional
 |    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
 
 ├── linkedin_fetch_description (bool): 
-|    fetches full description and direct job url for LinkedIn (Increases requests by O(n))
+|    fetches full description, direct job url, and company_linkedin_id for LinkedIn (Increases requests by O(n))
 │
 ├── linkedin_company_ids (list[int]): 
 |    searches for linkedin jobs with specific company ids
@@ -237,6 +237,7 @@ JobPost
 └── emails
 
 Linkedin specific
+├── company_linkedin_id
 └── job_level
 
 Linkedin & Indeed specific
