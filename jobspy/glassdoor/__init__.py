@@ -4,7 +4,7 @@ import re
 import json
 import requests
 from typing import Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from jobspy.glassdoor.constant import fallback_token, query_template, headers
@@ -121,7 +121,20 @@ class Glassdoor(Scraper):
                 raise GlassdoorException(exc_msg)
             res_json = response.json()[0]
             if "errors" in res_json:
-                raise ValueError("Error encountered in API response")
+                # Only treat errors on the jobListings field as fatal.
+                # Glassdoor commonly returns non-critical 503s on peripheral
+                # fields (e.g. jobsPageSeoData) while the job data is intact.
+                # See https://github.com/speedyapply/JobSpy/pull/347
+                job_errors = [
+                    e
+                    for e in res_json["errors"]
+                    if "jobListings" in str(e.get("path", []))
+                    and "jobsPageSeoData" not in str(e.get("path", []))
+                ]
+                if job_errors:
+                    raise ValueError(
+                        f"Error encountered in jobListings API response: {job_errors}"
+                    )
         except (
             requests.exceptions.ReadTimeout,
             GlassdoorException,
@@ -151,9 +164,11 @@ class Glassdoor(Scraper):
 
     def _get_csrf_token(self):
         """
-        Fetches csrf token needed for API by visiting a generic page
+        Fetches csrf token needed for API by visiting the homepage.
+        Previously used /Job/computer-science-jobs.htm which now returns 404
+        after Glassdoor's Next.js migration (JobSpy #347).
         """
-        res = self.session.get(f"{self.base_url}/Job/computer-science-jobs.htm")
+        res = self.session.get(f"{self.base_url}/")
         pattern = r'"token":\s*"([^"]+)"'
         matches = re.findall(pattern, res.text)
         token = None
@@ -178,8 +193,15 @@ class Glassdoor(Scraper):
         location_type = job["header"].get("locationType", "")
         age_in_days = job["header"].get("ageInDays")
         is_remote, location = False, None
-        date_diff = (datetime.now() - timedelta(days=age_in_days)).date()
-        date_posted = date_diff if age_in_days is not None else None
+        if age_in_days is not None:
+            # Noon UTC so day-bucketed ages don't immediately fail a 24h filter.
+            date_posted = (datetime.now(timezone.utc) - timedelta(days=age_in_days)).replace(
+                hour=12, minute=0, second=0, microsecond=0
+            )
+            posted_at_source = "glassdoor_age_in_days"
+        else:
+            date_posted = None
+            posted_at_source = None
 
         if location_type == "S":
             is_remote = True
@@ -207,6 +229,7 @@ class Glassdoor(Scraper):
             company_url=company_url if company_id else None,
             company_name=company_name,
             date_posted=date_posted,
+            posted_at_source=posted_at_source,
             job_url=job_url,
             location=location,
             compensation=compensation,

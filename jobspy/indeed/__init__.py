@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Tuple
 
 from jobspy.indeed.constant import job_search_query, api_headers
@@ -207,8 +207,9 @@ class Indeed(Scraper):
             description = markdown_converter(description)
 
         job_type = get_job_type(job["attributes"])
+        # Preserve full ms-precision publish time (upstream used to truncate to date).
         timestamp_seconds = job["datePublished"] / 1000
-        date_posted = datetime.fromtimestamp(timestamp_seconds).strftime("%Y-%m-%d")
+        date_posted = datetime.fromtimestamp(timestamp_seconds, tz=timezone.utc)
         employer = job["employer"].get("dossier") if job["employer"] else None
         employer_details = employer.get("employerDetails", {}) if employer else {}
         rel_url = job["employer"]["relativeCompanyPageUrl"] if job["employer"] else None
@@ -229,6 +230,7 @@ class Indeed(Scraper):
             job_type=job_type,
             compensation=get_compensation(job["compensation"]),
             date_posted=date_posted,
+            posted_at_source="indeed_date_published",
             job_url=job_url,
             job_url_direct=(
                 job["recruit"].get("viewJobUrl") if job.get("recruit") else None

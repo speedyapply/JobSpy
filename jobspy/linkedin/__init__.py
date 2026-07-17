@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 import random
 import time
-from datetime import datetime
 from typing import Optional
 from urllib.parse import urlparse, urlunparse, unquote
 
@@ -18,7 +17,8 @@ from jobspy.linkedin.util import (
     job_type_code,
     parse_job_type,
     parse_job_level,
-    parse_company_industry
+    parse_company_industry,
+    parse_job_datetime,
 )
 from jobspy.model import (
     JobPost,
@@ -213,13 +213,7 @@ class LinkedIn(Scraper):
             datetime_tag = metadata_card.find(
                 "time", class_="job-search-card__listdate--new"
             )
-        date_posted = None
-        if datetime_tag and "datetime" in datetime_tag.attrs:
-            datetime_str = datetime_tag["datetime"]
-            try:
-                date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
-            except:
-                date_posted = None
+        date_posted, posted_at_source = parse_job_datetime(datetime_tag)
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
@@ -231,9 +225,11 @@ class LinkedIn(Scraper):
             title=title,
             company_name=company,
             company_url=company_url,
+            company_linkedin_id=job_details.get("company_linkedin_id"),
             location=location,
             is_remote=is_remote,
             date_posted=date_posted,
+            posted_at_source=posted_at_source,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
             compensation=compensation,
             job_type=job_details.get("job_type"),
@@ -291,8 +287,15 @@ class LinkedIn(Scraper):
             if (logo_image := soup.find("img", {"class": "artdeco-entity-image"}))
             else None
         )
+        company_id_tag = soup.find("meta", attrs={"name": "companyId"})
+        company_linkedin_id = (
+            company_id_tag.get("content")
+            if company_id_tag and company_id_tag.get("content", "").isdigit()
+            else None
+        )
         return {
             "description": description,
+            "company_linkedin_id": company_linkedin_id,
             "job_level": parse_job_level(soup),
             "company_industry": parse_company_industry(soup),
             "job_type": parse_job_type(soup),

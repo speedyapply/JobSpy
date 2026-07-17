@@ -333,6 +333,7 @@ desired_order = [
     "company",
     "location",
     "date_posted",
+    "posted_at_source",
     "job_type",
     "salary_source",
     "interval",
@@ -353,6 +354,7 @@ desired_order = [
     "company_num_employees",
     "company_revenue",
     "company_description",
+    "company_linkedin_id",
     # naukri-specific fields
     "skills",
     "experience_range",
