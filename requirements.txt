@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+requests
+jinja2
+python-jobspy
+python-multipart
+pydantic-settings
