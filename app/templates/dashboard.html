@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Início{% endblock %}
+
+{% block content %}
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="animate__animated animate__fadeInDown">Bem-vindo, {{ username }}!</h2>
+            <p class="lead animate__animated animate__fadeIn animate__delay-1s mb-md-0">Este é o seu painel de controle. Aqui você pode visualizar informações importantes sobre as vagas.</p>
+        </div>
+    </div>
+<!-- Formulário de Busca Dinâmico -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body bg-light">
+                    <form action="/vagas/atualizar" method="POST" class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label for="search_term" class="form-label fw-bold text-secondary">Cargo / Tecnologia</label>
+                            <input type="text" class="form-control" id="search_term" name="search_term" placeholder="Ex: Desenvolvedor Python, React, DevOps" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="location" class="form-label fw-bold text-secondary">Localização</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="Ex: Santa Catarina, São Paulo, Remote">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-search me-2"></i>Buscar Vagas
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Vagas de Emprego Recentes</h5>
+                    <span class="badge bg-light text-primary">{{ job_listings|length }} vagas encontradas</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover caption-top align-middle">
+                            <caption>Listagem das últimas vagas disponíveis capturadas via JobSpy.</caption>
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Título</th>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col">Localização</th>
+                                    <th scope="col">Remoto</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Salário (Estimado)</th>
+                                    <th scope="col">Publicado em</th>
+                                    <th scope="col" class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in job_listings %}
+                                <tr>
+                                    <td class="fw-bold text-secondary">{{ job.title }}</td>
+                                    <td>
+                                        {% if job.company_url %}
+                                            <a href="{{ job.company_url }}" target="_blank" class="text-decoration-none">
+                                                {{ job.company }} <i class="fas fa-external-link-alt fa-xs ms-1"></i>
+                                            </a>
+                                        {% else %}
+                                            {{ job.company }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="column location">
+                                        <!-- Usa job.location como fallback seguro caso city/state venham nulos -->
+                                        {% if job.city %}
+                                            {{ job.city }}{% if job.state %}, {{ job.state }}{% endif %}
+                                        {% else %}
+                                            {{ job.location or 'Não informado' }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if job.is_remote %}
+                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Sim</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i> Não</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if job.job_type %}
+                                            <span class="badge bg-info text-dark">{{ job.job_type | title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">N/I</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <!-- Correção segura da exibição de salários sem usar métodos de string do Python -->
+                                        {% if job.min_amount and job.max_amount %}
+                                            R$ {{ job.min_amount }} - {{ job.max_amount }} ({% if job.interval %}{{ job.interval | title }}{% else %}Ano{% endif %})
+                                        {% elif job.min_amount %}
+                                            A partir de R$ {{ job.min_amount }}
+                                        {% else %}
+                                            <span class="text-muted italic">Não divulgado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><small class="text-muted">{{ job.date_posted }}</small></td>
+                                    <td class="text-center text-sm">
+                                        {% if job.job_url %}
+                                            <a href="{{ job.job_url }}" target="_blank" class="btn btn-sm btn-primary px-3" title="Candidatar-se">
+                                                Ver Vaga <i class="fas fa-external-link-alt ms-1 fa-xs"></i>
+                                            </a>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-secondary" disabled>Indisponível</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        <i class="fas fa-search fa-2x mb-2 d-block"></i>
+                                        Nenhuma vaga de emprego encontrada no banco de dados.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
