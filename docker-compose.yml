@@ -1,0 +1,19 @@
+# docker-compose.yml
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./app/data:/app/data
+    env_file:
+      - .env
+    healthcheck: # Opcional: Garante que o serviço está pronto para receber requisições
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  sqlite_data: # Define o volume nomeado para o SQLite
