@@ -7,3 +7,5 @@ jinja2
 python-jobspy
 python-multipart
 pydantic-settings
+sqlalchemy
+alembic
