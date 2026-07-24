@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Vagas Selecionadas{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="animate__animated animate__fadeInDown">Minhas Vagas Selecionadas</h2>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">Aqui estão as vagas que você marcou como selecionadas.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Vagas Selecionadas</h5>
+                <span class="badge bg-light text-info">{{ job_listings|length }} vagas encontradas</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover caption-top align-middle">
+                        <caption>Listagem das vagas que você selecionou.</caption>
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Título</th>
+                                <th scope="col">Empresa</th>
+                                <th scope="col">Localização</th>
+                                <th scope="col">Remoto</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Salário (Estimado)</th>
+                                <th scope="col">Publicado em</th>
+                                <th scope="col" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in job_listings %}
+                            <tr>
+                                <td class="fw-bold text-secondary" title="{{job.description}}">{{ job.title }}</td>
+                                <td>
+                                    {% if job.company_url %}
+                                        <a href="{{ job.company_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                            {{ job.company }} <i class="fas fa-external-link-alt fa-xs ms-1" aria-hidden="true"></i>
+                                        </a>
+                                    {% else %}
+                                        {{ job.company }}
+                                    {% endif %}
+                                </td>
+                                <td class="column location">
+                                    {% if job.city %}
+                                        {{ job.city }}{% if job.state %}, {{ job.state }}{% endif %}
+                                    {% else %}
+                                        {{ job.location or 'Não informado' }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if job.is_remote %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1" aria-hidden="true"></i> Sim</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary"><i class="fas fa-times-circle me-1" aria-hidden="true"></i> Não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if job.job_type %}
+                                        <span class="badge bg-info text-dark">{{ job.job_type | title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">N/I</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if job.min_amount and job.max_amount %}
+                                        R$ {{ job.min_amount }} - {{ job.max_amount }} ({% if job.interval %}{{ job.interval | title }}{% else %}Ano{% endif %})
+                                    {% elif job.min_amount %}
+                                        A partir de R$ {{ job.min_amount }}
+                                    {% else %}
+                                        <span class="text-muted italic">Não divulgado</span>
+                                    {% endif %}
+                                </td>
+                                <td><small class="text-muted">{{ job.date_posted }}</small></td>
+                                <td class="text-center text-sm">
+                                    <div class="d-flex justify-content-center align-items-center" style="gap: 5px;">
+                                        {% if job.job_url %}
+                                            <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" title="Candidatar-se">
+                                                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                            </a>
+                                        {% endif %}
+                                        
+                                        <form action="/vagas/{{ job.id }}/update-status" method="POST" class="d-inline">
+                                            <input type="hidden" name="status_id" value="">
+                                            <button type="submit" class="btn btn-sm btn-secondary" title="Remover da seleção">
+                                                <i class="fas fa-times" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="fas fa-star fa-2x mb-2 d-block"></i>
+                                    Você ainda não selecionou nenhuma vaga.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Status{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Gerenciar Status de Vagas</h2>
+
+    <!-- Formulário para Adicionar Novo Status -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            Adicionar Novo Status
+        </div>
+        <div class="card-body">
+            <form action="/statuses/add" method="POST">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-10">
+                        <label for="status_name" class="form-label">Nome do Status</label>
+                        <input type="text" class="form-control" id="status_name" name="name" placeholder="Ex: Aprovada, Rejeitada" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Status Existentes -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            Status Existentes
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in statuses %}
+                        <tr>
+                            <td>{{ status.id }}</td>
+                            <td>{{ status.name }}</td>
+                            <td class="text-center">
+                                <form action="/statuses/{{ status.id }}/delete" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este status?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">Nenhum status encontrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

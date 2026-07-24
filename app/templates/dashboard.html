@@ -104,13 +104,31 @@
                                     </td>
                                     <td><small class="text-muted">{{ job.date_posted }}</small></td>
                                     <td class="text-center text-sm">
-                                        {% if job.job_url %}
-                                            <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary px-3" title="Candidatar-se">
-                                                Ver Vaga <i class="fas fa-external-link-alt ms-1 fa-xs" aria-hidden="true"></i>
-                                            </a>
-                                        {% else %}
-                                            <button class="btn btn-sm btn-secondary" disabled>Indisponível</button>
-                                        {% endif %}
+                                        <div class="d-flex justify-content-center align-items-center" style="gap: 5px;">
+                                            {% if job.job_url %}
+                                                <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" title="Candidatar-se">
+                                                    <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                                </a>
+                                            {% endif %}
+                                            
+                                            {% if statuses and statuses['selecionada'] and job.status_id != statuses['selecionada'] %}
+                                            <form action="/vagas/{{ job.id }}/update-status" method="POST" class="d-inline">
+                                                <input type="hidden" name="status_id" value="{{ statuses['selecionada'] }}">
+                                                <button type="submit" class="btn btn-sm btn-info" title="Selecionar Vaga">
+                                                    <i class="fas fa-check" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+
+                                            {% if statuses and statuses['excluido'] %}
+                                            <form action="/vagas/{{ job.id }}/update-status" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta vaga?');">
+                                                <input type="hidden" name="status_id" value="{{ statuses['excluido'] }}">
+                                                <button type="submit" class="btn btn-sm btn-warning" title="Excluir Vaga">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                 </tr>
                                 {% else %}

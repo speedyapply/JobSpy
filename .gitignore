@@ -1,11 +1,57 @@
-/venv/
-/.idea
-**/__pycache__/
-**/.pytest_cache/
-/.ipynb_checkpoints/
-**/output/
-**/.DS_Store
-*.pyc
+# Environments
 .env
-dist
+.venv/
+env/
+venv/
+
+# Byte-code
+*.pyc
+*.pyo
+*.pyd
+**/__pycache__/
+
+# Distribution / Packaging
+*.egg
+*.egg-info/
+*.whl
+build/
+dist/
+pip-wheel-metadata/
+
+# Testing / Debugging
+.coverage
+.coverage.*
+.hypothesis/
+.ipynb_checkpoints/
+.mypy_cache/
+.pants.d/
+.pytest_cache/
+.pyre_configuration.py
+.pytype/
+.tox/
+coverage.xml
+cython_debug/
+htmlcov/
+nosetests.xml
+
+# IDE / Editor
+.DS_Store
+.idea/
+.vscode/
+openclaw-workspace-state.json
+
+# OS / System
+.Python
+
+# Temporary / Output
+*.bak
+*.log
+*.sqlite
+*.sqlite3
+*.swo
+*.swp
 .history
+**/output/
+TAGS
+tags
+tmp/
