@@ -24,7 +24,7 @@
                             <input type="text" class="form-control" id="location" name="location" placeholder="Ex: Santa Catarina, São Paulo, Remote">
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-success w-100">
+                            <button type="submit" class="btn btn-success w-100" aria-label="Buscar Vagas">
                                 <i class="fa fa-search" aria-hidden="true"></i>Buscar Vagas
                             </button>
                         </div>
@@ -38,7 +38,7 @@
         <div class="col-12">
             <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Vagas de Emprego Recentes</h5>
+                    <h5 class="mb-0"><i class="fas fa-briefcase me-2" aria-hidden="true"></i>Vagas de Emprego Recentes</h5>
                     <span class="badge bg-light text-primary">{{ job_listings|length }} vagas encontradas</span>
                 </div>
                 <div class="card-body">
@@ -63,8 +63,8 @@
                                     <td class="fw-bold text-secondary" title="{{job.description}}">{{ job.title }}</td>
                                     <td>
                                         {% if job.company_url %}
-                                            <a href="{{ job.company_url }}" target="_blank" class="text-decoration-none">
-                                                {{ job.company }} <i class="fas fa-external-link-alt fa-xs ms-1"></i>
+                                            <a href="{{ job.company_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                                {{ job.company }} <i class="fas fa-external-link-alt fa-xs ms-1" aria-hidden="true"></i>
                                             </a>
                                         {% else %}
                                             {{ job.company }}
@@ -80,9 +80,9 @@
                                     </td>
                                     <td>
                                         {% if job.is_remote %}
-                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Sim</span>
+                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1" aria-hidden="true"></i> Sim</span>
                                         {% else %}
-                                            <span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i> Não</span>
+                                            <span class="badge bg-secondary"><i class="fas fa-times-circle me-1" aria-hidden="true"></i> Não</span>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -105,8 +105,8 @@
                                     <td><small class="text-muted">{{ job.date_posted }}</small></td>
                                     <td class="text-center text-sm">
                                         {% if job.job_url %}
-                                            <a href="{{ job.job_url }}" target="_blank" class="btn btn-sm btn-primary px-3" title="Candidatar-se">
-                                                Ver Vaga <i class="fas fa-external-link-alt ms-1 fa-xs"></i>
+                                            <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary px-3" title="Candidatar-se">
+                                                Ver Vaga <i class="fas fa-external-link-alt ms-1 fa-xs" aria-hidden="true"></i>
                                             </a>
                                         {% else %}
                                             <button class="btn btn-sm btn-secondary" disabled>Indisponível</button>
@@ -116,7 +116,7 @@
                                 {% else %}
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="fas fa-search fa-2x mb-2 d-block"></i>
+                                        <i class="fas fa-search fa-2x mb-2 d-block" aria-hidden="true"></i>
                                         Nenhuma vaga de emprego encontrada no banco de dados.
                                     </td>
                                 </tr>
