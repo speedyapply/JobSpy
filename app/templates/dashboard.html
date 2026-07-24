@@ -25,7 +25,7 @@
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-search me-2"></i>Buscar Vagas
+                                <i class="fa fa-search" aria-hidden="true"></i>Buscar Vagas
                             </button>
                         </div>
                     </form>
@@ -60,7 +60,7 @@
                             <tbody>
                                 {% for job in job_listings %}
                                 <tr>
-                                    <td class="fw-bold text-secondary">{{ job.title }}</td>
+                                    <td class="fw-bold text-secondary" title="{{job.description}}">{{ job.title }}</td>
                                     <td>
                                         {% if job.company_url %}
                                             <a href="{{ job.company_url }}" target="_blank" class="text-decoration-none">

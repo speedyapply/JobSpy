@@ -1,0 +1,76 @@
+/* Estilos básicos para o body e containers (se não estiverem no base.html) */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Um cinza claro do Bootstrap */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Para o footer fixo no final */
+}
+
+.footer {
+    margin-top: auto; /* Empurra o rodapé para baixo */
+}
+
+/* Ajustes para a tabela, se necessário */
+.table-responsive {
+    margin-top: 20px;
+}
+
+/* Exemplo de estilo para o login-container se você for reutilizar o estilo antigo */
+.login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Ajustes para formulário de login */
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+.form-group label {
+    display: block;
+    margin-bottom: .5rem;
+    font-weight: 600;
+}
+.form-group input {
+    width: 100%;
+    padding: .75rem;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+.form-group input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    width: 100%; /* Para o botão de login */
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004d9b;
+}
+
+/* Estilos para animações */
+.animate__animated.animate__fadeInDown {
+    animation-duration: 1s;
+}
+.animate__animated.animate__fadeIn {
+    animation-duration: 1.5s;
+}
+.animate__animated.animate__fadeInUp {
+    animation-duration: 1.2s;
+}
+/* Você pode adicionar mais estilos CSS personalizados aqui */
+
+td.column.location {
+    font-size:8pt;
+}
