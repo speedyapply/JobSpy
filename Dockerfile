@@ -1,18 +1,27 @@
-# filepath: /JobSpy/Dockerfile
-# Use uma imagem oficial do Python como base
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bookworm
 
-# Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copia o arquivo de requisitos e instala as dependências
+# Instala dependências do sistema (curl para healthcheck, libs para Playwright/Chromium)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+    libcups2 libdrm2 libdbus-1-3 libxkbcommon0 libxcomposite1 \
+    libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 \
+    libcairo2 libasound2 libatspi2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia e instala dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código da sua aplicação para o contêiner
+# Instala o Chromium para Playwright
+RUN python3 -m playwright install chromium 2>/dev/null || echo "Aviso: playwright chromium nao instalado"
+
+# Copia o código da aplicação
 COPY ./app /app
 
-# Comando para rodar a aplicação com Uvicorn
-# 'main:app' significa o objeto 'app' dentro do arquivo 'main.py'
-# '--host 0.0.0.0' permite que a aplicação seja acessível de fora do contêiner
+EXPOSE 8000
+
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

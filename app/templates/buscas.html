@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Buscas{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="animate__animated animate__fadeInDown">Gerenciar Buscas</h2>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">Configure os termos e parâmetros das buscas de vagas que o scraper executa.</p>
+    </div>
+    <div class="col-auto">
+        <a href="/buscas/add" class="btn btn-primary animate__animated animate__fadeIn animate__delay-1s">
+            <i class="fas fa-plus me-2"></i>Nova Busca
+        </a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+{% if success %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>{{ success }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i>Buscas Configuradas</h5>
+                <span class="badge bg-light text-dark">{{ buscas|length }} buscas no total</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" style="width: 20%;">Nome</th>
+                                <th scope="col" style="width: 15%;" class="text-center">Status</th>
+                                <th scope="col" style="width: 30%;">Termos de Pesquisa</th>
+                                <th scope="col" style="width: 20%;">Detalhes (Filtros JSON)</th>
+                                <th scope="col" class="text-center" style="width: 15%;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for busca in buscas %}
+                            <tr>
+                                <td class="fw-bold text-secondary">{{ busca.nome }}</td>
+                                <td class="text-center">
+                                    <form action="/buscas/{{ busca.id }}/toggle-status" method="POST" class="d-inline">
+                                        {% if busca.status == 1 %}
+                                            <button type="submit" class="btn btn-sm btn-success text-white" title="Clique para desativar">
+                                                <i class="fas fa-check-circle me-1"></i> Ativo
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm btn-secondary text-white" title="Clique para ativar">
+                                                <i class="fas fa-times-circle me-1"></i> Inativo
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                                <td>{{ busca.termos }}</td>
+                                <td>
+                                    {% if busca.detalhes %}
+                                        <code class="text-dark small">{{ busca.detalhes_str }}</code>
+                                    {% else %}
+                                        <span class="text-muted small">Padrão</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="/buscas/{{ busca.id }}/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <form action="/buscas/{{ busca.id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta busca?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                <i class="fas fa-trash-alt"></i> Excluir
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="fas fa-search fa-2x mb-2 d-block"></i>
+                                    Nenhuma busca cadastrada. Crie uma nova busca para iniciar o rastreamento de vagas!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

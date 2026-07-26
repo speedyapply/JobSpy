@@ -9,26 +9,17 @@
             <p class="lead animate__animated animate__fadeIn animate__delay-1s mb-md-0">Este é o seu painel de controle. Aqui você pode visualizar informações importantes sobre as vagas.</p>
         </div>
     </div>
-<!-- Formulário de Busca Dinâmico -->
+<!-- Formulário para Acionar o Scraper -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-body bg-light">
-                    <form action="/vagas/atualizar" method="POST" class="row g-3 align-items-end">
-                        <div class="col-md-5">
-                            <label for="search_term" class="form-label fw-bold text-secondary">Cargo / Tecnologia</label>
-                            <input type="text" class="form-control" id="search_term" name="search_term" placeholder="Ex: Desenvolvedor Python, React, DevOps" required>
-                        </div>
-                        <div class="col-md-5">
-                            <label for="location" class="form-label fw-bold text-secondary">Localização</label>
-                            <input type="text" class="form-control" id="location" name="location" placeholder="Ex: Santa Catarina, São Paulo, Remote">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-success w-100" aria-label="Buscar Vagas">
-                                <i class="fa fa-search" aria-hidden="true"></i>Buscar Vagas
-                            </button>
-                        </div>
+                <div class="card-body bg-light text-center">
+                    <form action="/vagas/atualizar" method="POST">
+                        <button type="submit" class="btn btn-lg btn-success" aria-label="Executar Buscas de Vagas">
+                            <i class="fas fa-sync-alt me-2"></i> Executar Buscas de Vagas em Segundo Plano
+                        </button>
                     </form>
+                    <small class="text-muted mt-2 d-block">Isso irá executar todas as buscas ativas configuradas no sistema.</small>
                 </div>
             </div>
         </div>
@@ -111,22 +102,24 @@
                                                 </a>
                                             {% endif %}
                                             
-                                            {% if statuses and statuses['selecionada'] and job.status_id != statuses['selecionada'] %}
+                                            {% if statuses and 'Selecionado' in statuses and job.status_id != statuses['Selecionado'] %}
                                             <form action="/vagas/{{ job.id }}/update-status" method="POST" class="d-inline">
-                                                <input type="hidden" name="status_id" value="{{ statuses['selecionada'] }}">
+                                                <input type="hidden" name="status_id" value="{{ statuses['Selecionado'] }}">
                                                 <button type="submit" class="btn btn-sm btn-info" title="Selecionar Vaga">
                                                     <i class="fas fa-check" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                             {% endif %}
 
-                                            {% if statuses and statuses['excluido'] %}
-                                            <form action="/vagas/{{ job.id }}/update-status" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta vaga?');">
-                                                <input type="hidden" name="status_id" value="{{ statuses['excluido'] }}">
-                                                <button type="submit" class="btn btn-sm btn-warning" title="Excluir Vaga">
-                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                </button>
-                                            </form>
+                                            {% if statuses and 'Excluida' in statuses %}
+                                            <button class="btn btn-sm btn-warning" 
+                                                    hx-delete="/vagas/{{ job.id }}" 
+                                                    hx-confirm="Tem certeza que deseja excluir esta vaga?"
+                                                    hx-target="closest tr" 
+                                                    hx-swap="outerHTML"
+                                                    title="Excluir Vaga">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
                                             {% endif %}
                                         </div>
                                     </td>
@@ -135,13 +128,29 @@
                                 <tr>
                                     <td colspan="8" class="text-center py-4 text-muted">
                                         <i class="fas fa-search fa-2x mb-2 d-block" aria-hidden="true"></i>
-                                        Nenhuma vaga de emprego encontrada no banco de dados.
+                                        Nenhuma vaga nova encontrada. <br>
+                                        Veja as vagas já selecionadas em <a href="/minhas-vagas">Minhas Vagas.</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    {% if total_pages > 1 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="?page={{ current_page - 1 }}&limit={{ limit }}" tabindex="-1" aria-disabled="true">Anterior</a>
+                            </li>
+                            {% for i in range(1, total_pages + 1) %}
+                            <li class="page-item {% if i == current_page %}active{% endif %}"><a class="page-link" href="?page={{ i }}&limit={{ limit }}">{{ i }}</a></li>
+                            {% endfor %}
+                            <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                <a class="page-link" href="?page={{ current_page + 1 }}&limit={{ limit }}">Próxima</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
                 </div>
             </div>
         </div>

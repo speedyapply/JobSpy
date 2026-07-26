@@ -1,4 +1,5 @@
 import os
+import logging
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -24,3 +25,21 @@ class Settings(BaseSettings):
 
 # Instanciamos uma vez para ser importada no projeto todo (Singleton)
 settings = Settings()
+
+def setup_logging():
+    """Configura o logging para a aplicação."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler()  # Log para o console
+        ]
+    )
+    # Diminui a verbosidade de bibliotecas de terceiros
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("multiprocess.pool").setLevel(logging.WARNING)
+
+
+# Configura o logging assim que este módulo for importado
+setup_logging()

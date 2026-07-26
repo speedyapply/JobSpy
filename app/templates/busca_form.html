@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if busca %}Editar Busca{% else %}Nova Busca{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="animate__animated animate__fadeInDown">
+            {% if busca %}Editar Busca{% else %}Nova Busca{% endif %}
+        </h2>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">
+            {% if busca %}Atualize as informações da busca selecionada.{% else %}Cadastre uma nova busca de vagas no sistema.{% endif %}
+        </p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Formulário de Busca
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="{% if busca %}/buscas/{{ busca.id }}/edit{% else %}/buscas/add{% endif %}" method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label fw-bold">Nome da Busca</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ busca.nome if busca else '' }}" placeholder="Ex: Desenvolvedor Python" required>
+                        <div class="form-text">Um nome claro e descritivo para identificar esta busca. Deve ser único.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label fw-bold">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="1" {% if busca and busca.status == 1 %}selected{% elif not busca %}selected{% endif %}>Ativo</option>
+                            <option value="0" {% if busca and busca.status == 0 %}selected{% endif %}>Inativo</option>
+                        </select>
+                        <div class="form-text">Buscas inativas não são executadas pelo scraper.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="termos" class="form-label fw-bold">Termos de Pesquisa</label>
+                        <input type="text" class="form-control" id="termos" name="termos" value="{{ busca.termos if busca else '' }}" placeholder="Ex: Python Developer, Django, Flask" required>
+                        <div class="form-text">Palavras-chave enviadas para os portais de vagas. Separe-as por vírgula.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="detalhes" class="form-label fw-bold">Detalhes (Filtros JSON)</label>
+                        <textarea class="form-control font-monospace" id="detalhes" name="detalhes" rows="6" placeholder='{
+  "location": "Brasil",
+  "job_type": "fulltime",
+  "is_remote": false
+}'>{{ detalhes_str if detalhes_str else '' }}</textarea>
+                        <div class="form-text">Configurações adicionais de busca em formato JSON. Deixe vazio para usar os padrões. Campos suportados comuns: <code>"location"</code>, <code>"job_type"</code> (Ex: fulltime, parttime, contract, internship), <code>"is_remote"</code> (true/false).</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="/buscas" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

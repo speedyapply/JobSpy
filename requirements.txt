@@ -7,5 +7,8 @@ jinja2
 python-jobspy
 python-multipart
 pydantic-settings
-sqlalchemy
+celery[redis]
+redis
 alembic
+pyyaml
+playwright

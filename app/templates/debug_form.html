@@ -1,0 +1,30 @@
+<form action="/configs/debug" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="site_name">Site</label>
+                <select name="site_name" id="site_name" class="form-control">
+                    {% for site in site_names %}
+                        <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>{{ site }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="search_term">Termo de Busca</label>
+                <input type="text" name="search_term" id="search_term" class="form-control" value="{{ search_term or '' }}">
+            </div>
+        </div>
+        <div class="col-md-4 align-self-end">
+            <button type="submit" class="btn btn-info"><i class="fas fa-search"></i> Testar</button>
+        </div>
+    </div>
+</form>
+
+{% if raw_data %}
+<div class="mt-4">
+    <h5>Dados Retornados:</h5>
+    <pre class="bg-light p-3 rounded"><code>{{ raw_data }}</code></pre>
+</div>
+{% endif %}

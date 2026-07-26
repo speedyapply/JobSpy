@@ -1,5 +1,17 @@
 # docker-compose.yml
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   web:
     build: .
     ports:
@@ -7,13 +19,44 @@ services:
     volumes:
       - ./app:/app
       - ./app/data:/app/data
+      - ./assets:/app/assets
     env_file:
       - .env
-    healthcheck: # Opcional: Garante que o serviço está pronto para receber requisições
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:////app/data/jobs.db
+      - DB_FILE_PATH=/app/data/jobs.db
+      - DADOS_CANDIDATURA_PATH=/app/assets/dados_candidatura.md
+      - CURRICULO_PATH=/app/assets/curriculo.pdf
+    healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
       interval: 30s
       timeout: 10s
       retries: 5
 
+  worker:
+    build: .
+    volumes:
+      - ./app:/app
+      - ./assets:/app/assets
+      - ./scripts:/app/scripts
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:////app/data/jobs.db
+      - DB_FILE_PATH=/app/data/jobs.db
+      - DADOS_CANDIDATURA_PATH=/app/assets/dados_candidatura.md
+      - CURRICULO_PATH=/app/assets/curriculo.pdf
+      - PYTHONPATH=/app
+    command: celery -A celery_app worker --loglevel=info --concurrency=1
+
 volumes:
-  sqlite_data: # Define o volume nomeado para o SQLite
+  sqlite_data:
+  redis_data:

@@ -42,6 +42,12 @@ shell:
 scraper:
 	$(COMPOSE) exec $(SERVICE_NAME) python scraper.py
 
+worker-logs:
+	$(COMPOSE) logs worker -f
+
+worker-shell:
+	$(COMPOSE) exec worker /bin/bash
+
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete

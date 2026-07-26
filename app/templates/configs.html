@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Configurações{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="animate__animated animate__fadeInDown">Gerenciar Configurações</h2>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">Ajuste os parâmetros de funcionamento do sistema, como sites pesquisados e limites de busca.</p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+{% if success %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i>{{ success }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header bg-dark text-white">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab != 'debug' %}active{% endif %}" href="#configs" data-bs-toggle="tab">Configurações</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_tab == 'debug' %}active{% endif %}" href="#debug" data-bs-toggle="tab">Debug</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body tab-content">
+                <div class="tab-pane {% if active_tab != 'debug' %}active{% endif %}" id="configs">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 col-md-10"><i class="fas fa-cogs me-2"></i>Configurações do Sistema</h5>
+                        <a href="/configs/add" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Nova Configuração
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col" style="width: 25%;">Nome (Chave)</th>
+                                    <th scope="col" style="width: 35%;">Descrição</th>
+                                    <th scope="col" style="width: 25%;">Conteúdo (Valor)</th>
+                                    <th scope="col" class="text-center" style="width: 15%;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for config in configs %}
+                                <tr>
+                                    <td class="fw-bold text-secondary">{{ config.nome }}</td>
+                                    <td>{{ config.descricao or 'Sem descrição' }}</td>
+                                    <td>
+                                        <code class="text-dark">{{ config.conteudo or '' }}</code>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="/configs/{{ config.id }}/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </a>
+                                            <form action="/configs/{{ config.id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta configuração?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                    <i class="fas fa-trash-alt"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="fas fa-cogs fa-2x mb-2 d-block"></i>
+                                        Nenhuma configuração cadastrada no momento.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane {% if active_tab == 'debug' %}active{% endif %}" id="debug">
+                    <h5 class="mb-3"><i class="fas fa-bug me-2"></i>Debug de API</h5>
+                    <p>Selecione um site para testar a busca e ver os dados brutos retornados pela API.</p>
+                    {% include 'debug_form.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

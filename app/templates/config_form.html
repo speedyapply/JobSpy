@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if config %}Editar Configuração{% else %}Nova Configuração{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="animate__animated animate__fadeInDown">
+            {% if config %}Editar Configuração{% else %}Nova Configuração{% endif %}
+        </h2>
+        <p class="lead animate__animated animate__fadeIn animate__delay-1s">
+            {% if config %}Atualize as informações da configuração selecionada.{% else %}Cadastre uma nova configuração no sistema.{% endif %}
+        </p>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>Formulário de Configuração
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="{% if config %}/configs/{{ config.id }}/edit{% else %}/configs/add{% endif %}" method="POST">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label fw-bold">Nome (Chave)</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ config.nome if config else '' }}" placeholder="Ex: SITE_NAMES" required {% if config %}readonly{% endif %}>
+                        <div class="form-text">O nome serve como chave identificadora no código e deve ser único. {% if config %}Este campo não pode ser alterado.{% endif %}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label fw-bold">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="2" placeholder="Descreva para que serve esta configuração...">{{ config.descricao if config else '' }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="conteudo" class="form-label fw-bold">Conteúdo (Valor)</label>
+                        <textarea class="form-control font-monospace" id="conteudo" name="conteudo" rows="4" placeholder="Ex: linkedin,indeed (para SITE_NAMES)">{{ config.conteudo if config else '' }}</textarea>
+                        <div class="form-text">Insira o valor ou conteúdo associado a esta chave. Se aplicável, use formatos esperados como vírgulas ou JSON.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="/configs" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

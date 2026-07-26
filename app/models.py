@@ -1,6 +1,24 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Text, JSON, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
+
+class ConfigModel(Base):
+    __tablename__ = "configs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    nome = Column(String, nullable=False, unique=True, index=True)
+    descricao = Column(Text, nullable=True)
+    conteudo = Column(Text, nullable=True)
+
+class BuscaModel(Base):
+    __tablename__ = "buscas"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    nome = Column(String, nullable=False, unique=True)
+    status = Column(Integer, default=1, nullable=False)  # 0=inativo, 1=ativo
+    termos = Column(Text, nullable=False)
+    detalhes = Column(JSON, nullable=True)
 
 class StatusVagaModel(Base):
     __tablename__ = "status_vagas"
@@ -9,6 +27,26 @@ class StatusVagaModel(Base):
     name = Column(String, nullable=False, unique=True)
     vagas = relationship("VagaModel", back_populates="status")
 
+class CandidaturaModel(Base):
+    """
+    Registro de uma candidatura enviada via automação.
+    Permite acompanhar o status de cada aplicação (task queue).
+    """
+    __tablename__ = "candidaturas"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    vaga_id = Column(Integer, ForeignKey("vagas.id"), nullable=True)
+    job_url = Column(String, nullable=False)
+    status = Column(String, default="PENDING", nullable=False)  # PENDING | PROCESSING | SUCCESS | ERROR
+    error_message = Column(Text, nullable=True)
+    celery_task_id = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relacionamento opcional com a vaga
+    vaga = relationship("VagaModel", foreign_keys=[vaga_id])
+
+
 class VagaModel(Base):
     __tablename__ = "vagas"
 
@@ -16,7 +54,7 @@ class VagaModel(Base):
     title = Column(String, nullable=True)
     company = Column(String, nullable=True)
     company_url = Column(String, nullable=True)
-    job_url = Column(String, nullable=True, unique=True) # Evita links duplicados futuramente
+    job_url = Column(String, nullable=True, unique=True)  # Evita links duplicados futuramente
     location = Column(String, nullable=True)
     city = Column(String, nullable=True)
     state = Column(String, nullable=True)
