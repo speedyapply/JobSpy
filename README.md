@@ -16,7 +16,7 @@
 pip install -U python-jobspy
 ```
 
-_Python version >= [3.10](https://www.python.org/downloads/release/python-3100/) required_
+_Python version  [3.10](https://www.python.org/downloads/release/python-3100/) to [3.12](https://www.python.org/downloads/release/python-3120/) required_
 
 ### Usage
 
