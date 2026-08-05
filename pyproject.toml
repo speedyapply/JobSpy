@@ -5,11 +5,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "python-jobspy"
 version = "1.1.82"
-description = "Job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter & Bayt"
+description = "Job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt & Wellfound"
 authors = ["Cullen Watson <cullen@cullenwatson.com>", "Zachary Hampton <zachary@zacharysproducts.com>"]
 homepage = "https://github.com/cullenwatson/JobSpy"
 readme = "README.md"
-keywords = [ "jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri"]
+keywords = [ "jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "wellfound"]
 [[tool.poetry.packages]]
 include = "jobspy"
 
@@ -26,6 +26,7 @@ pydantic = "^2.3.0"
 tls-client = "^1.0.1"
 markdownify = "^1.1.0"
 regex = "^2024.4.28"
+curl-cffi = "^0.11.4"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
