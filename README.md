@@ -4,7 +4,7 @@
 
 ## Features
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, & other job boards concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, **Wellfound**, & other job boards concurrently
 - Aggregates the job postings in a dataframe
 - Proxies support to bypass blocking
 
@@ -25,7 +25,7 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs", "wellfound"
     search_term="software engineer",
     google_search_term="software engineer jobs near San Francisco, CA since yesterday",
     location="San Francisco, CA",
@@ -59,7 +59,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, wellfound
 |    (default is all)
 │
 ├── search_term (str)
@@ -173,6 +173,11 @@ You can specify the following countries when searching on Indeed (use the exact 
 
 Bayt only uses the search_term parameter currently and searches internationally
 
+### **Wellfound**
+
+Wellfound (formerly AngelList Talent) searches globally for startup jobs. Uses the `location` parameter and `search_term` for role-based filtering. Specializes in startup and tech company positions. 
+*Note: The Wellfound scraper natively extracts rich compensation and remote data from the platform's Apollo GraphQL cache. For heavy scraping, passing `proxies` is highly recommended to avoid DataDome rate-limiting.*
+
 
 
 ## Notes
@@ -209,6 +214,11 @@ This searches the description/title and must include software, summer, 2025, one
 
 - Wait some time between scrapes (site-dependent).
 - Try using the proxies param to change your IP address.
+
+---
+
+**Q: Received a response code 403 on Wellfound?**  
+**A:** Wellfound uses strict DataDome anti-bot protection. While JobSpy natively impersonates Chrome TLS signatures to bypass this, excessive scraping without rotating IPs will result in a 403 block. We recommend passing a list of `proxies` for heavy scraping.
 
 ---
 

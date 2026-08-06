@@ -1,0 +1,21 @@
+# Wellfound role slug mappings for common job titles
+role_slug_map = {
+    "software engineer": "software-engineer",
+    "frontend engineer": "frontend-engineer",
+    "backend engineer": "backend-engineer",
+    "full stack engineer": "full-stack-engineer",
+    "product manager": "product-manager",
+    "designer": "designer",
+    "data scientist": "data-scientist",
+    "data engineer": "data-engineer",
+    "devops engineer": "devops-engineer",
+    "marketing": "marketing",
+    "sales": "sales",
+    "operations": "operations",
+    "finance": "finance",
+    "recruiting": "recruiting",
+    "customer success": "customer-success",
+    "human resources": "human-resources",
+    "mobile engineer": "mobile-engineer",
+    "machine learning engineer": "machine-learning-engineer",
+}
