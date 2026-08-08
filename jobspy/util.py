@@ -192,12 +192,20 @@ def currency_parser(cur_str):
     # Remove any 000s separators (either , or .)
     cur_str = re.sub("[.,]", "", cur_str[:-3]) + cur_str[-3:]
 
-    if "." in list(cur_str[-3:]):
-        num = float(cur_str)
-    elif "," in list(cur_str[-3:]):
-        num = float(cur_str.replace(",", "."))
-    else:
-        num = float(cur_str)
+    # Non-numeric salary text ("Negotiable", "Competitive") reduces to an empty
+    # string here; return None rather than raising ValueError from float("").
+    if not re.search(r"\d", cur_str):
+        return None
+
+    try:
+        if "." in list(cur_str[-3:]):
+            num = float(cur_str)
+        elif "," in list(cur_str[-3:]):
+            num = float(cur_str.replace(",", "."))
+        else:
+            num = float(cur_str)
+    except ValueError:
+        return None
 
     return np.round(num, 2)
 
@@ -309,19 +317,17 @@ def get_enum_from_value(value_str):
 
 
 def convert_to_annual(job_data: dict):
-    if job_data["interval"] == "hourly":
-        job_data["min_amount"] *= 2080
-        job_data["max_amount"] *= 2080
-    if job_data["interval"] == "monthly":
-        job_data["min_amount"] *= 12
-        job_data["max_amount"] *= 12
-    if job_data["interval"] == "weekly":
-        job_data["min_amount"] *= 52
-        job_data["max_amount"] *= 52
-    if job_data["interval"] == "daily":
-        job_data["min_amount"] *= 260
-        job_data["max_amount"] *= 260
-    job_data["interval"] = "yearly"
+    # Guard against a missing interval or null amounts: a job can carry an
+    # interval with no min/max (or vice-versa), which would raise KeyError /
+    # `None *= n` TypeError here. Only scale when both amounts are present.
+    multipliers = {"hourly": 2080, "monthly": 12, "weekly": 52, "daily": 260}
+    factor = multipliers.get(job_data.get("interval"))
+    if factor is not None:
+        if job_data.get("min_amount") is not None:
+            job_data["min_amount"] *= factor
+        if job_data.get("max_amount") is not None:
+            job_data["max_amount"] *= factor
+        job_data["interval"] = "yearly"
 
 
 desired_order = [

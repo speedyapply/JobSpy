@@ -178,16 +178,23 @@ class LinkedIn(Scraper):
         compensation = description = None
         if salary_tag:
             salary_text = salary_tag.get_text(separator=" ").strip()
+            # A single-value salary ("$120,000+") has no "-", so this used to
+            # IndexError on salary_values[1]; a non-numeric one ("Competitive")
+            # made currency_parser return None -> int(None) TypeError. Parse
+            # defensively and only build Compensation when both bounds are numbers.
             salary_values = [currency_parser(value) for value in salary_text.split("-")]
-            salary_min = salary_values[0]
-            salary_max = salary_values[1]
-            currency = salary_text[0] if salary_text[0] != "$" else "USD"
-
-            compensation = Compensation(
-                min_amount=int(salary_min),
-                max_amount=int(salary_max),
-                currency=currency,
+            salary_min = salary_values[0] if len(salary_values) > 0 else None
+            salary_max = salary_values[1] if len(salary_values) > 1 else None
+            currency = (
+                salary_text[0] if salary_text and salary_text[0] != "$" else "USD"
             )
+
+            if salary_min is not None and salary_max is not None:
+                compensation = Compensation(
+                    min_amount=int(salary_min),
+                    max_amount=int(salary_max),
+                    currency=currency,
+                )
 
         title_tag = job_card.find("span", class_="sr-only")
         title = title_tag.get_text(strip=True) if title_tag else "N/A"
