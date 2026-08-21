@@ -292,7 +292,8 @@ class Site(Enum):
     GOOGLE = "google"
     BAYT = "bayt"
     NAUKRI = "naukri"
-    BDJOBS = "bdjobs"  # Add this line
+    BDJOBS = "bdjobs"
+    SEEK = "seek"
 
 
 class SalarySource(Enum):

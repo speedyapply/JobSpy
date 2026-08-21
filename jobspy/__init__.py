@@ -14,6 +14,7 @@ from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
 from jobspy.model import JobType, Location, JobResponse, Country
 from jobspy.model import SalarySource, ScraperInput, Site
+from jobspy.seek import SeekScraper
 from jobspy.util import (
     set_logger_level,
     extract_salary,
@@ -63,7 +64,8 @@ def scrape_jobs(
         Site.GOOGLE: Google,
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
-        Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.BDJOBS: BDJobs,
+        Site.SEEK: SeekScraper,
     }
     set_logger_level(verbose)
     job_type = get_enum_from_value(job_type) if job_type else None
