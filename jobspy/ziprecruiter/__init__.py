@@ -61,6 +61,12 @@ class ZipRecruiter(Scraper):
         :return: JobResponse containing a list of jobs.
         """
         self.scraper_input = scraper_input
+        if scraper_input.country not in (Country.USA, Country.CANADA, Country.US_CANADA):
+            log.warning(
+                "ZipRecruiter only supports US/Canada searches; skipping unsupported country search"
+            )
+            return JobResponse(jobs=[])
+
         job_list: list[JobPost] = []
         continue_token = None
 
@@ -100,10 +106,14 @@ class ZipRecruiter(Scraper):
             if res.status_code not in range(200, 400):
                 if res.status_code == 429:
                     err = "429 Response - Blocked by ZipRecruiter for too many requests"
+                elif res.status_code == 403:
+                    err = (
+                        "ZipRecruiter response status code 403; skipping blocked or unsupported search"
+                    )
                 else:
                     err = f"ZipRecruiter response status code {res.status_code}"
                     err += f" with response: {res.text}"  # ZipRecruiter likely not available in EU
-                log.error(err)
+                log.warning(err)
                 return jobs_list, ""
         except Exception as e:
             if "Proxy responded with" in str(e):
