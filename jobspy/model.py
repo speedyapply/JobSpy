@@ -162,7 +162,7 @@ class Country(Enum):
             raise Exception(f"Glassdoor is not available for {self.name}")
 
     def get_glassdoor_url(self):
-        return f"https://{self.glassdoor_domain_value}/"
+        return f"https://{self.glassdoor_domain_value}"
 
     @classmethod
     def from_string(cls, country_str: str):
