@@ -4,7 +4,7 @@
 
 ## Features
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, & other job boards concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **Google**, **ZipRecruiter**, & other job boards concurrently (Bayt, Naukri, BDJobs, jobsbylevel)
 - Aggregates the job postings in a dataframe
 - Proxies support to bypass blocking
 
@@ -25,7 +25,7 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs", "jobsbylevel"
     search_term="software engineer",
     google_search_term="software engineer jobs near San Francisco, CA since yesterday",
     location="San Francisco, CA",
@@ -59,7 +59,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, naukri, bdjobs, jobsbylevel
 |    (default is all)
 │
 ├── search_term (str)
@@ -172,6 +172,14 @@ You can specify the following countries when searching on Indeed (use the exact 
 ### **Bayt**
 
 Bayt only uses the search_term parameter currently and searches internationally
+
+### **jobsbylevel**
+
+[jobsbylevel.com](https://jobsbylevel.com) searches internationally by reading its public XML
+[job feeds](https://jobsbylevel.com/feeds). It supports `search_term` (matched on title and description), `location`
+(city, country name or ISO country code), `is_remote`, `job_type`, `hours_old`, `offset` and `results_wanted`.
+`job_url` is the listing on jobsbylevel.com and `job_url_direct` the employer's application page. The listing's
+category is returned in `job_function`, and its AI rating (Level 1 to 4) is appended to the description.
 
 
 

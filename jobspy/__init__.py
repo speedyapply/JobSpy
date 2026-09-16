@@ -10,6 +10,7 @@ from jobspy.bdjobs import BDJobs
 from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
 from jobspy.indeed import Indeed
+from jobspy.jobsbylevel import JobsByLevel
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
 from jobspy.model import JobType, Location, JobResponse, Country
@@ -64,6 +65,7 @@ def scrape_jobs(
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.JOBSBYLEVEL: JobsByLevel,
     }
     set_logger_level(verbose)
     job_type = get_enum_from_value(job_type) if job_type else None
