@@ -114,8 +114,12 @@ def scrape_jobs(
     site_to_jobs_dict = {}
 
     def worker(site):
-        site_val, scraped_info = scrape_site(site)
-        return site_val, scraped_info
+        try:
+            return scrape_site(site)
+        except Exception as e:
+            # one site failing shouldn't throw away the jobs the other sites found
+            create_logger(site.value.capitalize()).error(f"{type(e).__name__}: {e}")
+            return site.value, JobResponse(jobs=[])
 
     with ThreadPoolExecutor() as executor:
         future_to_site = {
