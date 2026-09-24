@@ -139,6 +139,7 @@ class Indeed(Scraper):
         Builds the filters dict for job type/is_remote. If hours_old is provided, composite filter for job_type/is_remote is not possible.
         IndeedApply: filters: { keyword: { field: "indeedApplyScope", keys: ["DESKTOP"] } }
         """
+
         filters_str = ""
         if self.scraper_input.hours_old:
             filters_str = """
@@ -160,6 +161,7 @@ class Indeed(Scraper):
                 }
             }
             """
+
         elif self.scraper_input.job_type or self.scraper_input.is_remote:
             job_type_key_mapping = {
                 JobType.FULL_TIME: "CF3CP",

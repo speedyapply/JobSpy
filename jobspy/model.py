@@ -40,21 +40,38 @@ class JobType(Enum):
         "toànthờigian",
     )
     PART_TIME = ("parttime", "teilzeit", "částečnýúvazek", "deltid")
-    CONTRACT = ("contract", "contractor")
-    TEMPORARY = ("temporary",)
+    PERMANENT = ("permanent", "cdi")
+    CONTRACT = ("contract", "contractor", "cdd")
+    TEMPORARY = ("temporary", "intérim",)
     INTERNSHIP = (
         "internship",
         "prácticas",
         "ojt(onthejobtraining)",
         "praktikum",
         "praktik",
+        "stage"
     )
-
+    APPRENTICESHIP = (
+        "apprenticeship",
+        "alternance",
+        "professionnalisation"
+    )
+    FREELANCE = ("freelance",)
     PER_DIEM = ("perdiem",)
     NIGHTS = ("nights",)
     OTHER = ("other",)
     SUMMER = ("summer",)
     VOLUNTEER = ("volunteer",)
+
+
+class RemoteType(Enum):
+    FULL = "remote"
+    PARTIAL = "partial"
+    OCCASIONAL = "occasional"
+    NONE = "none"
+
+    def display_remote_type(self):
+        print(self.value)
 
 
 class Country(Enum):
@@ -192,8 +209,8 @@ class Location(BaseModel):
         if isinstance(self.country, str):
             location_parts.append(self.country)
         elif self.country and self.country not in (
-            Country.US_CANADA,
-            Country.WORLDWIDE,
+                Country.US_CANADA,
+                Country.WORLDWIDE,
         ):
             country_name = self.country.value[0]
             if "," in country_name:
@@ -203,6 +220,18 @@ class Location(BaseModel):
             else:
                 location_parts.append(country_name.title())
         return ", ".join(location_parts)
+
+
+class ExperienceRange(BaseModel):
+    min_year: int | None = None
+    max_year: int | None = None
+
+    def display_experience(self) -> str:
+        if self.min_year and not self.max_year:
+            return f'{self.min_year}+ years'
+        if self.max_year and not self.min_year:
+            return f'0-{self.max_year}'
+        return f'{self.min_year}-{self.max_year}'
 
 
 class CompensationInterval(Enum):
@@ -236,6 +265,7 @@ class DescriptionFormat(Enum):
     HTML = "html"
     PLAIN = "plain"
 
+
 class JobPost(BaseModel):
     id: str | None = None
     title: str
@@ -252,7 +282,7 @@ class JobPost(BaseModel):
     compensation: Compensation | None = None
     date_posted: date | None = None
     emails: list[str] | None = None
-    is_remote: bool | None = None
+    is_remote: RemoteType | bool | None = None
     listing_type: str | None = None
 
     # LinkedIn specific
@@ -273,12 +303,13 @@ class JobPost(BaseModel):
     job_function: str | None = None
 
     # Naukri specific
-    skills: list[str] | None = None  #from tagsAndSkills
-    experience_range: str | None = None  #from experienceText
+    skills: list[str] | str | None = None  #from tagsAndSkills
+    experience_range: str | ExperienceRange | None = None  #from experienceText
     company_rating: float | None = None  #from ambitionBoxData.AggregateRating
     company_reviews_count: int | None = None  #from ambitionBoxData.ReviewsCount
     vacancy_count: int | None = None  #from vacancy
     work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
+
 
 class JobResponse(BaseModel):
     jobs: list[JobPost] = []
@@ -292,7 +323,9 @@ class Site(Enum):
     GOOGLE = "google"
     BAYT = "bayt"
     NAUKRI = "naukri"
-    BDJOBS = "bdjobs"  # Add this line
+    BDJOBS = "bdjobs"
+    HELLOWORK = "hellowork"
+    # Add this line
 
 
 class SalarySource(Enum):
@@ -308,9 +341,11 @@ class ScraperInput(BaseModel):
     location: str | None = None
     country: Country | None = Country.USA
     distance: int | None = None
-    is_remote: bool = False
+    is_remote: bool | RemoteType = None
     job_type: JobType | None = None
     easy_apply: bool | None = None
+    minimum_wage: int | None = None
+    years_of_experience: int | None = None
     offset: int = 0
     linkedin_fetch_description: bool = False
     linkedin_company_ids: list[int] | None = None
@@ -324,7 +359,8 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+            self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None,
+            user_agent: str | None = None
     ):
         self.site = site
         self.proxies = proxies

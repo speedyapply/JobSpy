@@ -12,22 +12,24 @@ from jobspy.google import Google
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
-from jobspy.model import JobType, Location, JobResponse, Country
+from jobspy.hellowork import HelloWork
+from jobspy.ziprecruiter import ZipRecruiter
+from jobspy.model import JobType, Location, JobResponse, Country, ExperienceRange, RemoteType
 from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
     set_logger_level,
     extract_salary,
     create_logger,
-    get_enum_from_value,
     map_str_to_site,
     convert_to_annual,
     desired_order,
+    get_enum_from_job_type, get_enum_from_remote_type
 )
-from jobspy.ziprecruiter import ZipRecruiter
 
 
 # Update the SCRAPER_MAPPING dictionary in the scrape_jobs function
 
+"""Scraping tests"""
 def scrape_jobs(
     site_name: str | list[str] | Site | list[Site] | None = None,
     search_term: str | None = None,
@@ -64,9 +66,12 @@ def scrape_jobs(
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.HELLOWORK: HelloWork
     }
     set_logger_level(verbose)
-    job_type = get_enum_from_value(job_type) if job_type else None
+    job_type = get_enum_from_job_type(job_type) if job_type else None
+    if isinstance(is_remote, str):
+        is_remote = get_enum_from_remote_type(is_remote)
 
     def get_site_type():
         site_types = list(Site)
@@ -127,7 +132,6 @@ def scrape_jobs(
             site_to_jobs_dict[site_value] = scraped_data
 
     jobs_dfs: list[pd.DataFrame] = []
-
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
             job_data = job.dict()
@@ -139,13 +143,18 @@ def scrape_jobs(
                 if job_data["job_type"]
                 else None
             )
+            if isinstance(job_data["is_remote"], RemoteType):
+                job_data["is_remote"] = (
+                    ", ".join(job_type.value[0] for job_type in job_data["is_remote"])
+                    if job_data["is_remote"]
+                    else None
+                )
+
             job_data["emails"] = (
                 ", ".join(job_data["emails"]) if job_data["emails"] else None
             )
             if job_data["location"]:
-                job_data["location"] = Location(
-                    **job_data["location"]
-                ).display_location()
+                job_data["location"] = Location(**job_data["location"]).display_location()
 
             # Handle compensation
             compensation_obj = job_data.get("compensation")
@@ -186,10 +195,15 @@ def scrape_jobs(
             )
 
             #naukri-specific fields
-            job_data["skills"] = (
-                ", ".join(job_data["skills"]) if job_data["skills"] else None
-            )
-            job_data["experience_range"] = job_data.get("experience_range")
+            if isinstance(job_data, str):
+                job_data['skills'] = job_data.get('skills')
+            else:
+                job_data['skills'] = (", ".join(job_data["skills"]) if job_data["skills"] else None)
+            experience_range = job_data.get("experience_range")
+            if isinstance(experience_range, ExperienceRange):
+                job_data['experience_range'] = experience_range.display_experience()
+            else:
+                job_data['experience_range'] = experience_range
             job_data["company_rating"] = job_data.get("company_rating")
             job_data["company_reviews_count"] = job_data.get("company_reviews_count")
             job_data["vacancy_count"] = job_data.get("vacancy_count")
