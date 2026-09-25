@@ -25,7 +25,7 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "google"], # "glassdoor", "bayt", "naukri", "bdjobs", "solidjobs"
     search_term="software engineer",
     google_search_term="software engineer jobs near San Francisco, CA since yesterday",
     location="San Francisco, CA",
@@ -59,7 +59,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, solidjobs
 |    (default is all)
 │
 ├── search_term (str)
@@ -172,6 +172,10 @@ You can specify the following countries when searching on Indeed (use the exact 
 ### **Bayt**
 
 Bayt only uses the search_term parameter currently and searches internationally
+
+### **SolidJobs**
+
+SolidJobs is a Polish job board scraped through its public API (https://solid.jobs/api-ofert-pracy) (Documentation can be found there: https://github.com/solid-company/solid-jobs-client), which needs no API key. The API only supports filtering by category and pagination, so `search_term` (matched against title, company and skills), `location`, `is_remote` and `job_type` are all applied client-side. `job_type` is limited to `fulltime` / `parttime`. All jobs are located in Poland.
 
 
 

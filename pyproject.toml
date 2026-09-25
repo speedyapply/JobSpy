@@ -9,7 +9,7 @@ description = "Job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter & Bayt"
 authors = ["Cullen Watson <cullen@cullenwatson.com>", "Zachary Hampton <zachary@zacharysproducts.com>"]
 homepage = "https://github.com/cullenwatson/JobSpy"
 readme = "README.md"
-keywords = [ "jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri"]
+keywords = [ "jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "solidjobs"]
 [[tool.poetry.packages]]
 include = "jobspy"
 
@@ -26,6 +26,7 @@ pydantic = "^2.3.0"
 tls-client = "^1.0.1"
 markdownify = "^1.1.0"
 regex = "^2024.4.28"
+html-sanitizer="^2.6.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"

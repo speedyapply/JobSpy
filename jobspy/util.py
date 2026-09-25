@@ -11,7 +11,7 @@ import urllib3
 from markdownify import markdownify as md
 from requests.adapters import HTTPAdapter, Retry
 
-from jobspy.model import CompensationInterval, JobType, Site
+from jobspy.model import CompensationInterval, JobType, Site, RemoteType
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -104,13 +104,13 @@ class TLSRotating(RotatingProxySession, tls_client.Session):
 
 
 def create_session(
-    *,
-    proxies: dict | str | None = None,
-    ca_cert: str | None = None,
-    is_tls: bool = True,
-    has_retry: bool = False,
-    delay: int = 1,
-    clear_cookies: bool = False,
+        *,
+        proxies: dict | str | None = None,
+        ca_cert: str | None = None,
+        is_tls: bool = True,
+        has_retry: bool = False,
+        delay: int = 1,
+        clear_cookies: bool = False,
 ) -> requests.Session:
     """
     Creates a requests session with optional tls, proxy, and retry settings.
@@ -157,13 +157,14 @@ def markdown_converter(description_html: str):
     markdown = md(description_html)
     return markdown.strip()
 
-def plain_converter(decription_html:str):
+
+def plain_converter(description_html: str):
     from bs4 import BeautifulSoup
-    if decription_html is None:
+    if description_html is None:
         return None
-    soup = BeautifulSoup(decription_html, "html.parser")
+    soup = BeautifulSoup(description_html, "html.parser")
     text = soup.get_text(separator=" ")
-    text = re.sub(r'\s+',' ',text)
+    text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
 
@@ -183,6 +184,19 @@ def get_enum_from_job_type(job_type_str: str) -> JobType | None:
         if job_type_str in job_type.value:
             res = job_type
     return res
+
+
+def get_enum_from_remote_type(remote_type_str: str) -> RemoteType | None:
+    """
+    Given a string, returns the corresponding RemoteType enum member if a match is found.
+    """
+    filtered_remote_types = [remote_type for remote_type in RemoteType if
+                             remote_type.value.lower() == remote_type_str.lower()]
+    authorized_values_remote = ','.join([remote_type.value for remote_type in RemoteType])
+    if len(filtered_remote_types) == 0:
+        raise Exception(f'{remote_type_str} is not a valid remote type. Please select one of these values : '
+                        f'{authorized_values_remote}')
+    return filtered_remote_types[0]
 
 
 def currency_parser(cur_str):
@@ -209,12 +223,12 @@ def remove_attributes(tag):
 
 
 def extract_salary(
-    salary_str,
-    lower_limit=1000,
-    upper_limit=700000,
-    hourly_threshold=350,
-    monthly_threshold=30000,
-    enforce_annual_salary=False,
+        salary_str,
+        lower_limit=1000,
+        upper_limit=700000,
+        hourly_threshold=350,
+        monthly_threshold=30000,
+        enforce_annual_salary=False,
 ):
     """
     Extracts salary information from a string and returns the salary interval, min and max salary values, and currency.
@@ -267,9 +281,9 @@ def extract_salary(
         if not annual_max_salary:
             return None, None, None, None
         if (
-            lower_limit <= annual_min_salary <= upper_limit
-            and lower_limit <= annual_max_salary <= upper_limit
-            and annual_min_salary < annual_max_salary
+                lower_limit <= annual_min_salary <= upper_limit
+                and lower_limit <= annual_max_salary <= upper_limit
+                and annual_min_salary < annual_max_salary
         ):
             if enforce_annual_salary:
                 return interval, annual_min_salary, annual_max_salary, "USD"
