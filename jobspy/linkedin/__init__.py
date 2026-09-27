@@ -219,14 +219,11 @@ class LinkedIn(Scraper):
         if datetime_tag and "datetime" in datetime_tag.attrs:
             datetime_str = datetime_tag["datetime"]
             time_str = datetime_tag.text.replace("\n", "").strip()
-            print(title)
-            print(time_str)
-            time_dlt = self._parse_hours_ago(time_str)
             try:
+                time_dlt = self._parse_hours_ago(time_str)
                 date_posted = datetime.now(ZoneInfo("Asia/Colombo")) - time_dlt if time_dlt else datetime.strptime(datetime_str, "%Y-%m-%d")
             except:
                 date_posted = None
-            print(date_posted)
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
