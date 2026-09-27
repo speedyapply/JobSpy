@@ -382,12 +382,18 @@ class LinkedIn(Scraper):
         return job_url_direct
 
     def _parse_hours_ago(self, time:str) -> timedelta | None:
+        
+        if time.__contains__("now") or time.__contains__("just now"):
+            return timedelta()
+
         time_str = time.split()[0]
         if time_str in ["", None]:
             return None
         time_num = float(time_str)
 
-        if time.__contains__("minute"):
+        if time.__contains__("second"):
+            return timedelta(seconds=time_num)
+        elif time.__contains__("minute"):
             return timedelta(minutes=time_num)
         elif time.__contains__("hour"):
             return timedelta(hours=time_num)
