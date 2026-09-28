@@ -4,7 +4,6 @@ import math
 import random
 import time
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 from typing import Optional
 from urllib.parse import urlparse, urlunparse, unquote
 
@@ -24,6 +23,7 @@ from jobspy.linkedin.util import (
 )
 from jobspy.model import (
     JobPost,
+    LinkedInPost,
     Location,
     JobResponse,
     Country,
@@ -79,7 +79,7 @@ class LinkedIn(Scraper):
         :return: job_response
         """
         self.scraper_input = scraper_input
-        job_list: list[JobPost] = []
+        job_list: list[LinkedInPost] = []
         seen_ids = set()
         start = scraper_input.offset // 10 * 10 if scraper_input.offset else 0
         request_count = 0
@@ -174,7 +174,7 @@ class LinkedIn(Scraper):
 
     def _process_job(
         self, job_card: Tag, job_id: str, full_descr: bool
-    ) -> Optional[JobPost]:
+    ) -> Optional[LinkedInPost]:
         salary_tag = job_card.find("span", class_="job-search-card__salary-info")
 
         compensation = description = None
@@ -216,14 +216,21 @@ class LinkedIn(Scraper):
                 "time", class_="job-search-card__listdate--new"
             )
         date_posted = None
+        date_estimated = None
         if datetime_tag and "datetime" in datetime_tag.attrs:
             datetime_str = datetime_tag["datetime"]
             time_str = datetime_tag.text.replace("\n", "").strip()
             try:
-                time_dlt = self._parse_hours_ago(time_str)
-                date_posted = datetime.now(ZoneInfo("Asia/Colombo")) - time_dlt if time_dlt != None else datetime.strptime(datetime_str, "%Y-%m-%d")
+                date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
             except:
                 date_posted = None
+
+            try:
+                time_dlt = self._parse_hours_ago(time_str)
+                date_estimated = datetime.now() - time_dlt if time_dlt != None else datetime.strptime(datetime_str, "%Y-%m-%d")
+            except:
+                date_estimated = None
+
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
@@ -233,7 +240,7 @@ class LinkedIn(Scraper):
             company_details = self._get_company_details(company_url)
         is_remote = is_job_remote(title, description, location)
 
-        return JobPost(
+        return LinkedInPost(
             id=f"li-{job_id}",
             title=title,
             company_name=company,
@@ -242,6 +249,7 @@ class LinkedIn(Scraper):
             location=location,
             is_remote=is_remote,
             date_posted=date_posted,
+            date_estimated=date_estimated,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
             compensation=compensation,
             job_type=job_details.get("job_type"),
@@ -400,6 +408,6 @@ class LinkedIn(Scraper):
         elif time.__contains__("day"):
             return timedelta(days=time_num)
         else: 
-            return timedelta()
+            return None
         
         
