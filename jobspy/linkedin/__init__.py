@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import math
 import random
+import re
 import time
 from datetime import datetime
 from typing import Optional
 from urllib.parse import urlparse, urlunparse, unquote
 
-import regex as re
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 

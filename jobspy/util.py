@@ -4,7 +4,6 @@ import logging
 import re
 from itertools import cycle
 
-import numpy as np
 import requests
 import tls_client
 import urllib3
@@ -199,7 +198,7 @@ def currency_parser(cur_str):
     else:
         num = float(cur_str)
 
-    return np.round(num, 2)
+    return round(num, 2)
 
 
 def remove_attributes(tag):
