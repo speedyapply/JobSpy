@@ -57,7 +57,7 @@ def parse_job_level(soup_job_level: BeautifulSoup) -> str | None:
             class_="description__job-criteria-text description__job-criteria-text--criteria",
         )
         if job_level_span:
-            job_level = job_level_span.get_text(strip=True)
+            job_level = job_level_span.get_text(strip=True).lower()
 
     return job_level
 
