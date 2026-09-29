@@ -130,7 +130,7 @@ def scrape_jobs(
 
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
-            job_data = job.dict()
+            job_data = job.model_dump()
             job_url = job_data["job_url"]
             job_data["site"] = site
             job_data["company"] = job_data["company_name"]
