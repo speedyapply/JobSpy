@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
-from datetime import date
+from typing import Optional, Sequence
+from datetime import date, datetime
 from enum import Enum
 from pydantic import BaseModel
 
@@ -124,6 +124,7 @@ class Country(Enum):
     SOUTHAFRICA = ("south africa", "za")
     SOUTHKOREA = ("south korea", "kr")
     SPAIN = ("spain", "es", "es")
+    SRILANKA = ("sri lanka,srilanka", "lk")     # Added Sri Lanka
     SWEDEN = ("sweden", "se")
     SWITZERLAND = ("switzerland", "ch", "de:ch")
     TAIWAN = ("taiwan", "tw")
@@ -280,8 +281,11 @@ class JobPost(BaseModel):
     vacancy_count: int | None = None  #from vacancy
     work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
 
+class LinkedInPost(JobPost):
+    date_estimated: datetime | None = None
+
 class JobResponse(BaseModel):
-    jobs: list[JobPost] = []
+    jobs: Sequence[JobPost] = []
 
 
 class Site(Enum):
@@ -313,6 +317,7 @@ class ScraperInput(BaseModel):
     easy_apply: bool | None = None
     offset: int = 0
     linkedin_fetch_description: bool = False
+    linkedin_fetch_company_details: bool = False
     linkedin_company_ids: list[int] | None = None
     description_format: DescriptionFormat | None = DescriptionFormat.MARKDOWN
 

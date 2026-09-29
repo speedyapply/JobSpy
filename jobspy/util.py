@@ -359,4 +359,6 @@ desired_order = [
     "company_reviews_count",
     "vacancy_count",
     "work_from_home_type",
+    # Linkedin specific
+    "date_estimated",
 ]

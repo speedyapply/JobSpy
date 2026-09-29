@@ -4,7 +4,7 @@ import math
 import random
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from urllib.parse import urlparse, urlunparse, unquote
 
@@ -18,10 +18,12 @@ from jobspy.linkedin.util import (
     job_type_code,
     parse_job_type,
     parse_job_level,
-    parse_company_industry
+    parse_company_industry,
+    parse_company_website,
 )
 from jobspy.model import (
     JobPost,
+    LinkedInPost,
     Location,
     JobResponse,
     Country,
@@ -42,7 +44,6 @@ from jobspy.util import (
 )
 
 log = create_logger("LinkedIn")
-
 
 class LinkedIn(Scraper):
     base_url = "https://www.linkedin.com"
@@ -68,6 +69,7 @@ class LinkedIn(Scraper):
         self.session.headers.update(headers)
         self.scraper_input = None
         self.country = "worldwide"
+        self.company_cache: dict[str, dict] = {}
         self.job_url_direct_regex = re.compile(r'(?<=\?url=)[^"]+')
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
@@ -77,7 +79,7 @@ class LinkedIn(Scraper):
         :return: job_response
         """
         self.scraper_input = scraper_input
-        job_list: list[JobPost] = []
+        job_list: list[LinkedInPost] = []
         seen_ids = set()
         start = scraper_input.offset // 10 * 10 if scraper_input.offset else 0
         request_count = 0
@@ -172,7 +174,7 @@ class LinkedIn(Scraper):
 
     def _process_job(
         self, job_card: Tag, job_id: str, full_descr: bool
-    ) -> Optional[JobPost]:
+    ) -> Optional[LinkedInPost]:
         salary_tag = job_card.find("span", class_="job-search-card__salary-info")
 
         compensation = description = None
@@ -214,26 +216,40 @@ class LinkedIn(Scraper):
                 "time", class_="job-search-card__listdate--new"
             )
         date_posted = None
+        date_estimated = None
         if datetime_tag and "datetime" in datetime_tag.attrs:
             datetime_str = datetime_tag["datetime"]
+            time_str = datetime_tag.text.replace("\n", "").strip()
             try:
                 date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
             except:
                 date_posted = None
+
+            try:
+                time_dlt = self._parse_hours_ago(time_str)
+                date_estimated = datetime.now() - time_dlt if time_dlt != None else datetime.strptime(datetime_str, "%Y-%m-%d")
+            except:
+                date_estimated = None
+
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
             description = job_details.get("description")
+        company_details = {}
+        if self.scraper_input.linkedin_fetch_company_details and company_url:
+            company_details = self._get_company_details(company_url)
         is_remote = is_job_remote(title, description, location)
 
-        return JobPost(
+        return LinkedInPost(
             id=f"li-{job_id}",
             title=title,
             company_name=company,
             company_url=company_url,
+            company_url_direct=company_details.get("company_url_direct"),
             location=location,
             is_remote=is_remote,
             date_posted=date_posted,
+            date_estimated=date_estimated,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
             compensation=compensation,
             job_type=job_details.get("job_type"),
@@ -301,6 +317,35 @@ class LinkedIn(Scraper):
             "job_function": job_function,
         }
 
+    def _get_company_details(self, company_url: str) -> dict:
+        """
+        Retrieves company details by going to the company page url, cached per company
+        :param company_url:
+        :return: dict
+        """
+        company_name = company_url.split("?")[0].rstrip("/").split("/")[-1]
+        if not company_name:
+            return {}
+        if company_name in self.company_cache:
+            return self.company_cache[company_name]
+
+        company_details = {}
+        try:
+            response = self.session.get(
+                f"{self.base_url}/company/{company_name}", timeout=5
+            )
+            response.raise_for_status()
+            if "linkedin.com/signup" not in response.url and "authwall" not in response.url:
+                soup = BeautifulSoup(response.text, "html.parser")
+                company_details = {
+                    "company_url_direct": parse_company_website(soup),
+                }
+        except Exception as e:
+            log.warning(f"failed to fetch company page {company_name}: {e}")
+
+        self.company_cache[company_name] = company_details
+        return company_details
+
     def _get_location(self, metadata_card: Optional[Tag]) -> Location:
         """
         Extracts the location data from the job metadata card.
@@ -343,3 +388,26 @@ class LinkedIn(Scraper):
                 job_url_direct = unquote(job_url_direct_match.group())
 
         return job_url_direct
+
+    def _parse_hours_ago(self, time:str) -> timedelta | None:
+        
+        if time.__contains__("now") or time.__contains__("just now"):
+            return timedelta()
+
+        time_str = time.split()[0]
+        if time_str in ["", None]:
+            return None
+        time_num = float(time_str)
+
+        if time.__contains__("second"):
+            return timedelta(seconds=time_num)
+        elif time.__contains__("minute"):
+            return timedelta(minutes=time_num)
+        elif time.__contains__("hour"):
+            return timedelta(hours=time_num)
+        elif time.__contains__("day"):
+            return timedelta(days=time_num)
+        else: 
+            return None
+        
+        

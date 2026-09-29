@@ -1,3 +1,5 @@
+from urllib.parse import parse_qs, urlparse
+
 from bs4 import BeautifulSoup
 
 from jobspy.model import JobType, Location
@@ -83,6 +85,24 @@ def parse_company_industry(soup_industry: BeautifulSoup) -> str | None:
             industry = industry_span.get_text(strip=True)
 
     return industry
+
+
+def parse_company_website(soup_company: BeautifulSoup) -> str | None:
+    """
+    Gets the company website from the company page
+    :param soup_company:
+    :return: str
+    """
+    website_div = soup_company.find("div", attrs={"data-test-id": "about-us__website"})
+    if not website_div:
+        return None
+    a_tag = website_div.find("a")
+    if not a_tag:
+        return None
+    url_values = parse_qs(urlparse(a_tag.get("href", "")).query).get("url")
+    if url_values:
+        return url_values[0]
+    return a_tag.get_text(strip=True) or None
 
 
 def is_job_remote(title: dict, description: str, location: Location) -> bool:

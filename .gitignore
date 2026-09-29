@@ -1,4 +1,5 @@
 /venv/
+.venv/
 /.idea
 **/__pycache__/
 **/.pytest_cache/
@@ -8,3 +9,5 @@
 *.pyc
 .env
 dist
+.vscode/launch.json
+.vscode/settings.json
