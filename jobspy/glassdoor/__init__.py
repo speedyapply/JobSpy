@@ -166,7 +166,7 @@ class Glassdoor(Scraper):
         Processes a single job and fetches its description.
         """
         job_id = job_data["jobview"]["job"]["listingId"]
-        job_url = f"{self.base_url}job-listing/j?jl={job_id}"
+        job_url = f"{self.base_url}/job-listing/j?jl={job_id}"
         if job_url in self.seen_urls:
             return None
         self.seen_urls.add(job_url)
@@ -191,7 +191,7 @@ class Glassdoor(Scraper):
             description = self._fetch_job_description(job_id)
         except Exception:
             description = None
-        company_url = f"{self.base_url}Overview/W-EI_IE{company_id}.htm"
+        company_url = f"{self.base_url}/Overview/W-EI_IE{company_id}.htm"
         company_logo = (
             job_data["jobview"].get("overview", {}).get("squareLogoUrl", None)
         )
