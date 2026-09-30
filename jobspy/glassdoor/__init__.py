@@ -189,7 +189,7 @@ class Glassdoor(Scraper):
         compensation = parse_compensation(job["header"])
         try:
             description = self._fetch_job_description(job_id)
-        except:
+        except Exception:
             description = None
         company_url = f"{self.base_url}Overview/W-EI_IE{company_id}.htm"
         company_logo = (
@@ -262,12 +262,10 @@ class Glassdoor(Scraper):
         res = self.session.get(url)
         if res.status_code != 200:
             if res.status_code == 429:
-                err = f"429 Response - Blocked by Glassdoor for too many requests"
+                err = "429 Response - Blocked by Glassdoor for too many requests"
                 log.error(err)
                 return None, None
             else:
-                err = f"Glassdoor response status code {res.status_code}"
-                err += f" - {res.text}"
                 log.error(f"Glassdoor response status code {res.status_code}")
                 return None, None
         items = res.json()

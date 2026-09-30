@@ -53,7 +53,6 @@ class RequestsRotating(RotatingProxySession, requests.Session):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
         self.clear_cookies = clear_cookies
-        self.allow_redirects = True
         self.setup_session(has_retry, delay)
 
     def setup_session(self, has_retry, delay):

@@ -121,7 +121,7 @@ class LinkedIn(Scraper):
                 if response.status_code not in range(200, 400):
                     if response.status_code == 429:
                         err = (
-                            f"429 Response - Blocked by LinkedIn for too many requests"
+                            "429 Response - Blocked by LinkedIn for too many requests"
                         )
                     else:
                         err = f"LinkedIn response status code {response.status_code}"
@@ -130,7 +130,7 @@ class LinkedIn(Scraper):
                     return JobResponse(jobs=job_list)
             except Exception as e:
                 if "Proxy responded with" in str(e):
-                    log.error(f"LinkedIn: Bad proxy")
+                    log.error("LinkedIn: Bad proxy")
                 else:
                     log.error(f"LinkedIn: {str(e)}")
                 return JobResponse(jobs=job_list)
@@ -215,7 +215,7 @@ class LinkedIn(Scraper):
             datetime_str = datetime_tag["datetime"]
             try:
                 date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
-            except:
+            except Exception:
                 date_posted = None
         job_details = {}
         if full_descr:
@@ -253,7 +253,7 @@ class LinkedIn(Scraper):
                 f"{self.base_url}/jobs/view/{job_id}", timeout=5
             )
             response.raise_for_status()
-        except:
+        except Exception:
             return {}
         if "linkedin.com/signup" in response.url:
             return {}
