@@ -121,14 +121,6 @@ Optional
 |    path to CA Certificate file for proxies
 ```
 
-```
-└── Indeed limitations:
-|    Only one from this list can be used in a search:
-|    - hours_old
-|    - job_type & is_remote
-|    - easy_apply
-```
-
 ## Supported Countries for Job Searching
 
 ### **LinkedIn**
@@ -178,7 +170,6 @@ Bayt only uses the search_term parameter currently and searches internationally
 
 ## Frequently Asked Questions
 
----
 **Q: Why is Indeed giving unrelated roles?**  
 **A:** Indeed searches the description too.
 

@@ -1,5 +1,8 @@
+from jobspy.indeed.constant import job_type_keys, remote_keys
 from jobspy.model import CompensationInterval, JobType, Compensation
 from jobspy.util import get_enum_from_job_type
+
+job_types_by_key = {key: job_type for job_type, key in job_type_keys.items()}
 
 
 def get_job_type(attributes: list) -> list[JobType]:
@@ -11,7 +14,9 @@ def get_job_type(attributes: list) -> list[JobType]:
     job_types: list[JobType] = []
     for attribute in attributes:
         job_type_str = attribute["label"].replace("-", "").replace(" ", "").lower()
-        job_type = get_enum_from_job_type(job_type_str)
+        job_type = job_types_by_key.get(attribute["key"]) or get_enum_from_job_type(
+            job_type_str
+        )
         if job_type:
             job_types.append(job_type)
     return job_types
@@ -55,7 +60,8 @@ def is_job_remote(job: dict, description: str) -> bool:
     """
     remote_keywords = ["remote", "work from home", "wfh"]
     is_remote_in_attributes = any(
-        any(keyword in attr["label"].lower() for keyword in remote_keywords)
+        attr["key"] in remote_keys
+        or any(keyword in attr["label"].lower() for keyword in remote_keywords)
         for attr in job["attributes"]
     )
     is_remote_in_description = any(
