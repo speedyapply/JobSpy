@@ -36,7 +36,8 @@ def parse_job_type(soup_job_type: BeautifulSoup) -> list[JobType] | None:
             employment_type = employment_type.lower()
             employment_type = employment_type.replace("-", "")
 
-    return [get_enum_from_job_type(employment_type)] if employment_type else []
+    job_type = get_enum_from_job_type(employment_type) if employment_type else None
+    return [job_type] if job_type else []
 
 
 def parse_job_level(soup_job_level: BeautifulSoup) -> str | None:
@@ -57,7 +58,7 @@ def parse_job_level(soup_job_level: BeautifulSoup) -> str | None:
             class_="description__job-criteria-text description__job-criteria-text--criteria",
         )
         if job_level_span:
-            job_level = job_level_span.get_text(strip=True)
+            job_level = job_level_span.get_text(strip=True).lower()
 
     return job_level
 

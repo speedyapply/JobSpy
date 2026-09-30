@@ -3,14 +3,12 @@ from __future__ import annotations
 
 import random
 import time
-from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from jobspy.exception import BDJobsException
 from jobspy.bdjobs.constant import headers, search_params
 from jobspy.bdjobs.util import (
     parse_location,
@@ -20,16 +18,13 @@ from jobspy.bdjobs.util import (
 )
 from jobspy.model import (
     JobPost,
-    Location,
     JobResponse,
-    Country,
     Scraper,
     ScraperInput,
     Site,
     DescriptionFormat,
 )
 from jobspy.util import (
-    extract_emails_from_text,
     create_session,
     create_logger,
     remove_attributes,

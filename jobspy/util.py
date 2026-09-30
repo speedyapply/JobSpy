@@ -4,16 +4,12 @@ import logging
 import re
 from itertools import cycle
 
-import numpy as np
 import requests
 import tls_client
-import urllib3
 from markdownify import markdownify as md
 from requests.adapters import HTTPAdapter, Retry
 
 from jobspy.model import CompensationInterval, JobType, Site
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def create_logger(name: str):
@@ -57,7 +53,6 @@ class RequestsRotating(RotatingProxySession, requests.Session):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
         self.clear_cookies = clear_cookies
-        self.allow_redirects = True
         self.setup_session(has_retry, delay)
 
     def setup_session(self, has_retry, delay):
@@ -199,7 +194,7 @@ def currency_parser(cur_str):
     else:
         num = float(cur_str)
 
-    return np.round(num, 2)
+    return round(num, 2)
 
 
 def remove_attributes(tag):

@@ -4,7 +4,12 @@ import math
 from datetime import datetime
 from typing import Tuple
 
-from jobspy.indeed.constant import job_search_query, api_headers
+from jobspy.indeed.constant import (
+    job_search_query,
+    api_headers,
+    job_type_keys,
+    languages,
+)
 from jobspy.indeed.util import is_job_remote, get_compensation, get_job_type
 from jobspy.model import (
     Scraper,
@@ -13,7 +18,6 @@ from jobspy.model import (
     JobPost,
     Location,
     JobResponse,
-    JobType,
     DescriptionFormat,
 )
 from jobspy.util import (
@@ -40,9 +44,7 @@ class Indeed(Scraper):
         )
         self.scraper_input = None
         self.jobs_per_page = 100
-        self.num_workers = 10
         self.seen_urls = set()
-        self.headers = None
         self.api_country_code = None
         self.base_url = None
         self.api_url = "https://apis.indeed.com/graphql"
@@ -56,8 +58,6 @@ class Indeed(Scraper):
         self.scraper_input = scraper_input
         domain, self.api_country_code = self.scraper_input.country.indeed_domain_value
         self.base_url = f"https://{domain}.indeed.com"
-        self.headers = api_headers.copy()
-        self.headers["indeed-co"] = self.scraper_input.country.indeed_domain_value
         job_list = []
         page = 1
 
@@ -72,6 +72,8 @@ class Indeed(Scraper):
                 log.info(f"found no jobs on page: {page}")
                 break
             job_list += jobs
+            if not cursor:
+                break
             page += 1
         return JobResponse(
             jobs=job_list[
@@ -101,7 +103,6 @@ class Indeed(Scraper):
                 if self.scraper_input.location
                 else ""
             ),
-            dateOnIndeed=self.scraper_input.hours_old,
             cursor=f'cursor: "{cursor}"' if cursor else "",
             filters=filters,
         )
@@ -110,17 +111,16 @@ class Indeed(Scraper):
         }
         api_headers_temp = api_headers.copy()
         api_headers_temp["indeed-co"] = self.api_country_code
+        language = languages.get(self.api_country_code, "en")
+        api_headers_temp["indeed-locale"] = f"{language}-{self.api_country_code}"
         response = self.session.post(
             self.api_url,
             headers=api_headers_temp,
             json=payload,
             timeout=10,
-            verify=False,
         )
         if not response.ok:
-            log.info(
-                f"responded with status code: {response.status_code} (submit GitHub issue if this appears to be a bug)"
-            )
+            log.error(f"Indeed response status code {response.status_code}")
             return jobs, new_cursor
         data = response.json()
         jobs = data["data"]["jobSearch"]["results"]
@@ -136,61 +136,30 @@ class Indeed(Scraper):
 
     def _build_filters(self):
         """
-        Builds the filters dict for job type/is_remote. If hours_old is provided, composite filter for job_type/is_remote is not possible.
-        IndeedApply: filters: { keyword: { field: "indeedApplyScope", keys: ["DESKTOP"] } }
+        Builds the filters list.
         """
-        filters_str = ""
+        filters = []
         if self.scraper_input.hours_old:
-            filters_str = """
-            filters: {{
-                date: {{
-                  field: "dateOnIndeed",
-                  start: "{start}h"
-                }}
-            }}
-            """.format(
-                start=self.scraper_input.hours_old
+            filters.append(
+                f'{{ date: {{ field: "dateOnIndeed", start: "{self.scraper_input.hours_old}h" }} }}'
             )
-        elif self.scraper_input.easy_apply:
-            filters_str = """
-            filters: {
-                keyword: {
-                  field: "indeedApplyScope",
-                  keys: ["DESKTOP"]
-                }
-            }
-            """
-        elif self.scraper_input.job_type or self.scraper_input.is_remote:
-            job_type_key_mapping = {
-                JobType.FULL_TIME: "CF3CP",
-                JobType.PART_TIME: "75GKK",
-                JobType.CONTRACT: "NJXCK",
-                JobType.INTERNSHIP: "VDTG7",
-            }
 
-            keys = []
-            if self.scraper_input.job_type:
-                key = job_type_key_mapping[self.scraper_input.job_type]
-                keys.append(key)
+        keys = []
+        if self.scraper_input.job_type in job_type_keys:
+            keys.append(job_type_keys[self.scraper_input.job_type])
+        if self.scraper_input.is_remote:
+            keys.append("DSQF7")
+        if keys:
+            keys_str = '", "'.join(keys)
+            filters.append(
+                f'{{ keyword: {{ field: "attributes", keys: ["{keys_str}"] }} }}'
+            )
 
-            if self.scraper_input.is_remote:
-                keys.append("DSQF7")
-
-            if keys:
-                keys_str = '", "'.join(keys)
-                filters_str = f"""
-                filters: {{
-                  composite: {{
-                    filters: [{{
-                      keyword: {{
-                        field: "attributes",
-                        keys: ["{keys_str}"]
-                      }}
-                    }}]
-                  }}
-                }}
-                """
-        return filters_str
+        if self.scraper_input.easy_apply:
+            filters.append(
+                '{ keyword: { field: "indeedApplyScope", keys: ["DESKTOP"] } }'
+            )
+        return f"filters: [{', '.join(filters)}]" if filters else ""
 
     def _process_job(self, job: dict) -> JobPost | None:
         """
