@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import math
 import random
-import re
 import time
 from datetime import datetime
 from typing import Optional
-from urllib.parse import urlparse, urlunparse, unquote
+from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from jobspy.exception import LinkedInException
 from jobspy.linkedin.constant import headers
 from jobspy.linkedin.util import (
     is_job_remote,
@@ -68,7 +66,6 @@ class LinkedIn(Scraper):
         self.session.headers.update(headers)
         self.scraper_input = None
         self.country = "worldwide"
-        self.job_url_direct_regex = re.compile(r'(?<=\?url=)[^"]+')
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         """
@@ -161,7 +158,7 @@ class LinkedIn(Scraper):
                         if not continue_search():
                             break
                     except Exception as e:
-                        raise LinkedInException(str(e))
+                        log.warning(f"skipping job {job_id}: {e}")
 
             if continue_search():
                 time.sleep(random.uniform(self.delay, self.delay + self.band_delay))
@@ -240,7 +237,6 @@ class LinkedIn(Scraper):
             job_level=job_details.get("job_level"),
             company_industry=job_details.get("company_industry"),
             description=job_details.get("description"),
-            job_url_direct=job_details.get("job_url_direct"),
             emails=extract_emails_from_text(description),
             company_logo=job_details.get("company_logo"),
             job_function=job_details.get("job_function"),
@@ -275,7 +271,7 @@ class LinkedIn(Scraper):
             elif self.scraper_input.description_format == DescriptionFormat.PLAIN:
                 description = plain_converter(description)
         h3_tag = soup.find(
-            "h3", text=lambda text: text and "Job function" in text.strip()
+            "h3", string=lambda text: text and "Job function" in text.strip()
         )
 
         job_function = None
@@ -296,7 +292,6 @@ class LinkedIn(Scraper):
             "job_level": parse_job_level(soup),
             "company_industry": parse_company_industry(soup),
             "job_type": parse_job_type(soup),
-            "job_url_direct": self._parse_job_url_direct(soup),
             "company_logo": company_logo,
             "job_function": job_function,
         }
@@ -323,23 +318,5 @@ class LinkedIn(Scraper):
                 )
             elif len(parts) == 3:
                 city, state, country = parts
-                country = Country.from_string(country)
                 location = Location(city=city, state=state, country=country)
         return location
-
-    def _parse_job_url_direct(self, soup: BeautifulSoup) -> str | None:
-        """
-        Gets the job url direct from job page
-        :param soup:
-        :return: str
-        """
-        job_url_direct = None
-        job_url_direct_content = soup.find("code", id="applyUrl")
-        if job_url_direct_content:
-            job_url_direct_match = self.job_url_direct_regex.search(
-                job_url_direct_content.decode_contents().strip()
-            )
-            if job_url_direct_match:
-                job_url_direct = unquote(job_url_direct_match.group())
-
-        return job_url_direct
