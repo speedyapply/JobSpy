@@ -33,7 +33,7 @@ jobs = scrape_jobs(
     hours_old=72,
     country_indeed='USA',
     
-    # linkedin_fetch_description=True # needed for LinkedIn descriptions, job type & level (slower)
+    # fetch_description=True # needed for LinkedIn & Glassdoor descriptions, LinkedIn job type & level (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
 )
 print(f"Found {len(jobs)} jobs")
@@ -104,9 +104,13 @@ Optional
 |    Controls the verbosity of the runtime printouts 
 |    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
 
+├── fetch_description (bool): 
+|    fetches job descriptions for LinkedIn, Glassdoor and Naukri, plus job details for LinkedIn
+|    (job type, level, industry, function). Without it these are empty for those boards.
+|    Increases requests by O(n); Glassdoor rate limits after ~30 per IP, so use proxies for more
+│
 ├── linkedin_fetch_description (bool): 
-|    fetches the full description, job type, job level, company industry and job function
-|    for LinkedIn; without it these are empty for LinkedIn jobs (increases requests by O(n))
+|    deprecated, use fetch_description (still works; removed in 2.0)
 │
 ├── linkedin_company_ids (list[int]): 
 |    searches for linkedin jobs with specific company ids

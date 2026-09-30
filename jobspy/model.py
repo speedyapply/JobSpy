@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from datetime import date
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class JobType(Enum):
@@ -312,7 +312,8 @@ class ScraperInput(BaseModel):
     job_type: JobType | None = None
     easy_apply: bool | None = None
     offset: int = 0
-    linkedin_fetch_description: bool = False
+    fetch_description: bool = False
+    linkedin_fetch_description: bool = False  # deprecated alias of fetch_description
     linkedin_company_ids: list[int] | None = None
     description_format: DescriptionFormat | None = DescriptionFormat.MARKDOWN
 
@@ -320,6 +321,12 @@ class ScraperInput(BaseModel):
 
     results_wanted: int = 15
     hours_old: int | None = None
+
+    @model_validator(mode="after")
+    def _merge_linkedin_fetch_description(self):
+        if self.linkedin_fetch_description:
+            self.fetch_description = True
+        return self
 
 
 class Scraper(ABC):

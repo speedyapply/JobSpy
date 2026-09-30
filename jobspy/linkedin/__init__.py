@@ -151,7 +151,7 @@ class LinkedIn(Scraper):
                     seen_ids.add(job_id)
 
                     try:
-                        fetch_desc = scraper_input.linkedin_fetch_description
+                        fetch_desc = scraper_input.fetch_description
                         job_post = self._process_job(job_card, job_id, fetch_desc)
                         if job_post:
                             job_list.append(job_post)
