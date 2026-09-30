@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Tuple
 
@@ -47,6 +48,7 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    fetch_description: bool = False,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -64,6 +66,12 @@ def scrape_jobs(
         Site.BDJOBS: BDJobs,
     }
     set_logger_level(verbose)
+    if linkedin_fetch_description:
+        warnings.warn(
+            "linkedin_fetch_description is deprecated; use fetch_description",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     job_type = get_enum_from_value(job_type) if job_type else None
 
     def get_site_type():
@@ -92,7 +100,8 @@ def scrape_jobs(
         job_type=job_type,
         easy_apply=easy_apply,
         description_format=description_format,
-        linkedin_fetch_description=linkedin_fetch_description,
+        fetch_description=fetch_description or False,
+        linkedin_fetch_description=linkedin_fetch_description or False,
         results_wanted=results_wanted,
         linkedin_company_ids=linkedin_company_ids,
         offset=offset,

@@ -127,7 +127,7 @@ class Naukri(Scraper):
                 log.debug(f"Processing job ID: {job_id}")
 
                 try:
-                    fetch_desc = scraper_input.linkedin_fetch_description
+                    fetch_desc = scraper_input.fetch_description
                     job_post = self._process_job(job, job_id, fetch_desc)
                     if job_post:
                         job_list.append(job_post)
