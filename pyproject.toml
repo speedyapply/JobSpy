@@ -17,9 +17,9 @@ requires-python = ">=3.10"
 dependencies = [
     "requests>=2.31.0",
     "beautifulsoup4>=4.12.2",
-    "pandas>=2.1.0",
+    "pandas>=2.1.2",
     "pydantic>=2.3.0",
-    "tls-client>=1.0.1",
+    "curl_cffi>=0.16.2",
     "markdownify>=1.1.0",
 ]
 dynamic = ["classifiers"]
