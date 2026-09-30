@@ -33,7 +33,7 @@ jobs = scrape_jobs(
     hours_old=72,
     country_indeed='USA',
     
-    # linkedin_fetch_description=True # gets more info such as description, direct job url (slower)
+    # linkedin_fetch_description=True # needed for LinkedIn descriptions, job type & level (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
 )
 print(f"Found {len(jobs)} jobs")
@@ -85,7 +85,7 @@ Optional
 |    number of job results to retrieve for each site specified in 'site_name'
 │
 ├── easy_apply (bool): 
-|    filters for jobs that are hosted on the job board site (LinkedIn easy apply filter no longer works)
+|    filters for jobs that are hosted on the job board site
 |
 ├── user_agent (str): 
 |    override the default user agent which may be outdated
@@ -105,7 +105,8 @@ Optional
 |    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
 
 ├── linkedin_fetch_description (bool): 
-|    fetches full description and direct job url for LinkedIn (Increases requests by O(n))
+|    fetches the full description, job type, job level, company industry and job function
+|    for LinkedIn; without it these are empty for LinkedIn jobs (increases requests by O(n))
 │
 ├── linkedin_company_ids (list[int]): 
 |    searches for linkedin jobs with specific company ids
@@ -121,15 +122,10 @@ Optional
 ```
 
 ```
-├── Indeed limitations:
+└── Indeed limitations:
 |    Only one from this list can be used in a search:
 |    - hours_old
 |    - job_type & is_remote
-|    - easy_apply
-│
-└── LinkedIn limitations:
-|    Only one from this list can be used in a search:
-|    - hours_old
 |    - easy_apply
 ```
 
