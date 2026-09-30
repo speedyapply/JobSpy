@@ -1,7 +1,7 @@
 #util.py
 from bs4 import BeautifulSoup
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Any
 
 from jobspy.model import Location, Country
 

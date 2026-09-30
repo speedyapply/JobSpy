@@ -7,8 +7,6 @@ import time
 from datetime import datetime, date, timedelta
 from typing import Optional
 
-import requests
-
 from jobspy.exception import NaukriException
 from jobspy.naukri.constant import headers as naukri_headers
 from jobspy.naukri.util import (
@@ -29,7 +27,6 @@ from jobspy.model import (
 )
 from jobspy.util import (
     extract_emails_from_text,
-    currency_parser,
     markdown_converter,
     create_session,
     create_logger,

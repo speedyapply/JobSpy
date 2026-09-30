@@ -44,7 +44,6 @@ class Indeed(Scraper):
         )
         self.scraper_input = None
         self.jobs_per_page = 100
-        self.num_workers = 10
         self.seen_urls = set()
         self.api_country_code = None
         self.base_url = None
@@ -104,7 +103,6 @@ class Indeed(Scraper):
                 if self.scraper_input.location
                 else ""
             ),
-            dateOnIndeed=self.scraper_input.hours_old,
             cursor=f'cursor: "{cursor}"' if cursor else "",
             filters=filters,
         )
@@ -122,9 +120,7 @@ class Indeed(Scraper):
             timeout=10,
         )
         if not response.ok:
-            log.info(
-                f"responded with status code: {response.status_code} (submit GitHub issue if this appears to be a bug)"
-            )
+            log.error(f"Indeed response status code {response.status_code}")
             return jobs, new_cursor
         data = response.json()
         jobs = data["data"]["jobSearch"]["results"]
