@@ -11,7 +11,6 @@ from urllib.parse import urlparse, urlunparse, unquote
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from jobspy.exception import LinkedInException
 from jobspy.linkedin.constant import headers
 from jobspy.linkedin.util import (
     is_job_remote,
@@ -161,7 +160,7 @@ class LinkedIn(Scraper):
                         if not continue_search():
                             break
                     except Exception as e:
-                        raise LinkedInException(str(e))
+                        log.warning(f"skipping job {job_id}: {e}")
 
             if continue_search():
                 time.sleep(random.uniform(self.delay, self.delay + self.band_delay))
@@ -275,7 +274,7 @@ class LinkedIn(Scraper):
             elif self.scraper_input.description_format == DescriptionFormat.PLAIN:
                 description = plain_converter(description)
         h3_tag = soup.find(
-            "h3", text=lambda text: text and "Job function" in text.strip()
+            "h3", string=lambda text: text and "Job function" in text.strip()
         )
 
         job_function = None
@@ -323,7 +322,6 @@ class LinkedIn(Scraper):
                 )
             elif len(parts) == 3:
                 city, state, country = parts
-                country = Country.from_string(country)
                 location = Location(city=city, state=state, country=country)
         return location
 
