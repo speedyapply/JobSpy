@@ -1,38 +1,41 @@
 from __future__ import annotations
 
-from bs4 import BeautifulSoup
-from jobspy.model import JobType, Location
-from jobspy.util import get_enum_from_job_type
+import base64
+import functools
+import secrets
+import time
+
+from jobspy.naukri.constant import nkparam_public_key
 
 
-def parse_job_type(soup: BeautifulSoup |str) -> list[JobType] | None:
-    """
-    Gets the job type from the job page
-    """
-    if isinstance(soup, str):
-        soup = BeautifulSoup(soup, "html.parser")
-    job_type_tag = soup.find("span", class_="job-type")
-    if job_type_tag:
-        job_type_str = job_type_tag.get_text(strip=True).lower().replace("-", "")
-        return [get_enum_from_job_type(job_type_str)] if job_type_str else None
-    return None
+def _read_der(data: bytes, i: int) -> tuple[bytes, int]:
+    """Returns the DER value at data[i] and the index after it."""
+    length = data[i + 1]
+    i += 2
+    if length & 0x80:
+        size = length & 0x7F
+        length = int.from_bytes(data[i : i + size], "big")
+        i += size
+    return data[i : i + length], i + length
 
 
-def parse_company_industry(soup: BeautifulSoup | str) -> str | None:
-    """
-    Gets the company industry from the job page
-    """
-    if isinstance(soup, str):
-        soup = BeautifulSoup(soup, "html.parser")
-    industry_tag = soup.find("span", class_="industry")
-    return industry_tag.get_text(strip=True) if industry_tag else None
+@functools.cache
+def public_key() -> tuple[int, int]:
+    key, _ = _read_der(base64.b64decode(nkparam_public_key), 0)
+    _, i = _read_der(key, 0)
+    bit_string, _ = _read_der(key, i)
+    rsa_key, _ = _read_der(bit_string[1:], 0)
+    modulus, i = _read_der(rsa_key, 0)
+    exponent, _ = _read_der(rsa_key, i)
+    return int.from_bytes(modulus, "big"), int.from_bytes(exponent, "big")
 
 
-def is_job_remote(title: str, description: str, location: Location) -> bool:
-    """
-    Searches the title, description, and location to check if the job is remote
-    """
-    remote_keywords = ["remote", "work from home", "wfh"]
-    location_str = location.display_location()
-    full_string = f"{title} {description} {location_str}".lower()
-    return any(keyword in full_string for keyword in remote_keywords)
+def generate_nkparam(page: str) -> str:
+    """Naukri's request token: RSA (PKCS#1 v1.5) of "v0|<ms>|121_<page>"."""
+    modulus, exponent = public_key()
+    size = (modulus.bit_length() + 7) // 8
+    message = f"v0|{int(time.time() * 1000)}|121_{page}".encode()
+    padding = bytes(secrets.randbelow(255) + 1 for _ in range(size - 3 - len(message)))
+    block = b"\x00\x02" + padding + b"\x00" + message
+    cipher = pow(int.from_bytes(block, "big"), exponent, modulus)
+    return base64.b64encode(cipher.to_bytes(size, "big")).decode()
