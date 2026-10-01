@@ -168,23 +168,6 @@ def get_enum_from_job_type(job_type_str: str) -> JobType | None:
     return res
 
 
-def currency_parser(cur_str):
-    # Remove any non-numerical characters
-    # except for ',' '.' or '-' (e.g. EUR)
-    cur_str = re.sub("[^-0-9.,]", "", cur_str)
-    # Remove any 000s separators (either , or .)
-    cur_str = re.sub("[.,]", "", cur_str[:-3]) + cur_str[-3:]
-
-    if "." in list(cur_str[-3:]):
-        num = float(cur_str)
-    elif "," in list(cur_str[-3:]):
-        num = float(cur_str.replace(",", "."))
-    else:
-        num = float(cur_str)
-
-    return round(num, 2)
-
-
 def remove_attributes(tag):
     for attr in list(tag.attrs):
         del tag[attr]
@@ -292,18 +275,10 @@ def get_enum_from_value(value_str):
 
 
 def convert_to_annual(job_data: dict):
-    if job_data["interval"] == "hourly":
-        job_data["min_amount"] *= 2080
-        job_data["max_amount"] *= 2080
-    if job_data["interval"] == "monthly":
-        job_data["min_amount"] *= 12
-        job_data["max_amount"] *= 12
-    if job_data["interval"] == "weekly":
-        job_data["min_amount"] *= 52
-        job_data["max_amount"] *= 52
-    if job_data["interval"] == "daily":
-        job_data["min_amount"] *= 260
-        job_data["max_amount"] *= 260
+    factors = {"hourly": 2080, "daily": 260, "weekly": 52, "monthly": 12}
+    factor = factors[job_data["interval"]]
+    job_data["min_amount"] = round(job_data["min_amount"] * factor, 2)
+    job_data["max_amount"] = round(job_data["max_amount"] * factor, 2)
     job_data["interval"] = "yearly"
 
 

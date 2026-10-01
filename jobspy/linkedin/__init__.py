@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 import time
 from datetime import datetime
 from typing import Optional
@@ -10,7 +11,7 @@ from urllib.parse import urlparse, urlunparse
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from jobspy.linkedin.constant import headers
+from jobspy.linkedin.constant import currencies, headers, pay_intervals
 from jobspy.linkedin.util import (
     is_job_remote,
     job_type_code,
@@ -31,7 +32,6 @@ from jobspy.model import (
 )
 from jobspy.util import (
     extract_emails_from_text,
-    currency_parser,
     markdown_converter,
     plain_converter,
     create_session,
@@ -170,22 +170,6 @@ class LinkedIn(Scraper):
     def _process_job(
         self, job_card: Tag, job_id: str, full_descr: bool
     ) -> Optional[JobPost]:
-        salary_tag = job_card.find("span", class_="job-search-card__salary-info")
-
-        compensation = description = None
-        if salary_tag:
-            salary_text = salary_tag.get_text(separator=" ").strip()
-            salary_values = [currency_parser(value) for value in salary_text.split("-")]
-            salary_min = salary_values[0]
-            salary_max = salary_values[1]
-            currency = salary_text[0] if salary_text[0] != "$" else "USD"
-
-            compensation = Compensation(
-                min_amount=int(salary_min),
-                max_amount=int(salary_max),
-                currency=currency,
-            )
-
         title_tag = job_card.find("span", class_="sr-only")
         title = title_tag.get_text(strip=True) if title_tag else "N/A"
 
@@ -220,7 +204,7 @@ class LinkedIn(Scraper):
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
-            description = job_details.get("description")
+        description = job_details.get("description")
         is_remote = is_job_remote(title, description, location)
 
         return JobPost(
@@ -232,7 +216,7 @@ class LinkedIn(Scraper):
             is_remote=is_remote,
             date_posted=date_posted,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
-            compensation=compensation,
+            compensation=job_details.get("compensation"),
             job_type=job_details.get("job_type"),
             job_level=job_details.get("job_level"),
             company_industry=job_details.get("company_industry"),
@@ -240,6 +224,23 @@ class LinkedIn(Scraper):
             emails=extract_emails_from_text(description),
             company_logo=job_details.get("company_logo"),
             job_function=job_details.get("job_function"),
+        )
+
+    @staticmethod
+    def _parse_salary(text: str) -> Compensation | None:
+        """ "$117,000.00/yr - $234,000.00/yr" """
+        match = re.fullmatch(
+            r"([^\d\s]+) ?([\d,]+\.\d\d)(/\w+) - [^\d\s]+ ?([\d,]+\.\d\d)/\w+",
+            " ".join(text.split()),
+        )
+        if not match:
+            return None
+        currency, low, interval, high = match.groups()
+        return Compensation(
+            interval=pay_intervals.get(interval),
+            min_amount=float(low.replace(",", "")),
+            max_amount=float(high.replace(",", "")),
+            currency=currencies.get(currency, currency),
         )
 
     def _get_job_details(self, job_id: str) -> dict:
@@ -287,8 +288,11 @@ class LinkedIn(Scraper):
             if (logo_image := soup.find("img", {"class": "artdeco-entity-image"}))
             else None
         )
+        salary_tag = soup.find("div", class_="compensation__salary")
+        compensation = self._parse_salary(salary_tag.get_text()) if salary_tag else None
         return {
             "description": description,
+            "compensation": compensation,
             "job_level": parse_job_level(soup),
             "company_industry": parse_company_industry(soup),
             "job_type": parse_job_type(soup),

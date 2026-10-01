@@ -13,8 +13,8 @@ def parse_compensation(data: dict) -> Compensation | None:
         interval = CompensationInterval.YEARLY
     elif pay_period:
         interval = CompensationInterval.get_interval(pay_period)
-    min_amount = int(adjusted_pay.get("p10") // 1)
-    max_amount = int(adjusted_pay.get("p90") // 1)
+    min_amount = round(adjusted_pay.get("p10"), 2)
+    max_amount = round(adjusted_pay.get("p90"), 2)
     return Compensation(
         interval=interval,
         min_amount=min_amount,
