@@ -1,32 +1,101 @@
-#constant.py
-# Headers for BDJobs requests
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Connection": "keep-alive",
-    "Referer": "https://jobs.bdjobs.com/",
-    "Cache-Control": "max-age=0",
-}
+from jobspy.model import JobType
 
-# Search parameters that work best for BDJobs
+jobs_per_page = 50
+
 search_params = {
-    "hidJobSearch": "jobsearch",
+    "rpp": jobs_per_page,
+    "isPro": 0,
+    "ToggleJobs": "true",
+    "isFresher": "false",
 }
 
-# Selectors for job listings
-job_selectors = [
-    "div.job-item",  # Catches both normal and premium job cards, as well as other types
-    "div.sout-jobs-wrapper", # Catches job listings in the main search results page
-    "div.norm-jobs-wrapper", # Catches normal job listings
-    "div.featured-wrap",     # Catches featured job listings
-]
+job_type_codes = {
+    JobType.FULL_TIME: "FullTime",
+    JobType.PART_TIME: "PartTime",
+    JobType.CONTRACT: "Contract",
+    JobType.INTERNSHIP: "Intern",
+}
+job_types = {code: job_type for job_type, code in job_type_codes.items()}
 
-# Date formats used by BDJobs
-date_formats = [
-    "%d %b %Y",
-    "%d-%b-%Y",
-    "%d %B %Y",
-    "%B %d, %Y",
-    "%d/%m/%Y",
-]
+description_sections = (
+    ("Responsibilities", "JobDescription"),
+    ("Education", "EducationRequirements"),
+    ("Experience", "experience"),
+    ("Additional Requirements", "AdditionJobRequirements"),
+    ("Compensation & Other Benefits", "JobOtherBenifits"),
+)
+
+locations = {
+    "dhaka division": 1003,
+    "dhaka": 14,
+    "faridpur": 16,
+    "gazipur": 19,
+    "gopalganj": 20,
+    "kishoreganj": 29,
+    "madaripur": 34,
+    "manikganj": 36,
+    "munshiganj": 39,
+    "narayanganj": 43,
+    "narsingdi": 44,
+    "rajbari": 53,
+    "shariatpur": 58,
+    "tangail": 63,
+    "chattogram division": 1002,
+    "bandarban": 3,
+    "brahmanbaria": 1,
+    "chandpur": 8,
+    "chattogram": 10,
+    "cox's bazar": 13,
+    "cumilla": 12,
+    "feni": 17,
+    "khagrachhari": 27,
+    "lakshmipur": 33,
+    "noakhali": 48,
+    "rangamati": 55,
+    "barishal division": 1001,
+    "barguna": 7,
+    "barishal": 4,
+    "bhola": 5,
+    "jhalakathi": 24,
+    "patuakhali": 51,
+    "pirojpur": 52,
+    "khulna division": 1004,
+    "bagerhat": 2,
+    "chuadanga": 11,
+    "jashore": 23,
+    "jhenaidah": 25,
+    "khulna": 28,
+    "kushtia": 31,
+    "magura": 35,
+    "meherpur": 37,
+    "narail": 42,
+    "satkhira": 57,
+    "mymensingh division": 1005,
+    "jamalpur": 22,
+    "mymensingh": 40,
+    "netrokona": 46,
+    "sherpur": 59,
+    "rajshahi division": 1006,
+    "bogura": 6,
+    "chapainawabganj": 9,
+    "joypurhat": 26,
+    "naogaon": 41,
+    "natore": 45,
+    "pabna": 49,
+    "rajshahi": 54,
+    "sirajganj": 60,
+    "rangpur division": 1007,
+    "dinajpur": 15,
+    "gaibandha": 18,
+    "kurigram": 30,
+    "lalmonirhat": 32,
+    "nilphamari": 47,
+    "panchagarh": 50,
+    "rangpur": 56,
+    "thakurgaon": 64,
+    "sylhet division": 1008,
+    "habiganj": 21,
+    "moulvibazar": 38,
+    "sunamganj": 61,
+    "sylhet": 62,
+}

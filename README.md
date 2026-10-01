@@ -164,9 +164,10 @@ You can specify the following countries when searching on Indeed (use the exact 
 ### **Bayt**
 
 Bayt searches all countries unless `location` names one it covers, e.g. `"Dubai, UAE"` or `"Saudi Arabia"`.
-It also uses `hours_old`, `job_type` (fulltime, internship, contract), `is_remote`, `easy_apply` and `offset`.
-Salaries are monthly, in the local currency Bayt shows.
 
+### **BDJobs**
+
+BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhaka"` or `"Chattogram Division"`.
 
 
 ## Notes
