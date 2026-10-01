@@ -1,0 +1,217 @@
+{
+  "name": "JobSpy",
+  "version": "1.1.80",
+  "description": "Multi-source job board scraper that aggregates job postings from LinkedIn, Indeed, Glassdoor, ZipRecruiter, Google Jobs, Bayt, and Naukri into structured data",
+  "repository": "https://github.com/DirtyDiablo/JobSpy",
+  "keywords": [
+    "job-search",
+    "job-scraping",
+    "linkedin",
+    "indeed",
+    "glassdoor",
+    "ziprecruiter",
+    "google-jobs",
+    "employment",
+    "hiring",
+    "bd-intelligence",
+    "market-research"
+  ],
+  "capabilities": [
+    "multi_site_job_search",
+    "concurrent_scraping",
+    "structured_data_output",
+    "proxy_support",
+    "salary_extraction",
+    "remote_job_filtering"
+  ],
+  "tools": [
+    {
+      "name": "job_search",
+      "description": "Search for job postings across multiple job boards simultaneously. Returns structured job data including title, company, location, salary, and job URL.",
+      "function": "scrape_jobs",
+      "module": "jobspy",
+      "cli": "python jobspy_cli.py",
+      "inputs": {
+        "search_term": {
+          "type": "string",
+          "required": true,
+          "description": "Job title, keywords, or skills to search for. Supports Boolean operators (AND, OR) and exact match with quotes."
+        },
+        "location": {
+          "type": "string",
+          "required": false,
+          "description": "Geographic location (city, state) or 'Remote' for remote positions",
+          "examples": ["San Francisco, CA", "New York, NY", "Remote", "Washington, DC"]
+        },
+        "site_name": {
+          "type": "array",
+          "required": false,
+          "default": ["indeed", "linkedin"],
+          "description": "List of job boards to search",
+          "enum": ["indeed", "linkedin", "zip_recruiter", "glassdoor", "google", "bayt", "naukri"]
+        },
+        "results_wanted": {
+          "type": "integer",
+          "required": false,
+          "default": 15,
+          "description": "Number of job results to retrieve per site (max ~1000)"
+        },
+        "hours_old": {
+          "type": "integer",
+          "required": false,
+          "description": "Filter jobs posted within the last N hours",
+          "examples": [24, 48, 72, 168]
+        },
+        "is_remote": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Filter for remote jobs only"
+        },
+        "job_type": {
+          "type": "string",
+          "required": false,
+          "description": "Filter by employment type",
+          "enum": ["fulltime", "parttime", "internship", "contract"]
+        },
+        "distance": {
+          "type": "integer",
+          "required": false,
+          "default": 50,
+          "description": "Search radius in miles from the specified location"
+        },
+        "country_indeed": {
+          "type": "string",
+          "required": false,
+          "default": "usa",
+          "description": "Country for Indeed/Glassdoor searches"
+        },
+        "linkedin_fetch_description": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Fetch full job descriptions for LinkedIn (slower but more detailed)"
+        },
+        "proxies": {
+          "type": "array",
+          "required": false,
+          "description": "List of proxy servers for avoiding rate limits"
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "jobs": {
+            "type": "array",
+            "description": "List of job postings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "site": "string - Source job board",
+                "title": "string - Job title",
+                "company": "string - Company name",
+                "location": "string - Job location",
+                "job_type": "string - Employment type",
+                "min_amount": "number - Minimum salary",
+                "max_amount": "number - Maximum salary",
+                "interval": "string - Salary period (yearly, hourly, etc.)",
+                "currency": "string - Salary currency",
+                "date_posted": "string - Date job was posted",
+                "job_url": "string - URL to job posting",
+                "description": "string - Job description (markdown format)",
+                "is_remote": "boolean - Whether job is remote",
+                "company_url": "string - Company website URL",
+                "company_industry": "string - Industry classification"
+              }
+            }
+          },
+          "count": {
+            "type": "integer",
+            "description": "Total number of jobs found"
+          }
+        }
+      },
+      "examples": [
+        {
+          "description": "Search for Python developers in NYC",
+          "python": "from jobspy import scrape_jobs\njobs = scrape_jobs(search_term='python developer', location='New York, NY', results_wanted=10)",
+          "cli": "python jobspy_cli.py --search 'python developer' --location 'New York, NY' --results 10 --format json"
+        },
+        {
+          "description": "Find remote data analyst jobs posted in last 24 hours",
+          "python": "jobs = scrape_jobs(search_term='data analyst', is_remote=True, hours_old=24, results_wanted=20)",
+          "cli": "python jobspy_cli.py --search 'data analyst' --remote --hours 24 --results 20"
+        },
+        {
+          "description": "Search Indeed and Glassdoor for PM jobs",
+          "python": "jobs = scrape_jobs(site_name=['indeed', 'glassdoor'], search_term='project manager', location='DC', results_wanted=25)",
+          "cli": "python jobspy_cli.py --search 'project manager' --sites indeed,glassdoor --location 'DC' --results 25"
+        }
+      ]
+    },
+    {
+      "name": "list_supported_sites",
+      "description": "Get list of all supported job board sites",
+      "cli": "python jobspy_cli.py --list-sites",
+      "outputs": {
+        "sites": {
+          "indeed": "Indeed.com - Best coverage, no rate limiting",
+          "linkedin": "LinkedIn Jobs - Requires proxies for best results",
+          "zip_recruiter": "ZipRecruiter - US/Canada only",
+          "glassdoor": "Glassdoor - Includes company reviews",
+          "google": "Google Jobs - Aggregates from multiple sources",
+          "bayt": "Bayt.com - Middle East job board",
+          "naukri": "Naukri.com - India job board"
+        }
+      }
+    },
+    {
+      "name": "list_supported_countries",
+      "description": "Get list of supported countries for Indeed/Glassdoor",
+      "cli": "python jobspy_cli.py --list-countries"
+    }
+  ],
+  "use_cases": {
+    "bd_intelligence": {
+      "description": "Business Development intelligence gathering through job market analysis",
+      "examples": [
+        "Monitor competitor hiring patterns",
+        "Identify companies with growth signals (high hiring volume)",
+        "Track specific target accounts for BD opportunities",
+        "Analyze market demand for specific skills"
+      ]
+    },
+    "market_research": {
+      "description": "Labor market research and analysis",
+      "examples": [
+        "Salary benchmarking for specific roles",
+        "Geographic distribution of job opportunities",
+        "Skills demand analysis",
+        "Industry hiring trends"
+      ]
+    },
+    "cis_mapping": {
+      "description": "CIS labor category mapping from job descriptions",
+      "examples": [
+        "Extract role duties and qualifications",
+        "Match job descriptions to labor categories",
+        "Identify clearance requirements"
+      ]
+    }
+  },
+  "chatgpt_integration": {
+    "recommended_approach": "Use the CLI wrapper (jobspy_cli.py) for ChatGPT code execution",
+    "output_format": "JSON is recommended for LLM parsing",
+    "rate_limiting_notes": "Indeed has no rate limiting. LinkedIn requires proxies for sustained use.",
+    "best_practices": [
+      "Start with Indeed for reliable results",
+      "Use hours_old to get recent postings",
+      "Request JSON format for structured output",
+      "Limit results_wanted to 20-50 for quick responses"
+    ]
+  },
+  "installation": {
+    "pip": "pip install python-jobspy",
+    "requirements": "Python 3.10+"
+  }
+}
