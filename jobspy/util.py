@@ -168,31 +168,6 @@ def get_enum_from_job_type(job_type_str: str) -> JobType | None:
     return res
 
 
-def currency_parser(cur_str):
-    # Remove any non-numerical characters
-    # except for ',' '.' or '-' (e.g. EUR)
-    cur_str = re.sub("[^-0-9.,]", "", cur_str)
-    # Remove any 000s separators (either , or .)
-    cur_str = re.sub("[.,]", "", cur_str[:-3]) + cur_str[-3:]
-
-    # Non-numeric salary text ("Negotiable", "Competitive") reduces to an empty
-    # string here; return None rather than raising ValueError from float("").
-    if not re.search(r"\d", cur_str):
-        return None
-
-    try:
-        if "." in list(cur_str[-3:]):
-            num = float(cur_str)
-        elif "," in list(cur_str[-3:]):
-            num = float(cur_str.replace(",", "."))
-        else:
-            num = float(cur_str)
-    except ValueError:
-        return None
-
-    return round(num, 2)
-
-
 def remove_attributes(tag):
     for attr in list(tag.attrs):
         del tag[attr]
@@ -300,17 +275,11 @@ def get_enum_from_value(value_str):
 
 
 def convert_to_annual(job_data: dict):
-    # Guard against a missing interval or null amounts: a job can carry an
-    # interval with no min/max (or vice-versa), which would raise KeyError /
-    # `None *= n` TypeError here. Only scale when both amounts are present.
-    multipliers = {"hourly": 2080, "monthly": 12, "weekly": 52, "daily": 260}
-    factor = multipliers.get(job_data.get("interval"))
-    if factor is not None:
-        if job_data.get("min_amount") is not None:
-            job_data["min_amount"] *= factor
-        if job_data.get("max_amount") is not None:
-            job_data["max_amount"] *= factor
-        job_data["interval"] = "yearly"
+    factors = {"hourly": 2080, "daily": 260, "weekly": 52, "monthly": 12}
+    factor = factors[job_data["interval"]]
+    job_data["min_amount"] = round(job_data["min_amount"] * factor, 2)
+    job_data["max_amount"] = round(job_data["max_amount"] * factor, 2)
+    job_data["interval"] = "yearly"
 
 
 desired_order = [

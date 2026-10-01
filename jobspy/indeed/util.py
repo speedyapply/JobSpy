@@ -44,12 +44,12 @@ def get_compensation(compensation: dict) -> Compensation | None:
     max_range = comp["range"].get("max")
     return Compensation(
         interval=interval,
-        min_amount=int(min_range) if min_range is not None else None,
-        max_amount=int(max_range) if max_range is not None else None,
+        min_amount=round(min_range, 2) if min_range is not None else None,
+        max_amount=round(max_range, 2) if max_range is not None else None,
         currency=(
-            compensation["estimated"]["currencyCode"]
-            if compensation["estimated"]
-            else compensation["currencyCode"]
+            compensation["currencyCode"]
+            if compensation["baseSalary"]
+            else compensation["estimated"]["currencyCode"]
         ),
     )
 
