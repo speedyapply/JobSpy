@@ -98,7 +98,7 @@ Optional
 │
 ├── hours_old (int): 
 |    filters jobs by the number of hours since the job was posted 
-|    (ZipRecruiter and Glassdoor round up to next day.)
+|    (Glassdoor rounds up to next day.)
 │
 ├── verbose (int) {0, 1, 2}: 
 |    Controls the verbosity of the runtime printouts 
