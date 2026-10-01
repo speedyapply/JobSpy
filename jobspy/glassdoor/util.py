@@ -1,4 +1,4 @@
-from jobspy.model import Compensation, CompensationInterval, Location, JobType
+from jobspy.model import Compensation, CompensationInterval, Location
 
 
 def parse_compensation(data: dict) -> Compensation | None:
@@ -21,12 +21,6 @@ def parse_compensation(data: dict) -> Compensation | None:
         max_amount=max_amount,
         currency=currency,
     )
-
-
-def get_job_type_enum(job_type_str: str) -> list[JobType] | None:
-    for job_type in JobType:
-        if job_type_str in job_type.value:
-            return [job_type]
 
 
 def parse_location(location_name: str) -> Location | None:

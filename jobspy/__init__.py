@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Tuple
 
@@ -26,8 +27,6 @@ from jobspy.util import (
 from jobspy.ziprecruiter import ZipRecruiter
 
 
-# Update the SCRAPER_MAPPING dictionary in the scrape_jobs function
-
 def scrape_jobs(
     site_name: str | list[str] | Site | list[Site] | None = None,
     search_term: str | None = None,
@@ -49,6 +48,7 @@ def scrape_jobs(
     enforce_annual_salary: bool = False,
     verbose: int = 0,
     user_agent: str = None,
+    fetch_description: bool = False,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -63,9 +63,15 @@ def scrape_jobs(
         Site.GOOGLE: Google,
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
-        Site.BDJOBS: BDJobs,  # Add BDJobs to the scraper mapping
+        Site.BDJOBS: BDJobs,
     }
     set_logger_level(verbose)
+    if linkedin_fetch_description:
+        warnings.warn(
+            "linkedin_fetch_description is deprecated; use fetch_description",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     job_type = get_enum_from_value(job_type) if job_type else None
 
     def get_site_type():
@@ -94,7 +100,8 @@ def scrape_jobs(
         job_type=job_type,
         easy_apply=easy_apply,
         description_format=description_format,
-        linkedin_fetch_description=linkedin_fetch_description,
+        fetch_description=fetch_description or False,
+        linkedin_fetch_description=linkedin_fetch_description or False,
         results_wanted=results_wanted,
         linkedin_company_ids=linkedin_company_ids,
         offset=offset,
@@ -105,10 +112,9 @@ def scrape_jobs(
         scraper_class = SCRAPER_MAPPING[site]
         scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
         scraped_data: JobResponse = scraper.scrape(scraper_input)
-        cap_name = site.value.capitalize()
-        site_name = "ZipRecruiter" if cap_name == "Zip_recruiter" else cap_name
-        site_name = "LinkedIn" if cap_name == "Linkedin" else cap_name
-        create_logger(site_name).info(f"finished scraping")
+        create_logger(scraper_class.__name__.removesuffix("Scraper")).info(
+            "finished scraping"
+        )
         return site.value, scraped_data
 
     site_to_jobs_dict = {}
@@ -130,8 +136,7 @@ def scrape_jobs(
 
     for site, job_response in site_to_jobs_dict.items():
         for job in job_response.jobs:
-            job_data = job.dict()
-            job_url = job_data["job_url"]
+            job_data = job.model_dump()
             job_data["site"] = site
             job_data["company"] = job_data["company_name"]
             job_data["job_type"] = (
@@ -219,9 +224,3 @@ def scrape_jobs(
         ).reset_index(drop=True)
     else:
         return pd.DataFrame()
-
-
-# Add BDJobs to __all__
-__all__ = [
-    "BDJobs",
-]

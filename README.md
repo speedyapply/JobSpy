@@ -33,7 +33,7 @@ jobs = scrape_jobs(
     hours_old=72,
     country_indeed='USA',
     
-    # linkedin_fetch_description=True # gets more info such as description, direct job url (slower)
+    # fetch_description=True # for boards whose search results don't include the description (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
 )
 print(f"Found {len(jobs)} jobs")
@@ -59,7 +59,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri
 |    (default is all)
 │
 ├── search_term (str)
@@ -85,7 +85,7 @@ Optional
 |    number of job results to retrieve for each site specified in 'site_name'
 │
 ├── easy_apply (bool): 
-|    filters for jobs that are hosted on the job board site (LinkedIn easy apply filter no longer works)
+|    filters for jobs that are hosted on the job board site
 |
 ├── user_agent (str): 
 |    override the default user agent which may be outdated
@@ -98,14 +98,19 @@ Optional
 │
 ├── hours_old (int): 
 |    filters jobs by the number of hours since the job was posted 
-|    (ZipRecruiter and Glassdoor round up to next day.)
+|    (Glassdoor rounds up to next day.)
 │
 ├── verbose (int) {0, 1, 2}: 
 |    Controls the verbosity of the runtime printouts 
 |    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
 
+├── fetch_description (bool): 
+|    for boards whose search results don't include the job description: fetches each job's
+|    page for the description and other details (e.g. job type). Without it these are empty
+|    for those boards. Adds one request per job, so use proxies for larger searches
+│
 ├── linkedin_fetch_description (bool): 
-|    fetches full description and direct job url for LinkedIn (Increases requests by O(n))
+|    deprecated, use fetch_description (still works; removed in 2.0)
 │
 ├── linkedin_company_ids (list[int]): 
 |    searches for linkedin jobs with specific company ids
@@ -118,19 +123,6 @@ Optional
 |
 ├── ca_cert (str)
 |    path to CA Certificate file for proxies
-```
-
-```
-├── Indeed limitations:
-|    Only one from this list can be used in a search:
-|    - hours_old
-|    - job_type & is_remote
-|    - easy_apply
-│
-└── LinkedIn limitations:
-|    Only one from this list can be used in a search:
-|    - hours_old
-|    - easy_apply
 ```
 
 ## Supported Countries for Job Searching
@@ -171,18 +163,25 @@ You can specify the following countries when searching on Indeed (use the exact 
 
 ### **Bayt**
 
-Bayt only uses the search_term parameter currently and searches internationally
+Bayt searches all countries unless `location` names one it covers, e.g. `"Dubai, UAE"` or `"Saudi Arabia"`.
 
+### **BDJobs**
+
+BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhaka"` or `"Chattogram Division"`.
+
+### **Naukri**
+
+Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 
 
 ## Notes
 * Indeed is the best scraper currently with no rate limiting.  
 * All the job board endpoints are capped at around 1000 jobs on a given search.  
 * LinkedIn is the most restrictive and usually rate limits around the 10th page with one ip. Proxies are a must basically.
+* Glassdoor rate limits after about 30 requests per ip, which `fetch_description` reaches quickly.
 
 ## Frequently Asked Questions
 
----
 **Q: Why is Indeed giving unrelated roles?**  
 **A:** Indeed searches the description too.
 

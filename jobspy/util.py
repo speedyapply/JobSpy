@@ -4,16 +4,12 @@ import logging
 import re
 from itertools import cycle
 
-import numpy as np
 import requests
-import tls_client
-import urllib3
+from curl_cffi import requests as curl_requests
 from markdownify import markdownify as md
 from requests.adapters import HTTPAdapter, Retry
 
 from jobspy.model import CompensationInterval, JobType, Site
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def create_logger(name: str):
@@ -45,11 +41,15 @@ class RotatingProxySession:
     @staticmethod
     def format_proxy(proxy):
         """Utility method to format a proxy string into a dictionary."""
-        if proxy.startswith("http://") or proxy.startswith("https://"):
-            return {"http": proxy, "https": proxy}
-        if proxy.startswith("socks5://"):
-            return {"http": proxy, "https": proxy}
-        return {"http": f"http://{proxy}", "https": f"http://{proxy}"}
+        if not proxy.startswith(("http://", "https://", "socks5://")):
+            proxy = f"http://{proxy}"
+        return {"http": proxy, "https": proxy}
+
+    def request(self, method, url, **kwargs):
+        if self.proxy_cycle:
+            proxy = next(self.proxy_cycle)
+            self.proxies = {} if proxy["http"] == "http://localhost" else proxy
+        return super().request(method, url, **kwargs)
 
 
 class RequestsRotating(RotatingProxySession, requests.Session):
@@ -57,7 +57,6 @@ class RequestsRotating(RotatingProxySession, requests.Session):
         RotatingProxySession.__init__(self, proxies=proxies)
         requests.Session.__init__(self)
         self.clear_cookies = clear_cookies
-        self.allow_redirects = True
         self.setup_session(has_retry, delay)
 
     def setup_session(self, has_retry, delay):
@@ -76,45 +75,29 @@ class RequestsRotating(RotatingProxySession, requests.Session):
     def request(self, method, url, **kwargs):
         if self.clear_cookies:
             self.cookies.clear()
-
-        if self.proxy_cycle:
-            next_proxy = next(self.proxy_cycle)
-            if next_proxy["http"] != "http://localhost":
-                self.proxies = next_proxy
-            else:
-                self.proxies = {}
-        return requests.Session.request(self, method, url, **kwargs)
+        return super().request(method, url, **kwargs)
 
 
-class TLSRotating(RotatingProxySession, tls_client.Session):
+class TLSRotating(RotatingProxySession, curl_requests.Session):
     def __init__(self, proxies=None):
         RotatingProxySession.__init__(self, proxies=proxies)
-        tls_client.Session.__init__(self, random_tls_extension_order=True)
-
-    def execute_request(self, *args, **kwargs):
-        if self.proxy_cycle:
-            next_proxy = next(self.proxy_cycle)
-            if next_proxy["http"] != "http://localhost":
-                self.proxies = next_proxy
-            else:
-                self.proxies = {}
-        response = tls_client.Session.execute_request(self, *args, **kwargs)
-        response.ok = response.status_code in range(200, 400)
-        return response
+        curl_requests.Session.__init__(
+            self, impersonate="chrome", allow_redirects=False
+        )
 
 
 def create_session(
     *,
-    proxies: dict | str | None = None,
+    proxies: list[str] | str | None = None,
     ca_cert: str | None = None,
     is_tls: bool = True,
     has_retry: bool = False,
     delay: int = 1,
     clear_cookies: bool = False,
-) -> requests.Session:
+) -> RequestsRotating | TLSRotating:
     """
-    Creates a requests session with optional tls, proxy, and retry settings.
-    :return: A session object
+    Creates a proxy-rotating session: curl_cffi with a browser fingerprint if is_tls,
+    else requests (supports has_retry, delay, clear_cookies).
     """
     if is_tls:
         session = TLSRotating(proxies=proxies)
@@ -207,7 +190,7 @@ def currency_parser(cur_str):
     except ValueError:
         return None
 
-    return np.round(num, 2)
+    return round(num, 2)
 
 
 def remove_attributes(tag):
