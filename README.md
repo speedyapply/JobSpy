@@ -59,7 +59,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri
 |    (default is all)
 │
 ├── search_term (str)
@@ -168,6 +168,10 @@ Bayt searches all countries unless `location` names one it covers, e.g. `"Dubai,
 ### **BDJobs**
 
 BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhaka"` or `"Chattogram Division"`.
+
+### **Naukri**
+
+Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 
 
 ## Notes
