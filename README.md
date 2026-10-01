@@ -33,7 +33,7 @@ jobs = scrape_jobs(
     hours_old=72,
     country_indeed='USA',
     
-    # fetch_description=True # needed for LinkedIn & Glassdoor descriptions, LinkedIn job type & level (slower)
+    # fetch_description=True # for boards whose search results don't include the description (slower)
     # proxies=["208.195.175.46:65095", "208.195.175.45:65095", "localhost"],
 )
 print(f"Found {len(jobs)} jobs")
@@ -105,9 +105,9 @@ Optional
 |    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
 
 ├── fetch_description (bool): 
-|    fetches job descriptions for LinkedIn, Glassdoor and Naukri, plus job details for LinkedIn
-|    (job type, level, industry, function). Without it these are empty for those boards.
-|    Increases requests by O(n); Glassdoor rate limits after ~30 per IP, so use proxies for more
+|    for boards whose search results don't include the job description: fetches each job's
+|    page for the description and other details (e.g. job type). Without it these are empty
+|    for those boards. Adds one request per job, so use proxies for larger searches
 │
 ├── linkedin_fetch_description (bool): 
 |    deprecated, use fetch_description (still works; removed in 2.0)
@@ -163,7 +163,9 @@ You can specify the following countries when searching on Indeed (use the exact 
 
 ### **Bayt**
 
-Bayt only uses the search_term parameter currently and searches internationally
+Bayt searches all countries unless `location` names one it covers, e.g. `"Dubai, UAE"` or `"Saudi Arabia"`.
+It also uses `hours_old`, `job_type` (fulltime, internship, contract), `is_remote`, `easy_apply` and `offset`.
+Salaries are monthly, in the local currency Bayt shows.
 
 
 
@@ -171,6 +173,7 @@ Bayt only uses the search_term parameter currently and searches internationally
 * Indeed is the best scraper currently with no rate limiting.  
 * All the job board endpoints are capped at around 1000 jobs on a given search.  
 * LinkedIn is the most restrictive and usually rate limits around the 10th page with one ip. Proxies are a must basically.
+* Glassdoor rate limits after about 30 requests per ip, which `fetch_description` reaches quickly.
 
 ## Frequently Asked Questions
 
