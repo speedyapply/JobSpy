@@ -101,7 +101,7 @@ Optional
 │
 ├── verbose (int) {0, 1, 2}: 
 |    Controls the verbosity of the runtime printouts 
-|    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 2.)
+|    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 0.)
 
 ├── fetch_description (bool): 
 |    for boards whose search results don't include the job description: fetches each job's
