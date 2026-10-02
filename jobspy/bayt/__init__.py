@@ -189,9 +189,9 @@ class BaytScraper(Scraper):
         level = level_tag.get_text(" ", strip=True).split("·")[0] if level_tag else ""
         level = level.strip().lower()
 
-        description, job_type = None, None
+        details = {}
         if self.scraper_input.fetch_description:
-            description, job_type = self._fetch_details(job_url)
+            details = self._fetch_details(job_url)
 
         return JobPost(
             id=f"bayt-{job['data-job-id']}",
@@ -212,9 +212,8 @@ class BaytScraper(Scraper):
             compensation=(
                 self._parse_salary(salary.get_text(" ", strip=True)) if salary else None
             ),
-            description=description,
-            emails=extract_emails_from_text(description),
-            job_type=job_type,
+            emails=extract_emails_from_text(details.get("description")),
+            **details,
         )
 
     @staticmethod
@@ -234,7 +233,7 @@ class BaytScraper(Scraper):
             currency="USD" if currency == "$" else currency,
         )
 
-    def _fetch_details(self, job_url: str) -> tuple[str | None, list | None]:
+    def _fetch_details(self, job_url: str) -> dict:
         """Description and job type from the job page's schema.org JobPosting."""
         try:
             response = self.session.get(job_url)
@@ -243,10 +242,10 @@ class BaytScraper(Scraper):
             )
             posting = json.loads(script.string)
             if posting["@type"] != "JobPosting":
-                return None, None
+                return {}
             job_type = schema_job_types.get(posting.get("employmentType"))
         except Exception:
-            return None, None
+            return {}
 
         description = posting.get("description")
         if (
@@ -254,4 +253,7 @@ class BaytScraper(Scraper):
             and self.scraper_input.description_format == DescriptionFormat.MARKDOWN
         ):
             description = markdown_converter(description)
-        return description, [job_type] if job_type else None
+        return {
+            "description": description,
+            "job_type": [job_type] if job_type else None,
+        }

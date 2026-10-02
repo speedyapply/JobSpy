@@ -101,7 +101,7 @@ def set_logger_level(verbose: int):
     Adjusts the logger's level. This function allows the logging level to be changed at runtime.
 
     Parameters:
-    - verbose: int {0, 1, 2} (default=2, all logs)
+    - verbose: int {0, 1, 2} (0 errors only, 1 adds warnings, 2 all logs)
     """
     if verbose is None:
         return

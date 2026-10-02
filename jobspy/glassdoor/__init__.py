@@ -18,7 +18,6 @@ from jobspy.util import (
     create_session,
     markdown_converter,
 )
-from jobspy.exception import GlassdoorException
 from jobspy.model import (
     JobPost,
     JobResponse,
@@ -110,8 +109,8 @@ class Glassdoor(Scraper):
                 data=payload,
             )
             if response.status_code != 200:
-                exc_msg = f"bad response status code: {response.status_code}"
-                raise GlassdoorException(exc_msg)
+                log.error(f"Glassdoor response status code {response.status_code}")
+                return jobs, None
             res_json = response.json()[0]
             # every page also has harmless errors on other fields (jobsPageSeoData)
             if not (res_json.get("data") or {}).get("jobListings"):

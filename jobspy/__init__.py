@@ -53,6 +53,8 @@ def scrape_jobs(
 ) -> pd.DataFrame:
     """
     Scrapes job data from job boards concurrently
+    :param linkedin_fetch_description: Deprecated since 1.2.0: use fetch_description;
+        will be removed in 2.0.
     :return: Pandas DataFrame containing job data
     """
     SCRAPER_MAPPING = {

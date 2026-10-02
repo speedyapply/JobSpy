@@ -4,11 +4,14 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "python-jobspy"
-version = "1.1.82"
+version = "1.2.0"
 description = "Job scraper for LinkedIn, Indeed, Glassdoor, Google, ZipRecruiter, Bayt, Naukri & BDJobs"
 authors = [
     { name = "Cullen Watson", email = "cullen@cullenwatson.com" },
     { name = "Zachary Hampton", email = "zachary@zacharysproducts.com" },
+]
+maintainers = [
+    { name = "Kirk Watson", email = "kirk@klwindustries.com" },
 ]
 readme = "README.md"
 license = "MIT"
