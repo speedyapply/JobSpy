@@ -86,12 +86,10 @@ def parse_company_industry(soup_industry: BeautifulSoup) -> str | None:
     return industry
 
 
-def is_job_remote(title: dict, description: str, location: Location) -> bool:
+def is_job_remote(title: str, location: Location) -> bool:
     """
-    Searches the title, location, and description to check if job is remote
+    Searches the title and location to check if job is remote
     """
     remote_keywords = ["remote", "work from home", "wfh"]
-    location = location.display_location()
-    full_string = f'{title} {description} {location}'.lower()
-    is_remote = any(keyword in full_string for keyword in remote_keywords)
-    return is_remote
+    full_string = f"{title} {location.display_location()}".lower()
+    return any(keyword in full_string for keyword in remote_keywords)
