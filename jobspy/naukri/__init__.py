@@ -44,7 +44,6 @@ class Naukri(Scraper):
     job_page_url = f"{base_url}/jobapi/v4/job"
     delay = 3
     band_delay = 4
-    timeout = 10
 
     def __init__(
         self,
@@ -61,6 +60,7 @@ class Naukri(Scraper):
         self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
         params = self._search_params()
         job_list: list[JobPost] = []
+        seen = set()
         first_page = page = scraper_input.offset // jobs_per_page + 1
         skip = scraper_input.offset % jobs_per_page
 
@@ -73,7 +73,6 @@ class Naukri(Scraper):
                     self.search_url,
                     params=params | {"pageNo": page},
                     headers=headers | {"nkparam": generate_nkparam("srp")},
-                    timeout=self.timeout,
                 )
                 if response.status_code == 400 and page > 1:
                     break  # past the last page
@@ -89,11 +88,13 @@ class Naukri(Scraper):
                 result = response.json()
                 jobs = result.get("jobDetails") or []
                 last_page = math.ceil(result["noOfJobs"] / jobs_per_page)
+                new_jobs = [job for job in jobs if job.get("jobId") not in seen]
+                seen.update(job.get("jobId") for job in jobs)
             except Exception as e:
                 log.error(f"Naukri: {e}")
                 break
 
-            for job in jobs[skip if page == first_page else 0 :]:
+            for job in new_jobs[skip if page == first_page else 0 :]:
                 try:
                     job_post = self._process_job(job)
                 except Exception as e:
@@ -104,7 +105,7 @@ class Naukri(Scraper):
                     if len(job_list) >= scraper_input.results_wanted:
                         break
 
-            if not jobs or page >= last_page:
+            if not new_jobs or page >= last_page:
                 break
             page += 1
 
@@ -204,7 +205,6 @@ class Naukri(Scraper):
             response = self.session.get(
                 f"{self.job_page_url}/{job_id}",
                 headers=job_page_headers | {"nkparam": generate_nkparam(job_id)},
-                timeout=self.timeout,
             )
             job = response.json()["jobDetails"]
         except Exception:

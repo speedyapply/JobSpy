@@ -67,7 +67,11 @@ class Indeed(Scraper):
             log.info(
                 f"search page: {page} / {math.ceil(scraper_input.results_wanted / self.jobs_per_page)}"
             )
-            jobs, cursor = self._scrape_page(cursor)
+            try:
+                jobs, cursor = self._scrape_page(cursor)
+            except Exception as e:
+                log.error(f"Indeed: {e}")
+                break
             if not jobs:
                 log.info(f"found no jobs on page: {page}")
                 break
@@ -88,8 +92,6 @@ class Indeed(Scraper):
         :param cursor:
         :return: jobs found on page, next page cursor
         """
-        jobs = []
-        new_cursor = None
         filters = self._build_filters()
         search_term = (
             self.scraper_input.search_term.replace('"', '\\"')
@@ -117,22 +119,27 @@ class Indeed(Scraper):
             self.api_url,
             headers=api_headers_temp,
             json=payload,
-            timeout=10,
         )
-        if not response.ok:
+        if response.status_code != 200:
             log.error(f"Indeed response status code {response.status_code}")
-            return jobs, new_cursor
+            return [], None
         data = response.json()
-        jobs = data["data"]["jobSearch"]["results"]
-        new_cursor = data["data"]["jobSearch"]["pageInfo"]["nextCursor"]
+        search = (data.get("data") or {}).get("jobSearch")
+        if not search:
+            log.error(f"Indeed: {data.get('errors')}")
+            return [], None
 
         job_list = []
-        for job in jobs:
-            processed_job = self._process_job(job["job"])
+        for job in search["results"]:
+            try:
+                processed_job = self._process_job(job["job"])
+            except Exception as e:
+                log.warning(f"skipping job: {e}")
+                continue
             if processed_job:
                 job_list.append(processed_job)
 
-        return job_list, new_cursor
+        return job_list, search["pageInfo"]["nextCursor"]
 
     def _build_filters(self):
         """
@@ -203,7 +210,7 @@ class Indeed(Scraper):
                 job["recruit"].get("viewJobUrl") if job.get("recruit") else None
             ),
             emails=extract_emails_from_text(description) if description else None,
-            is_remote=is_job_remote(job, description),
+            is_remote=is_job_remote(job),
             company_addresses=(
                 employer_details["addresses"][0]
                 if employer_details.get("addresses")

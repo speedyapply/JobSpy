@@ -48,13 +48,14 @@ class Google(Scraper):
         self.scraper_input.results_wanted = min(900, scraper_input.results_wanted)
 
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True
+            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False
         )
-        forward_cursor, job_list = self._get_initial_cursor_and_jobs()
+        try:
+            forward_cursor, job_list = self._get_initial_cursor_and_jobs()
+        except Exception as e:
+            log.error(f"Google: {e}")
+            return JobResponse(jobs=[])
         if forward_cursor is None:
-            log.warning(
-                "initial cursor not found, try changing your query or there was at most 10 results"
-            )
             return JobResponse(jobs=job_list)
 
         page = 1
@@ -69,7 +70,7 @@ class Google(Scraper):
             try:
                 jobs, forward_cursor = self._get_jobs_next_page(forward_cursor)
             except Exception as e:
-                log.error(f"failed to get jobs on page: {page}, {e}")
+                log.error(f"Google: {e}")
                 break
             if not jobs:
                 log.info(f"found no jobs on page: {page}")
@@ -122,6 +123,9 @@ class Google(Scraper):
 
         params = {"q": query, "udm": "8"}
         response = self.session.get(self.url, headers=headers_initial, params=params)
+        if response.status_code != 200:
+            log.error(f"Google response status code {response.status_code}")
+            return None, []
 
         pattern_fc = r'<div jsname="Yust4d"[^>]+data-async-fc="([^"]+)"'
         match_fc = re.search(pattern_fc, response.text)
@@ -129,14 +133,23 @@ class Google(Scraper):
         jobs_raw = find_job_info_initial_page(response.text)
         jobs = []
         for job_raw in jobs_raw:
-            job_post = self._parse_job(job_raw)
+            try:
+                job_post = self._parse_job(job_raw)
+            except Exception as e:
+                log.warning(f"skipping job: {e}")
+                continue
             if job_post:
                 jobs.append(job_post)
+        if not jobs and not data_async_fc:
+            log.error("Google returned no job data")
         return data_async_fc, jobs
 
     def _get_jobs_next_page(self, forward_cursor: str) -> Tuple[list[JobPost], str]:
         params = {"fc": [forward_cursor], "fcv": ["3"], "async": [async_param]}
         response = self.session.get(self.jobs_url, headers=headers_jobs, params=params)
+        if response.status_code != 200:
+            log.error(f"Google response status code {response.status_code}")
+            return [], None
         return self._parse_jobs(response.text)
 
     def _parse_jobs(self, job_data: str) -> Tuple[list[JobPost], str]:
@@ -159,7 +172,11 @@ class Google(Scraper):
             job_d = json.loads(job_data)
 
             job_info = find_job_info(job_d)
-            job_post = self._parse_job(job_info)
+            try:
+                job_post = self._parse_job(job_info)
+            except Exception as e:
+                log.warning(f"skipping job: {e}")
+                continue
             if job_post:
                 jobs_on_page.append(job_post)
         return jobs_on_page, data_async_fc
@@ -178,12 +195,14 @@ class Google(Scraper):
             city, state, *country = [*map(lambda x: x.strip(), location.split(","))]
 
         days_ago_str = job_info[12]
-        if type(days_ago_str) == str:
+        if isinstance(days_ago_str, str):
             match = re.search(r"\d+", days_ago_str)
-            days_ago = int(match.group()) if match else None
-            date_posted = (datetime.now() - timedelta(days=days_ago)).date()
+            if match:
+                days_ago = int(match.group())
+                date_posted = (datetime.now() - timedelta(days=days_ago)).date()
 
         description = job_info[19]
+        text = (description or "").lower()
 
         job_post = JobPost(
             id=f"go-{job_info[28]}",
@@ -194,7 +213,7 @@ class Google(Scraper):
             ),
             job_url=job_url,
             date_posted=date_posted,
-            is_remote="remote" in description.lower() or "wfh" in description.lower(),
+            is_remote="remote" in text or "wfh" in text,
             description=description,
             emails=extract_emails_from_text(description),
             job_type=extract_job_type(description),

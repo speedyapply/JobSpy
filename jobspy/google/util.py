@@ -36,6 +36,5 @@ def find_job_info_initial_page(html_text: str):
             results.append(parsed_data)
 
         except json.JSONDecodeError as e:
-            log.error(f"Failed to parse match: {str(e)}")
-            results.append({"raw_match": match.group(0), "error": str(e)})
+            log.warning(f"skipping job: {e}")
     return results

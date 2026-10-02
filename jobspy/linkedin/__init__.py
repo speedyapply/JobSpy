@@ -59,8 +59,6 @@ class LinkedIn(Scraper):
             proxies=self.proxies,
             ca_cert=ca_cert,
             is_tls=False,
-            has_retry=True,
-            delay=5,
             clear_cookies=True,
         )
         self.session.headers.update(headers)
@@ -116,29 +114,18 @@ class LinkedIn(Scraper):
                 response = self.session.get(
                     f"{self.base_url}/jobs-guest/jobs/api/seeMoreJobPostings/search?",
                     params=params,
-                    timeout=10,
                 )
-                if response.status_code not in range(200, 400):
-                    if response.status_code == 429:
-                        err = (
-                            "429 Response - Blocked by LinkedIn for too many requests"
-                        )
-                    else:
-                        err = f"LinkedIn response status code {response.status_code}"
-                        err += f" - {response.text}"
-                    log.error(err)
-                    return JobResponse(jobs=job_list)
+                if response.status_code != 200:
+                    log.error(f"LinkedIn response status code {response.status_code}")
+                    break
             except Exception as e:
-                if "Proxy responded with" in str(e):
-                    log.error("LinkedIn: Bad proxy")
-                else:
-                    log.error(f"LinkedIn: {str(e)}")
-                return JobResponse(jobs=job_list)
+                log.error(f"LinkedIn: {e}")
+                break
 
             soup = BeautifulSoup(response.text, "html.parser")
             job_cards = soup.find_all("div", class_="base-search-card")
             if len(job_cards) == 0:
-                return JobResponse(jobs=job_list)
+                break
 
             for job_card in job_cards:
                 href_tag = job_card.find("a", class_="base-card__full-link")
@@ -158,7 +145,7 @@ class LinkedIn(Scraper):
                         if not continue_search():
                             break
                     except Exception as e:
-                        log.warning(f"skipping job {job_id}: {e}")
+                        log.warning(f"skipping job: {e}")
 
             if continue_search():
                 time.sleep(random.uniform(self.delay, self.delay + self.band_delay))
@@ -204,8 +191,6 @@ class LinkedIn(Scraper):
         job_details = {}
         if full_descr:
             job_details = self._get_job_details(job_id)
-        description = job_details.get("description")
-        is_remote = is_job_remote(title, description, location)
 
         return JobPost(
             id=f"li-{job_id}",
@@ -213,7 +198,7 @@ class LinkedIn(Scraper):
             company_name=company,
             company_url=company_url,
             location=location,
-            is_remote=is_remote,
+            is_remote=is_job_remote(title, location),
             date_posted=date_posted,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
             compensation=job_details.get("compensation"),
@@ -221,7 +206,7 @@ class LinkedIn(Scraper):
             job_level=job_details.get("job_level"),
             company_industry=job_details.get("company_industry"),
             description=job_details.get("description"),
-            emails=extract_emails_from_text(description),
+            emails=extract_emails_from_text(job_details.get("description")),
             company_logo=job_details.get("company_logo"),
             job_function=job_details.get("job_function"),
         )
@@ -250,9 +235,7 @@ class LinkedIn(Scraper):
         :return: dict
         """
         try:
-            response = self.session.get(
-                f"{self.base_url}/jobs/view/{job_id}", timeout=5
-            )
+            response = self.session.get(f"{self.base_url}/jobs/view/{job_id}")
             response.raise_for_status()
         except Exception:
             return {}
@@ -313,7 +296,11 @@ class LinkedIn(Scraper):
             )
             location_string = location_tag.text.strip() if location_tag else "N/A"
             parts = location_string.split(", ")
-            if len(parts) == 2:
+            if len(parts) == 1 and location_tag:
+                location = Location(
+                    city=location_string, country=Country.from_string(self.country)
+                )
+            elif len(parts) == 2:
                 city, state = parts
                 location = Location(
                     city=city,

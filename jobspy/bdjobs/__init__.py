@@ -58,10 +58,11 @@ class BDJobs(Scraper):
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False, has_retry=True
+            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False
         )
         params = self._search_params()
         job_list: list[JobPost] = []
+        seen = set()
         first_page = page = scraper_input.offset // jobs_per_page + 1
         skip = scraper_input.offset % jobs_per_page
 
@@ -73,7 +74,6 @@ class BDJobs(Scraper):
                 response = self.session.get(
                     self.search_url,
                     params=params | {"pg": page},
-                    timeout=scraper_input.request_timeout,
                 )
                 if response.status_code != 200:
                     log.error(f"BDJobs response status code {response.status_code}")
@@ -81,11 +81,13 @@ class BDJobs(Scraper):
                 result = response.json()
                 jobs = list(result["data"])
                 last_page = int(result["common"]["totalpages"])
+                new_jobs = [job for job in jobs if job.get("Jobid") not in seen]
+                seen.update(job.get("Jobid") for job in jobs)
             except Exception as e:
                 log.error(f"BDJobs: {e}")
                 break
 
-            for job in jobs[skip if page == first_page else 0 :]:
+            for job in new_jobs[skip if page == first_page else 0 :]:
                 try:
                     job_post = self._process_job(job)
                 except Exception as e:
@@ -96,7 +98,7 @@ class BDJobs(Scraper):
                     if len(job_list) >= scraper_input.results_wanted:
                         break
 
-            if not jobs or page >= last_page:
+            if not new_jobs or page >= last_page:
                 break
             page += 1
 
@@ -175,7 +177,6 @@ class BDJobs(Scraper):
             response = self.session.get(
                 self.details_url,
                 params={"jobId": job_id, "ln": 1, "IsCorporate": "false"},
-                timeout=self.scraper_input.request_timeout,
             )
             details = response.json()["data"][0]
         except Exception:

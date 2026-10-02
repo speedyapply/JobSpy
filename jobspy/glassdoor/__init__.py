@@ -56,18 +56,20 @@ class Glassdoor(Scraper):
         """
         self.scraper_input = scraper_input
         self.scraper_input.results_wanted = min(900, scraper_input.results_wanted)
-        self.base_url = self.scraper_input.country.get_glassdoor_url()
+        try:
+            self.base_url = self.scraper_input.country.get_glassdoor_url()
+            self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
+            self.session.headers.update(headers)
+            if self.user_agent:
+                self.session.headers["user-agent"] = self.user_agent
+            location_id, location_type = self._get_location(
+                scraper_input.location, scraper_input.is_remote
+            )
+        except Exception as e:
+            log.error(f"Glassdoor: {e}")
+            return JobResponse(jobs=[])
 
-        self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
-        self.session.headers.update(headers)
-        if self.user_agent:
-            self.session.headers["user-agent"] = self.user_agent
-
-        location_id, location_type = self._get_location(
-            scraper_input.location, scraper_input.is_remote
-        )
         if location_type is None:
-            log.error(f"Glassdoor: location '{scraper_input.location}' not parsed")
             return JobResponse(jobs=[])
         job_list: list[JobPost] = []
         cursor = None
@@ -86,7 +88,7 @@ class Glassdoor(Scraper):
                     job_list = job_list[: scraper_input.results_wanted]
                     break
             except Exception as e:
-                log.error(f"Glassdoor: {str(e)}")
+                log.error(f"Glassdoor: {e}")
                 break
         return JobResponse(jobs=job_list)
 
@@ -105,7 +107,6 @@ class Glassdoor(Scraper):
             payload = self._add_payload(location_id, location_type, page_num, cursor)
             response = self.session.post(
                 f"{self.base_url}/graph",
-                timeout=15,
                 data=payload,
             )
             if response.status_code != 200:
@@ -252,16 +253,11 @@ class Glassdoor(Scraper):
             return "11047", "STATE"  # remote options
         res = self.session.get(self._autocomplete_url(location))
         if res.status_code != 200:
-            if res.status_code == 429:
-                err = "429 Response - Blocked by Glassdoor for too many requests"
-                log.error(err)
-                return None, None
-            else:
-                log.error(f"Glassdoor response status code {res.status_code}")
-                return None, None
+            log.error(f"Glassdoor response status code {res.status_code}")
+            return None, None
         items = res.json()
-
         if not items:
+            log.error(f"Glassdoor: location '{location}' not parsed")
             return None, None
         location_type = items[0]["locationType"]
         location_type = {"C": "CITY", "S": "STATE", "N": "COUNTRY"}.get(

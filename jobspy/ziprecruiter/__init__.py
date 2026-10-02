@@ -49,6 +49,8 @@ class ZipRecruiter(Scraper):
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
+        if not self.proxies:
+            self.session.impersonate = "safari"
         params = self._search_params()
         job_list: list[JobPost] = []
         seen = set()
@@ -87,7 +89,7 @@ class ZipRecruiter(Scraper):
                     if len(job_list) >= scraper_input.results_wanted:
                         break
 
-            if not jobs or page >= last_page:
+            if not new_jobs or page >= last_page:
                 break
             page += 1
 

@@ -267,7 +267,6 @@ class JobPost(BaseModel):
     company_revenue: str | None = None
     company_description: str | None = None
     company_logo: str | None = None
-    banner_photo_url: str | None = None
 
     # LinkedIn only atm
     job_function: str | None = None
@@ -316,8 +315,6 @@ class ScraperInput(BaseModel):
     linkedin_fetch_description: bool = False  # deprecated alias of fetch_description
     linkedin_company_ids: list[int] | None = None
     description_format: DescriptionFormat | None = DescriptionFormat.MARKDOWN
-
-    request_timeout: int = 60
 
     results_wanted: int = 15
     hours_old: int | None = None
