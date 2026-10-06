@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from datetime import date, datetime, timezone
 from itertools import cycle
 
 import requests
@@ -10,7 +11,7 @@ from curl_cffi import CurlOpt, requests as curl_requests
 from markdownify import markdownify as md
 
 from jobspy.model import CompensationInterval as CompensationInterval
-from jobspy.model import JobType, Site
+from jobspy.model import DescriptionFormat, JobType, Site
 
 
 def create_logger(name: str):
@@ -135,6 +136,21 @@ def extract_emails_from_text(text: str) -> list[str] | None:
         return None
     email_regex = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
     return list(dict.fromkeys(email_regex.findall(text)))
+
+
+def format_description(html: str | None, description_format) -> tuple:
+    """The description in the format asked for, and the emails in it."""
+    emails = extract_emails_from_text(html)
+    if description_format == DescriptionFormat.MARKDOWN:
+        return markdown_converter(html), emails
+    if description_format == DescriptionFormat.PLAIN:
+        return plain_converter(html), emails
+    return html, emails
+
+
+def utc_date(epoch: float | None) -> date | None:
+    """The UTC date of a Unix time in seconds; None for a missing or zero one."""
+    return datetime.fromtimestamp(epoch, timezone.utc).date() if epoch else None
 
 
 def get_enum_from_job_type(job_type_str: str) -> JobType | None:

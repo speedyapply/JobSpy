@@ -1,86 +1,56 @@
-from jobspy.indeed.constant import job_type_keys, remote_keys
-from jobspy.model import CompensationInterval, JobType, Compensation
-from jobspy.util import get_enum_from_job_type
+from __future__ import annotations
 
-job_types_by_key = {key: job_type for job_type, key in job_type_keys.items()}
+from jobspy.indeed.constant import (
+    full_time_is_permanent_in,
+    hybrid_key,
+    job_types_by_code,
+    pay_intervals,
+    permanent_key,
+    remote_key,
+)
+from jobspy.model import Compensation, Country, JobType
 
 
-def get_job_type(attributes: list) -> list[JobType]:
+def get_job_type(attributes: list, country: Country | None) -> list[JobType] | None:
     """
-    Parses the attributes to get list of job types
-    :param attributes:
-    :return: list of JobType
+    The job types among a job's attributes; `country` is the one searched
     """
     job_types: list[JobType] = []
     for attribute in attributes:
-        job_type_str = attribute["label"].replace("-", "").replace(" ", "").lower()
-        job_type = job_types_by_key.get(attribute["key"]) or get_enum_from_job_type(
-            job_type_str
-        )
-        if job_type:
+        job_type = job_types_by_code.get(attribute["key"])
+        if attribute["key"] == permanent_key and country == full_time_is_permanent_in:
+            job_type = JobType.FULL_TIME
+        if job_type and job_type not in job_types:
             job_types.append(job_type)
-    return job_types
+    return job_types or None
 
 
 def get_compensation(compensation: dict) -> Compensation | None:
     """
-    Parses the job to get compensation
-    :param compensation:
-    :return: compensation object
+    The employer's pay, else Indeed's own estimate
     """
-    if not compensation["baseSalary"] and not compensation["estimated"]:
-        return None
-    comp = (
-        compensation["baseSalary"]
-        if compensation["baseSalary"]
-        else compensation["estimated"]["baseSalary"]
-    )
-    if not comp:
-        return None
-    interval = get_compensation_interval(comp["unitOfWork"])
+    pay = compensation["baseSalary"]
+    currency = compensation["currencyCode"]
+    if not pay and compensation["estimated"]:
+        pay = compensation["estimated"]["baseSalary"]
+        currency = compensation["estimated"]["currencyCode"]
+    interval = pay_intervals.get(pay["unitOfWork"]) if pay else None
     if not interval:
         return None
-    min_range = comp["range"].get("min")
-    max_range = comp["range"].get("max")
+    amounts = pay["range"]
+    min_amount = amounts.get("min", amounts.get("value"))
+    max_amount = amounts.get("max", amounts.get("value"))
     return Compensation(
         interval=interval,
-        min_amount=round(min_range, 2) if min_range is not None else None,
-        max_amount=round(max_range, 2) if max_range is not None else None,
-        currency=(
-            compensation["currencyCode"]
-            if compensation["baseSalary"]
-            else compensation["estimated"]["currencyCode"]
-        ),
+        min_amount=round(min_amount, 2) if min_amount is not None else None,
+        max_amount=round(max_amount, 2) if max_amount is not None else None,
+        currency=currency,
     )
 
 
-def is_job_remote(job: dict) -> bool:
+def is_job_remote(attributes: list) -> bool:
     """
-    Searches the location and attributes to check if job is remote
+    Indeed's remote attribute, unless the job is also tagged hybrid
     """
-    remote_keywords = ["remote", "work from home", "wfh"]
-    is_remote_in_attributes = any(
-        attr["key"] in remote_keys
-        or any(keyword in attr["label"].lower() for keyword in remote_keywords)
-        for attr in job["attributes"]
-    )
-    is_remote_in_location = any(
-        keyword in job["location"]["formatted"]["long"].lower()
-        for keyword in remote_keywords
-    )
-    return is_remote_in_attributes or is_remote_in_location
-
-
-def get_compensation_interval(interval: str) -> CompensationInterval:
-    interval_mapping = {
-        "DAY": "DAILY",
-        "YEAR": "YEARLY",
-        "HOUR": "HOURLY",
-        "WEEK": "WEEKLY",
-        "MONTH": "MONTHLY",
-    }
-    mapped_interval = interval_mapping.get(interval.upper(), None)
-    if mapped_interval and mapped_interval in CompensationInterval.__members__:
-        return CompensationInterval[mapped_interval]
-    else:
-        raise ValueError(f"Unsupported interval: {interval}")
+    keys = {attribute["key"] for attribute in attributes}
+    return remote_key in keys and hybrid_key not in keys

@@ -1,106 +1,99 @@
-from jobspy.model import JobType
+from jobspy.model import CompensationInterval, Country, JobType
+
+jobs_per_page = 100
 
 job_search_query = """
     query GetJobData {{
         jobSearch(
-        {what}
-        {location}
-        limit: 100
-        {cursor}
-        sort: RELEVANCE
-        {filters}
+            {what}
+            {location}
+            limit: {limit}
+            {cursor}
+            sort: RELEVANCE
+            {filters}
         ) {{
-        pageInfo {{
-            nextCursor
-        }}
-        results {{
-            trackingKey
-            job {{
-            source {{
-                name
+            pageInfo {{
+                nextCursor
             }}
-            key
-            title
-            datePublished
-            dateOnIndeed
-            description {{
-                html
-            }}
-            location {{
-                countryName
-                countryCode
-                admin1Code
-                city
-                postalCode
-                streetAddress
-                formatted {{
-                short
-                long
-                }}
-            }}
-            compensation {{
-                estimated {{
-                currencyCode
-                baseSalary {{
-                    unitOfWork
-                    range {{
-                    ... on Range {{
-                        min
-                        max
+            results {{
+                job {{
+                    key
+                    title
+                    sourceEmployerName
+                    dateOnIndeed
+                    description {{
+                        html
                     }}
+                    location {{
+                        countryCode
+                        admin1Code
+                        city
+                    }}
+                    compensation {{
+                        estimated {{
+                            currencyCode
+                            baseSalary {{
+                                unitOfWork
+                                range {{
+                                    ... on Range {{ min max }}
+                                    ... on AtLeast {{ min }}
+                                    ... on AtMost {{ max }}
+                                    ... on Exactly {{ value }}
+                                }}
+                            }}
+                        }}
+                        baseSalary {{
+                            unitOfWork
+                            range {{
+                                ... on Range {{ min max }}
+                                ... on AtLeast {{ min }}
+                                ... on AtMost {{ max }}
+                                ... on Exactly {{ value }}
+                            }}
+                        }}
+                        currencyCode
+                    }}
+                    attributes {{
+                        key
+                        label
+                    }}
+                    employer {{
+                        relativeCompanyPageUrl
+                        name
+                        ugcStats {{
+                            ratings {{
+                                overallRating {{
+                                    value
+                                    count
+                                }}
+                            }}
+                        }}
+                        dossier {{
+                            employerDetails {{
+                                addresses
+                                industry
+                                employeesLocalizedLabel
+                                revenueLocalizedLabel
+                                briefDescription
+                            }}
+                            images {{
+                                squareLogoUrl
+                            }}
+                            links {{
+                                corporateWebsite
+                            }}
+                        }}
+                    }}
+                    recruit {{
+                        viewJobUrl
                     }}
                 }}
-                }}
-                baseSalary {{
-                unitOfWork
-                range {{
-                    ... on Range {{
-                    min
-                    max
-                    }}
-                }}
-                }}
-                currencyCode
             }}
-            attributes {{
-                key
-                label
-            }}
-            employer {{
-                relativeCompanyPageUrl
-                name
-                dossier {{
-                    employerDetails {{
-                    addresses
-                    industry
-                    employeesLocalizedLabel
-                    revenueLocalizedLabel
-                    briefDescription
-                    ceoName
-                    ceoPhotoUrl
-                    }}
-                    images {{
-                        headerImageUrl
-                        squareLogoUrl
-                    }}
-                    links {{
-                    corporateWebsite
-                }}
-                }}
-            }}
-            recruit {{
-                viewJobUrl
-                detailedSalary
-                workSchedule
-            }}
-            }}
-        }}
         }}
     }}
-    """
+"""
 
-api_headers = {
-    "Host": "apis.indeed.com",
+headers = {
     "content-type": "application/json",
     "indeed-api-key": "161092c2017b5bbab13edb12461a62d5a833871e7cad6d9d475304573de67ac8",
     "accept": "application/json",
@@ -109,16 +102,35 @@ api_headers = {
     "indeed-app-info": "appv=193.1; appid=com.indeed.jobsearch; osv=16.6.1; os=ios; dtype=phone",
 }
 
-job_type_keys = {
-    JobType.FULL_TIME: "CF3CP",
-    JobType.PART_TIME: "75GKK",
-    JobType.CONTRACT: "NJXCK",
-    JobType.INTERNSHIP: "VDTG7",
-    JobType.TEMPORARY: "4HKF7",
-    JobType.PER_DIEM: "TQKYQ",
-    JobType.VOLUNTEER: "UXQZ8",
+default_distance = 50
+
+job_type_codes = {
+    JobType.FULL_TIME: ("CF3CP",),
+    JobType.PART_TIME: ("75GKK",),
+    JobType.CONTRACT: ("NJXCK", "T9BXE", "T65DZ"),
+    JobType.INTERNSHIP: ("VDTG7",),
+    JobType.TEMPORARY: ("4HKF7", "CJWTS"),
+    JobType.PER_DIEM: ("TQKYQ",),
+    JobType.VOLUNTEER: ("UXQZ8",),
 }
-remote_keys = {"DSQF7", "N83EH", "5STP8"}  # Remote, Work from home, Work from home stipend
+job_types_by_code = {
+    code: job_type for job_type, codes in job_type_codes.items() for code in codes
+}
+permanent_key = "5QWDV"
+full_time_is_permanent_in = Country.JAPAN
+
+remote_key = "DSQF7"
+hybrid_key = "PAXZC"
+
+pay_intervals = {
+    "HOUR": CompensationInterval.HOURLY,
+    "DAY": CompensationInterval.DAILY,
+    "WEEK": CompensationInterval.WEEKLY,
+    "MONTH": CompensationInterval.MONTHLY,
+    "YEAR": CompensationInterval.YEARLY,
+}
+
+countries = {country.indeed_domain_value[1]: country for country in Country}
 
 languages = {
     "AR": "es",
