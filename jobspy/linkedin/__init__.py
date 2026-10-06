@@ -1,39 +1,34 @@
 from __future__ import annotations
 
-import math
 import random
 import re
 import time
-from datetime import datetime
-from typing import Optional
-from urllib.parse import urlparse, urlunparse
+from datetime import date
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from jobspy.linkedin.constant import currencies, headers, pay_intervals
-from jobspy.linkedin.util import (
-    is_job_remote,
-    job_type_code,
-    parse_job_type,
-    parse_job_level,
-    parse_company_industry
+from jobspy.linkedin.constant import (
+    currencies,
+    empty_page,
+    headers,
+    jobs_per_page,
+    max_results,
+    pay_intervals,
 )
+from jobspy.linkedin.util import criteria, is_job_remote, parse_location
 from jobspy.model import (
     JobPost,
-    Location,
     JobResponse,
-    Country,
     Compensation,
-    DescriptionFormat,
     Scraper,
     ScraperInput,
     Site,
 )
 from jobspy.util import (
-    extract_emails_from_text,
-    markdown_converter,
-    plain_converter,
+    format_description,
+    get_enum_from_job_type,
     create_session,
     remove_attributes,
     create_logger,
@@ -46,15 +41,13 @@ class LinkedIn(Scraper):
     base_url = "https://www.linkedin.com"
     delay = 3
     band_delay = 4
-    jobs_per_page = 25
 
     def __init__(
         self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
     ):
-        """
-        Initializes LinkedInScraper with the LinkedIn job search url
-        """
-        super().__init__(Site.LINKEDIN, proxies=proxies, ca_cert=ca_cert)
+        super().__init__(
+            Site.LINKEDIN, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
+        )
         self.session = create_session(
             proxies=self.proxies,
             ca_cert=ca_cert,
@@ -62,58 +55,29 @@ class LinkedIn(Scraper):
             clear_cookies=True,
         )
         self.session.headers.update(headers)
+        if user_agent:
+            self.session.headers["user-agent"] = user_agent
         self.scraper_input = None
-        self.country = "worldwide"
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
-        """
-        Scrapes LinkedIn for jobs with scraper_input criteria
-        :param scraper_input:
-        :return: job_response
-        """
         self.scraper_input = scraper_input
+        for name in ("is_remote", "job_type"):
+            if getattr(scraper_input, name):
+                log.warning(f"LinkedIn: {name} isn't supported, ignoring it")
+        params = self._search_params()
         job_list: list[JobPost] = []
-        seen_ids = set()
-        start = scraper_input.offset // 10 * 10 if scraper_input.offset else 0
-        request_count = 0
-        seconds_old = (
-            scraper_input.hours_old * 3600 if scraper_input.hours_old else None
-        )
-        continue_search = (
-            lambda: len(job_list) < scraper_input.results_wanted and start < 1000
-        )
-        while continue_search():
-            request_count += 1
-            log.info(
-                f"search page: {request_count} / {math.ceil(scraper_input.results_wanted / 10)}"
-            )
-            params = {
-                "keywords": scraper_input.search_term,
-                "location": scraper_input.location,
-                "distance": scraper_input.distance,
-                "f_WT": 2 if scraper_input.is_remote else None,
-                "f_JT": (
-                    job_type_code(scraper_input.job_type)
-                    if scraper_input.job_type
-                    else None
-                ),
-                "pageNum": 0,
-                "start": start,
-                "f_AL": "true" if scraper_input.easy_apply else None,
-                "f_C": (
-                    ",".join(map(str, scraper_input.linkedin_company_ids))
-                    if scraper_input.linkedin_company_ids
-                    else None
-                ),
-            }
-            if seconds_old is not None:
-                params["f_TPR"] = f"r{seconds_old}"
+        seen = set()
+        first_start = start = scraper_input.offset
+        page = 1
 
-            params = {k: v for k, v in params.items() if v is not None}
+        while len(job_list) < scraper_input.results_wanted and start < max_results:
+            if start > first_start:
+                time.sleep(random.uniform(self.delay, self.delay + self.band_delay))
+            log.info(f"search page: {page}")
             try:
                 response = self.session.get(
-                    f"{self.base_url}/jobs-guest/jobs/api/seeMoreJobPostings/search?",
-                    params=params,
+                    f"{self.base_url}/jobs-guest/jobs/api/seeMoreJobPostings/search",
+                    params={**params, "start": start},
                 )
                 if response.status_code != 200:
                     log.error(f"LinkedIn response status code {response.status_code}")
@@ -123,92 +87,81 @@ class LinkedIn(Scraper):
                 break
 
             soup = BeautifulSoup(response.text, "html.parser")
-            job_cards = soup.find_all("div", class_="base-search-card")
-            if len(job_cards) == 0:
+            job_cards = soup.find_all(class_="base-search-card")
+            if not job_cards:
+                if response.text.strip() != empty_page:
+                    log.error("LinkedIn: unexpected page with no jobs (blocked?)")
+                elif start:
+                    log.warning(
+                        f"LinkedIn: empty page at start={start} (the end of the results, or throttled)"
+                    )
                 break
 
+            new_cards = []
             for job_card in job_cards:
-                href_tag = job_card.find("a", class_="base-card__full-link")
-                if href_tag and "href" in href_tag.attrs:
-                    href = href_tag.attrs["href"].split("?")[0]
-                    job_id = href.split("-")[-1]
+                job_id = job_card.get("data-entity-urn", "").split(":")[-1]
+                if job_id and job_id not in seen:
+                    seen.add(job_id)
+                    new_cards.append((job_id, job_card))
 
-                    if job_id in seen_ids:
-                        continue
-                    seen_ids.add(job_id)
+            for job_id, job_card in new_cards:
+                try:
+                    job_post = self._process_job(job_card, job_id)
+                except Exception as e:
+                    log.warning(f"skipping job: {e}")
+                    continue
+                job_list.append(job_post)
+                if len(job_list) >= scraper_input.results_wanted:
+                    break
 
-                    try:
-                        fetch_desc = scraper_input.fetch_description
-                        job_post = self._process_job(job_card, job_id, fetch_desc)
-                        if job_post:
-                            job_list.append(job_post)
-                        if not continue_search():
-                            break
-                    except Exception as e:
-                        log.warning(f"skipping job: {e}")
+            if not new_cards or len(job_cards) < jobs_per_page:
+                break
+            start += jobs_per_page
+            page += 1
 
-            if continue_search():
-                time.sleep(random.uniform(self.delay, self.delay + self.band_delay))
-                start += len(job_cards)
-
-        job_list = job_list[: scraper_input.results_wanted]
         return JobResponse(jobs=job_list)
 
-    def _process_job(
-        self, job_card: Tag, job_id: str, full_descr: bool
-    ) -> Optional[JobPost]:
-        title_tag = job_card.find("span", class_="sr-only")
-        title = title_tag.get_text(strip=True) if title_tag else "N/A"
+    def _search_params(self) -> dict:
+        scraper_input = self.scraper_input
+        params = {
+            "keywords": scraper_input.search_term,
+            "location": scraper_input.location,
+            "distance": scraper_input.distance,
+        }
+        if scraper_input.easy_apply:
+            params["f_AL"] = "true"
+        if scraper_input.linkedin_company_ids:
+            params["f_C"] = ",".join(map(str, scraper_input.linkedin_company_ids))
+        if scraper_input.hours_old:
+            params["f_TPR"] = f"r{scraper_input.hours_old * 3600}"
+        return {name: value for name, value in params.items() if value is not None}
+
+    def _process_job(self, job_card: Tag, job_id: str) -> JobPost:
+        title = job_card.find("h3", class_="base-search-card__title").get_text(strip=True)
 
         company_tag = job_card.find("h4", class_="base-search-card__subtitle")
-        company_a_tag = company_tag.find("a") if company_tag else None
-        company_url = (
-            urlunparse(urlparse(company_a_tag.get("href"))._replace(query=""))
-            if company_a_tag and company_a_tag.has_attr("href")
-            else ""
+        company_link = company_tag.find("a", href=True)
+        location = parse_location(
+            job_card.find("span", class_="job-search-card__location").text.strip()
         )
-        company = company_a_tag.get_text(strip=True) if company_a_tag else "N/A"
-
-        metadata_card = job_card.find("div", class_="base-search-card__metadata")
-        location = self._get_location(metadata_card)
-
-        datetime_tag = (
-            metadata_card.find("time", class_="job-search-card__listdate")
-            if metadata_card
-            else None
+        try:
+            date_posted = date.fromisoformat(job_card.find("time")["datetime"])
+        except (TypeError, KeyError, ValueError):
+            date_posted = None
+        job_details = (
+            self._fetch_details(job_id) if self.scraper_input.fetch_description else {}
         )
-        if not datetime_tag and metadata_card:
-            datetime_tag = metadata_card.find(
-                "time", class_="job-search-card__listdate--new"
-            )
-        date_posted = None
-        if datetime_tag and "datetime" in datetime_tag.attrs:
-            datetime_str = datetime_tag["datetime"]
-            try:
-                date_posted = datetime.strptime(datetime_str, "%Y-%m-%d")
-            except Exception:
-                date_posted = None
-        job_details = {}
-        if full_descr:
-            job_details = self._get_job_details(job_id)
 
         return JobPost(
             id=f"li-{job_id}",
             title=title,
-            company_name=company,
-            company_url=company_url,
+            company_name=company_tag.get_text(strip=True),
+            company_url=company_link["href"].split("?")[0] if company_link else None,
             location=location,
             is_remote=is_job_remote(title, location),
             date_posted=date_posted,
             job_url=f"{self.base_url}/jobs/view/{job_id}",
-            compensation=job_details.get("compensation"),
-            job_type=job_details.get("job_type"),
-            job_level=job_details.get("job_level"),
-            company_industry=job_details.get("company_industry"),
-            description=job_details.get("description"),
-            emails=extract_emails_from_text(job_details.get("description")),
-            company_logo=job_details.get("company_logo"),
-            job_function=job_details.get("job_function"),
+            **job_details,
         )
 
     @staticmethod
@@ -228,86 +181,48 @@ class LinkedIn(Scraper):
             currency=currencies.get(currency, currency),
         )
 
-    def _get_job_details(self, job_id: str) -> dict:
+    def _fetch_details(self, job_id: str) -> dict:
         """
-        Retrieves job description and other job details by going to the job page url
-        :param job_page_url:
-        :return: dict
+        The job page's description, pay, logo and criteria; empty when the page can't be read
         """
         try:
             response = self.session.get(f"{self.base_url}/jobs/view/{job_id}")
-            response.raise_for_status()
-        except Exception:
+        except Exception as e:
+            log.warning(f"LinkedIn: job {job_id}: {e}")
             return {}
-        if "linkedin.com/signup" in response.url:
+        if response.status_code != 200:
+            log.warning(
+                f"LinkedIn response status code {response.status_code} for job {job_id}"
+            )
+            return {}
+        path = urlparse(response.url).path
+        if not path.startswith("/jobs/view/"):
+            log.warning(f"LinkedIn: job {job_id}: redirected to {path}")
             return {}
 
         soup = BeautifulSoup(response.text, "html.parser")
-        div_content = soup.find(
-            "div", class_=lambda x: x and "show-more-less-html__markup" in x
+        div_content = soup.find("div", class_="show-more-less-html__markup")
+        description, emails = format_description(
+            remove_attributes(div_content).prettify(formatter="html") if div_content else None,
+            self.scraper_input.description_format,
         )
-        description = None
-        if div_content is not None:
-            div_content = remove_attributes(div_content)
-            description = div_content.prettify(formatter="html")
-            if self.scraper_input.description_format == DescriptionFormat.MARKDOWN:
-                description = markdown_converter(description)
-            elif self.scraper_input.description_format == DescriptionFormat.PLAIN:
-                description = plain_converter(description)
-        h3_tag = soup.find(
-            "h3", string=lambda text: text and "Job function" in text.strip()
-        )
-
-        job_function = None
-        if h3_tag:
-            job_function_span = h3_tag.find_next(
-                "span", class_="description__job-criteria-text"
-            )
-            if job_function_span:
-                job_function = job_function_span.text.strip()
-
-        company_logo = (
-            logo_image.get("data-delayed-url")
-            if (logo_image := soup.find("img", {"class": "artdeco-entity-image"}))
-            else None
-        )
+        logo_image = soup.find("img", class_="artdeco-entity-image")
         salary_tag = soup.find("div", class_="compensation__salary")
         compensation = self._parse_salary(salary_tag.get_text()) if salary_tag else None
+        employment_type = criteria(soup, "Employment type")
+        job_type = (
+            get_enum_from_job_type(employment_type.lower().replace("-", ""))
+            if employment_type
+            else None
+        )
+        job_level = criteria(soup, "Seniority level")
         return {
             "description": description,
+            "emails": emails,
             "compensation": compensation,
-            "job_level": parse_job_level(soup),
-            "company_industry": parse_company_industry(soup),
-            "job_type": parse_job_type(soup),
-            "company_logo": company_logo,
-            "job_function": job_function,
+            "job_type": [job_type] if job_type else None,
+            "job_level": job_level.lower() if job_level else None,
+            "job_function": criteria(soup, "Job function"),
+            "company_industry": criteria(soup, "Industries"),
+            "company_logo": logo_image.get("data-delayed-url") if logo_image else None,
         }
-
-    def _get_location(self, metadata_card: Optional[Tag]) -> Location:
-        """
-        Extracts the location data from the job metadata card.
-        :param metadata_card
-        :return: location
-        """
-        location = Location(country=Country.from_string(self.country))
-        if metadata_card is not None:
-            location_tag = metadata_card.find(
-                "span", class_="job-search-card__location"
-            )
-            location_string = location_tag.text.strip() if location_tag else "N/A"
-            parts = location_string.split(", ")
-            if len(parts) == 1 and location_tag:
-                location = Location(
-                    city=location_string, country=Country.from_string(self.country)
-                )
-            elif len(parts) == 2:
-                city, state = parts
-                location = Location(
-                    city=city,
-                    state=state,
-                    country=Country.from_string(self.country),
-                )
-            elif len(parts) == 3:
-                city, state, country = parts
-                location = Location(city=city, state=state, country=country)
-        return location
