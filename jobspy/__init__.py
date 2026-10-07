@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
 from jobspy.bayt import BaytScraper
+from jobspy.freehire import Freehire
 from jobspy.bdjobs import BDJobs
 from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
@@ -65,6 +66,7 @@ def scrape_jobs(
         Site.ZIP_RECRUITER: ZipRecruiter,
         Site.GLASSDOOR: Glassdoor,
         Site.GOOGLE: Google,
+        Site.FREEHIRE: Freehire,
         Site.BAYT: BaytScraper,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,
@@ -98,7 +100,7 @@ def scrape_jobs(
     elif isinstance(site_name, (str, Site)):
         sites = [site_name]
     else:
-        sites = [site for site in Site if site != Site.GOOGLE]
+        sites = [site for site in Site if site not in (Site.GOOGLE, Site.FREEHIRE)]
     site_type = [map_str_to_site(s) if isinstance(s, str) else s for s in sites]
 
     is_remote = False if is_remote is None else is_remote

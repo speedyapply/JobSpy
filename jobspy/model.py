@@ -274,6 +274,7 @@ class Site(Enum):
     ZIP_RECRUITER = "zip_recruiter"
     GLASSDOOR = "glassdoor"
     GOOGLE = "google"
+    FREEHIRE = "freehire"
     BAYT = "bayt"
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"
@@ -314,7 +315,11 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        site: Site,
+        proxies: list[str] | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         self.site = site
         self.proxies = proxies

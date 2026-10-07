@@ -5,6 +5,7 @@
 ## Features
 
 - Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, & other job boards concurrently
+- Searches Freehire's public API for open IT roles
 - Aggregates the job postings in a dataframe
 - Proxies support to bypass blocking
 
@@ -25,7 +26,7 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"], # "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"], # "bayt", "naukri", "bdjobs", "freehire"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -58,8 +59,8 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri
-|    (default is all)
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, freehire
+|    (default is all except google and freehire)
 │
 ├── search_term (str)
 |
@@ -107,6 +108,7 @@ Optional
 |    for boards whose search results don't include the job description: fetches each job's
 |    page for the description and other details (e.g. job type). Without it these are empty
 |    for those boards. Adds one request per job, so use proxies for larger searches
+|    Freehire uses its full-description API endpoint when requested (one request per page).
 │
 ├── linkedin_fetch_description (bool): 
 |    deprecated, use fetch_description (still works; removed in 2.0)
@@ -172,6 +174,45 @@ BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhak
 
 Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 
+### **Freehire**
+
+Freehire searches its global IT-job catalogue through its public API. It is opt-in
+because its API is an additional source; specify `site_name="freehire"` to use it.
+The adapter requests `is_tech=tech` to exclude non-technical postings; jobs without
+a resolved technical classification are excluded too.
+`country_indeed` filters the country when no `location` is supplied; with a
+location, it helps resolve the requested city (default country: USA). An unknown
+city returns no results rather than silently broadening the search. City filters
+cannot disambiguate identical city names in different countries. Use
+`country_indeed="worldwide"` without a location for a global search.
+The API-provided application URL is returned as `job_url`; it can be an employer
+ATS link or an intermediary link. If absent, the Freehire job page is used.
+Freehire's standard search returns a
+description preview; `fetch_description=True` requests full descriptions in the
+selected `description_format`.
+
+```python
+jobs = scrape_jobs(
+    site_name="freehire",
+    search_term="python",
+    country_indeed="worldwide",
+    is_remote=True,
+    results_wanted=5,
+    fetch_description=True,
+)
+```
+
+`offset + limit` is bounded to 10,000 by the API; the adapter stops at this bound.
+`hours_old` rounds up to whole days against the source's `posted_at`, not the time
+Freehire discovered the posting. `distance`, `easy_apply`, and LinkedIn-specific
+options are not supported. Unsupported employment types do not apply a filter.
+City names are resolved at runtime through `/geo/cities`; no additional skill or
+category filters are exposed, so this adapter does not fetch the entire facet
+vocabulary. Failed requests (including HTTP 429) stop the search and return any
+results already collected, with a logged warning; do not use proxies to bypass
+the API's published limits. Full descriptions reflect the stored source content
+and may themselves be short.
+
 
 ## Notes
 * Indeed is the best scraper currently with no rate limiting.  
@@ -179,6 +220,7 @@ Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 * All the job board endpoints are capped at around 1000 jobs on a given search.  
 * LinkedIn is the most restrictive and usually rate limits around the 10th page with one ip. Proxies are a must basically.
 * Glassdoor rate limits after about 30 requests per ip, which `fetch_description` reaches quickly.
+* Freehire is an API integration, not an HTML scraper. Its API publishes request budgets (currently 600 requests/minute for search and 300 requests/minute for full-description search); the adapter sends a `python-jobspy` User-Agent.
 
 ## Frequently Asked Questions
 
