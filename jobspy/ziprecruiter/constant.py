@@ -1,12 +1,18 @@
+import re
+
 from jobspy.model import CompensationInterval, JobType
 
 jobs_per_page = 20
+
+browser_user_agent = re.compile(r"Mozilla/5\.0 \(.+\) (AppleWebKit|Gecko)/")
 
 job_type_codes = {
     JobType.FULL_TIME: "employment_type:full_time",
     JobType.PART_TIME: "employment_type:part_time",
     JobType.CONTRACT: "employment_type:contract",
     JobType.TEMPORARY: "employment_type:temporary",
+    JobType.PER_DIEM: "employment_type:as_needed",
+    JobType.OTHER: "employment_type:other",
 }
 
 pay_intervals = {
