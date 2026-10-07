@@ -10,16 +10,18 @@ job_type_codes = {
     JobType.FULL_TIME: 1,
     JobType.INTERNSHIP: 2,
     JobType.CONTRACT: 3,
+    JobType.TEMPORARY: 4,
+    JobType.PART_TIME: 5,
+}
+
+job_type_labels = {
+    "Full time": JobType.FULL_TIME,
+    "Part time": JobType.PART_TIME,
+    "Contractor": JobType.CONTRACT,
+    "Temporary": JobType.TEMPORARY,
+    "Internship": JobType.INTERNSHIP,
 }
 
 # the country slug is the hyphenated name; Bayt redirects other names it knows
 # (united-arab-emirates -> uae, turkey -> turkiye) but not these
 country_aliases = {"us": "usa", "ksa": "saudi-arabia"}
-
-schema_job_types = {
-    "FULL_TIME": JobType.FULL_TIME,
-    "PART_TIME": JobType.PART_TIME,
-    "CONTRACTOR": JobType.CONTRACT,
-    "TEMPORARY": JobType.TEMPORARY,
-    "INTERN": JobType.INTERNSHIP,
-}
