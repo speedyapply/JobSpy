@@ -4,13 +4,12 @@ import math
 import random
 import re
 import time
-from datetime import date
+from datetime import datetime
 
 from jobspy.model import (
     Compensation,
     CompensationInterval,
     Country,
-    DescriptionFormat,
     JobPost,
     JobResponse,
     JobType,
@@ -21,7 +20,10 @@ from jobspy.model import (
 )
 from jobspy.naukri.constant import (
     headers,
+    india_time,
+    internship_params,
     job_page_headers,
+    job_type_labels,
     jobs_per_page,
     search_params,
 )
@@ -29,10 +31,9 @@ from jobspy.naukri.util import generate_nkparam
 from jobspy.util import (
     create_logger,
     create_session,
-    extract_emails_from_text,
-    get_enum_from_job_type,
-    markdown_converter,
+    format_description,
     plain_converter,
+    utc_date,
 )
 
 log = create_logger("Naukri")
@@ -51,13 +52,17 @@ class Naukri(Scraper):
         ca_cert: str | None = None,
         user_agent: str | None = None,
     ):
-        super().__init__(Site.NAUKRI, proxies=proxies, ca_cert=ca_cert)
+        super().__init__(
+            Site.NAUKRI, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
+        )
         self.scraper_input = None
         self.session = None
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
+        if self.user_agent:
+            self.session.headers["user-agent"] = self.user_agent
         params = self._search_params()
         job_list: list[JobPost] = []
         seen = set()
@@ -78,8 +83,10 @@ class Naukri(Scraper):
                     break  # past the last page
                 if response.status_code == 406:
                     log.error(
-                        "Naukri rejected the request token (406); the public key in "
-                        "jobspy/naukri/constant.py may be out of date"
+                        "Naukri response status code 406 (recaptcha required): "
+                        "the address is rate limited, or the request token was "
+                        "rejected (the public key in jobspy/naukri/constant.py "
+                        "may be out of date)"
                     )
                     break
                 if response.status_code != 200:
@@ -94,8 +101,12 @@ class Naukri(Scraper):
                 log.error(f"Naukri: {e}")
                 break
 
+            fresh = False
             for job in new_jobs[skip if page == first_page else 0 :]:
                 try:
+                    if self._too_old(job["createdDate"] / 1000):
+                        continue
+                    fresh = True
                     job_post = self._process_job(job)
                 except Exception as e:
                     log.warning(f"skipping job: {e}")
@@ -105,45 +116,47 @@ class Naukri(Scraper):
                     if len(job_list) >= scraper_input.results_wanted:
                         break
 
-            if not new_jobs or page >= last_page:
+            if not fresh or page >= last_page:
                 break
             page += 1
 
         return JobResponse(jobs=job_list)
 
     def _search_params(self) -> dict:
-        keyword = self.scraper_input.search_term or ""
-        if self.scraper_input.job_type == JobType.INTERNSHIP:
-            # Naukri has no job type filter
-            keyword = f"{keyword} internship".strip()
-        params = search_params | {"keyword": keyword}
+        params = search_params | {"keyword": self.scraper_input.search_term or ""}
+        job_type = self.scraper_input.job_type
+        if job_type == JobType.INTERNSHIP:
+            params |= internship_params
+        elif job_type:
+            log.warning(
+                f"Naukri: job_type {job_type.value[0]} isn't supported, ignoring it"
+            )
         if self.scraper_input.location:
             params["location"] = self.scraper_input.location
         if hours_old := self.scraper_input.hours_old:
-            # jobAge=N covers today plus N earlier days
-            params["jobAge"] = math.ceil(hours_old / 24)
+            params |= {"jobAge": math.ceil(hours_old / 24), "sort": "f"}
         if self.scraper_input.is_remote:
             params["wfhType"] = 2
         return params
 
-    def _process_job(self, job: dict) -> JobPost | None:
-        posted = job["createdDate"] / 1000  # 0 for internships
+    def _too_old(self, posted: float) -> bool:
+        """posted: epoch seconds, or 0 for a job whose age isn't known (kept)"""
         hours_old = self.scraper_input.hours_old
-        if hours_old and posted and posted < time.time() - hours_old * 3600:
-            return None
+        return bool(hours_old and posted and posted < time.time() - hours_old * 3600)
+
+    def _process_job(self, job: dict) -> JobPost | None:
         if self.scraper_input.easy_apply and job["companyApplyJob"]:
-            return None
-        internships = self.scraper_input.job_type == JobType.INTERNSHIP
-        if internships and job.get("jobType") != "internship":
             return None
 
         job_id = job["jobId"]
-        details = {
-            "job_type": self._parse_job_type(job.get("jobType")),
-            "vacancy_count": job.get("vacancy"),
-        }
+        posted = job["createdDate"] / 1000
+        details = self._shared_fields(job)
         if self.scraper_input.fetch_description:
-            details |= self._fetch_details(job_id)
+            page = self._fetch_details(job_id)
+            posted = page.pop("posted", posted)
+            if self._too_old(posted):
+                return None
+            details |= {name: value for name, value in page.items() if value}
 
         labels = {label["type"]: label["label"] for label in job["placeholders"]}
         # e.g. "Hybrid - Pune, Bengaluru", "Remote", "India"
@@ -161,7 +174,7 @@ class Naukri(Scraper):
             company_url=f"{self.base_url}/{job['staticUrl']}",
             location=Location(city=city, country=Country.INDIA),
             job_url=self.base_url + job["jdURL"],
-            date_posted=date.fromtimestamp(posted) if posted else None,
+            date_posted=utc_date(posted),
             is_remote=work_mode == "Remote",
             work_from_home_type=work_mode or "Work from office",
             compensation=self._parse_salary(job["salaryDetail"], labels["salary"]),
@@ -172,14 +185,24 @@ class Naukri(Scraper):
             experience_range=job.get("experienceText"),
             company_rating=rating.get("AggregateRating"),
             company_reviews_count=rating.get("ReviewsCount"),
-            emails=extract_emails_from_text(details.get("description")),
             **details,
         )
 
     @staticmethod
-    def _parse_job_type(text: str | None) -> list[JobType] | None:
-        job_type = get_enum_from_job_type(text or "")
-        return [job_type] if job_type else None
+    def _shared_fields(job: dict) -> dict:
+        """The fields a search row and a job page both carry."""
+        if job.get("jobType") == "internship":
+            job_type = [JobType.INTERNSHIP]
+        else:
+            parts = job.get("employmentType", "").split(", ")
+            job_type = [
+                job_type_labels[part] for part in parts if part in job_type_labels
+            ]
+        return {
+            "job_type": job_type or None,
+            "vacancy_count": job.get("vacancy") or None,
+            "job_url_direct": job.get("applyRedirectUrl") or None,
+        }
 
     @staticmethod
     def _parse_salary(salary: dict, label: str) -> Compensation | None:
@@ -206,23 +229,28 @@ class Naukri(Scraper):
                 f"{self.job_page_url}/{job_id}",
                 headers=job_page_headers | {"nkparam": generate_nkparam(job_id)},
             )
+            if response.status_code != 200:
+                reason = ": rate limited" if response.status_code == 406 else ""
+                log.warning(
+                    f"Naukri response status code {response.status_code} "
+                    f"for job {job_id}{reason}"
+                )
+                return {}
             job = response.json()["jobDetails"]
-        except Exception:
+            posted = datetime.strptime(job["createdDate"], "%Y-%m-%d %H:%M:%S")
+            description, emails = format_description(
+                job["description"], self.scraper_input.description_format
+            )
+            company = job["companyDetail"]
+            return self._shared_fields(job) | {
+                "description": description,
+                "emails": emails,
+                "posted": posted.replace(tzinfo=india_time).timestamp(),
+                "company_industry": job["industry"],
+                "job_function": job["functionalArea"],
+                "company_description": plain_converter(company["details"]),
+                "company_addresses": company["address"] or None,
+            }
+        except Exception as e:
+            log.warning(f"Naukri: job {job_id}: {e}")
             return {}
-
-        description = job.get("description")
-        if self.scraper_input.description_format == DescriptionFormat.MARKDOWN:
-            description = markdown_converter(description)
-        elif self.scraper_input.description_format == DescriptionFormat.PLAIN:
-            description = plain_converter(description)
-        company = job.get("companyDetail") or {}
-        return {
-            "description": description or None,
-            "job_type": self._parse_job_type(job.get("jobType")),
-            "vacancy_count": job.get("vacancy"),
-            "job_url_direct": job.get("applyRedirectUrl") or None,
-            "company_industry": job.get("industry") or None,
-            "job_function": job.get("functionalArea") or None,
-            "company_description": plain_converter(company.get("details")) or None,
-            "company_addresses": company.get("address") or None,
-        }
