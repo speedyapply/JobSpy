@@ -14,14 +14,13 @@ from jobspy.google import Google
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
-from jobspy.model import JobType as JobType
 from jobspy.model import Location, JobResponse, Country
 from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
     set_logger_level,
     extract_salary,
     create_logger,
-    get_enum_from_value,
+    get_enum_from_job_type,
     map_str_to_site,
     convert_to_annual,
     desired_order,
@@ -91,7 +90,11 @@ def scrape_jobs(
             FutureWarning,
             stacklevel=2,
         )
-    job_type = get_enum_from_value(job_type) if job_type else None
+    job_type_name, job_type = job_type, None
+    if job_type_name:
+        job_type = get_enum_from_job_type(job_type_name)
+        if not job_type:
+            raise Exception(f"Invalid job type: {job_type_name}")
 
     if isinstance(site_name, (list, tuple, set)):
         sites = site_name
@@ -109,7 +112,6 @@ def scrape_jobs(
     country_enum = Country.from_string(country_indeed)
 
     scraper_input = ScraperInput(
-        site_type=site_type,
         country=country_enum,
         search_term=search_term,
         google_search_term=google_search_term,

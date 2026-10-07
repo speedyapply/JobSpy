@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from curl_cffi import CurlOpt, requests as curl_requests
 from markdownify import markdownify as md
 
-from jobspy.model import CompensationInterval as CompensationInterval
 from jobspy.model import DescriptionFormat, JobType, Site
 
 
@@ -83,6 +82,7 @@ def create_session(
     ca_cert: str | None = None,
     is_tls: bool = True,
     clear_cookies: bool = False,
+    user_agent: str | None = None,
 ) -> RequestsRotating | TLSRotating:
     """
     Creates a proxy-rotating session: curl_cffi with a browser fingerprint if is_tls,
@@ -95,6 +95,8 @@ def create_session(
 
     if ca_cert:
         session.verify = ca_cert
+    if user_agent:
+        session.headers["user-agent"] = user_agent
 
     return session
 
@@ -124,10 +126,10 @@ def markdown_converter(description_html: str):
     return md(_as_markup(description_html)).strip()
 
 
-def plain_converter(decription_html: str):
-    if decription_html is None:
+def plain_converter(description_html: str):
+    if description_html is None:
         return None
-    soup = BeautifulSoup(_as_markup(decription_html), "html.parser")
+    soup = BeautifulSoup(_as_markup(description_html), "html.parser")
     return re.sub(r"\s+", " ", soup.get_text(separator=" ")).strip()
 
 
@@ -168,15 +170,10 @@ salary_range = re.compile(
 )
 
 
-def extract_salary(
-    salary_str,
-    lower_limit=1000,
-    upper_limit=700000,
-    hourly_threshold=350,
-    monthly_threshold=30000,
-    enforce_annual_salary=False,
-):
+def extract_salary(salary_str, enforce_annual_salary=False):
     """The first "$min - $max" of a text as (interval, min, max, currency)."""
+    lower_limit, upper_limit = 1000, 700000
+    hourly_threshold, monthly_threshold = 350, 30000
     match = salary_range.search(salary_str or "")
     if not match:
         return None, None, None, None
@@ -200,25 +197,6 @@ def extract_salary(
     return interval, low, high, "USD"
 
 
-def extract_job_type(description: str):
-    if not description:
-        return []
-
-    keywords = {
-        JobType.FULL_TIME: r"full\s?time",
-        JobType.PART_TIME: r"part\s?time",
-        JobType.INTERNSHIP: r"internship",
-        JobType.CONTRACT: r"contract",
-    }
-
-    listing_types = []
-    for key, pattern in keywords.items():
-        if re.search(pattern, description, re.IGNORECASE):
-            listing_types.append(key)
-
-    return listing_types if listing_types else None
-
-
 def map_str_to_site(site_name: str) -> Site:
     name = site_name.upper()
     if name == "ZIPRECRUITER":
@@ -229,13 +207,6 @@ def map_str_to_site(site_name: str) -> Site:
             f"Invalid site name: '{site_name}'. Valid sites are: {valid_sites}"
         )
     return Site[name]
-
-
-def get_enum_from_value(value_str):
-    job_type = get_enum_from_job_type(value_str)
-    if not job_type:
-        raise Exception(f"Invalid job type: {value_str}")
-    return job_type
 
 
 def convert_to_annual(job_data: dict):

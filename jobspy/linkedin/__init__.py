@@ -24,7 +24,6 @@ from jobspy.model import (
     Compensation,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.util import (
     format_description,
@@ -45,9 +44,7 @@ class LinkedIn(Scraper):
     def __init__(
         self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
     ):
-        super().__init__(
-            Site.LINKEDIN, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
+        super().__init__(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
         self.session = create_session(
             proxies=self.proxies,
             ca_cert=ca_cert,
@@ -57,7 +54,6 @@ class LinkedIn(Scraper):
         self.session.headers.update(headers)
         if user_agent:
             self.session.headers["user-agent"] = user_agent
-        self.scraper_input = None
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input

@@ -14,7 +14,6 @@ from jobspy.model import (
     Location,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.util import (
     create_logger,
@@ -23,7 +22,6 @@ from jobspy.util import (
     get_enum_from_job_type,
 )
 from jobspy.ziprecruiter.constant import (
-    browser_user_agent,
     job_type_codes,
     jobs_per_page,
     pay_intervals,
@@ -38,30 +36,13 @@ class ZipRecruiter(Scraper):
     delay = 3
     band_delay = 4
 
-    def __init__(
-        self,
-        proxies: list[str] | str | None = None,
-        ca_cert: str | None = None,
-        user_agent: str | None = None,
-    ):
-        super().__init__(
-            Site.ZIP_RECRUITER, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
-        self.scraper_input = None
-        self.session = None
-
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
-        self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
+        self.session = create_session(
+            proxies=self.proxies, ca_cert=self.ca_cert, user_agent=self.user_agent
+        )
         if not self.proxies:
             self.session.impersonate = "safari"
-        if self.user_agent and not browser_user_agent.match(self.user_agent):
-            log.warning(
-                f"ZipRecruiter: user_agent '{self.user_agent}' isn't accepted "
-                "by the site, using the default"
-            )
-        elif self.user_agent:
-            self.session.headers["user-agent"] = self.user_agent
         params = self._search_params()
         job_list: list[JobPost] = []
         seen = set()

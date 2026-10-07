@@ -285,7 +285,6 @@ class SalarySource(Enum):
 
 
 class ScraperInput(BaseModel):
-    site_type: list[Site]
     search_term: str | None = None
     google_search_term: str | None = None
 
@@ -314,12 +313,13 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
     ):
-        self.site = site
         self.proxies = proxies
         self.ca_cert = ca_cert
         self.user_agent = user_agent
+        self.session = None
+        self.scraper_input = None
 
     @abstractmethod
     def scrape(self, scraper_input: ScraperInput) -> JobResponse: ...
