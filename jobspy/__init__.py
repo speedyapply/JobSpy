@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 
-from jobspy.bayt import BaytScraper
+from jobspy.bayt import Bayt
 from jobspy.bdjobs import BDJobs
 from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
@@ -65,7 +65,7 @@ def scrape_jobs(
         Site.ZIP_RECRUITER: ZipRecruiter,
         Site.GLASSDOOR: Glassdoor,
         Site.GOOGLE: Google,
-        Site.BAYT: BaytScraper,
+        Site.BAYT: Bayt,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,
     }
@@ -131,9 +131,7 @@ def scrape_jobs(
         scraper_class = SCRAPER_MAPPING[site]
         scraper = scraper_class(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
         scraped_data: JobResponse = scraper.scrape(scraper_input)
-        create_logger(scraper_class.__name__.removesuffix("Scraper")).info(
-            "finished scraping"
-        )
+        create_logger(scraper_class.__name__).info("finished scraping")
         return site.value, scraped_data
 
     with ThreadPoolExecutor() as executor:
