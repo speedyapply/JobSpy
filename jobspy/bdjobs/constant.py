@@ -15,14 +15,19 @@ job_type_codes = {
     JobType.CONTRACT: "Contract",
     JobType.INTERNSHIP: "Intern",
 }
-job_types = {code: job_type for job_type, code in job_type_codes.items()}
+job_type_labels = {code: job_type for job_type, code in job_type_codes.items()}
 
 description_sections = (
+    ("Job Highlights", "JobKeyPoints"),
     ("Responsibilities", "JobDescription"),
     ("Education", "EducationRequirements"),
     ("Experience", "experience"),
     ("Additional Requirements", "AdditionJobRequirements"),
     ("Compensation & Other Benefits", "JobOtherBenifits"),
+    ("Apply Instructions", "ApplyInstruction"),
+    ("Apply by Email", "ApplyEmail"),
+    ("Hard Copy", "HardCopy"),
+    ("Walk-in Interview", "WalkInInterview"),
 )
 
 locations = {
@@ -41,20 +46,25 @@ locations = {
     "shariatpur": 58,
     "tangail": 63,
     "chattogram division": 1002,
+    "chittagong division": 1002,
     "bandarban": 3,
     "brahmanbaria": 1,
     "chandpur": 8,
     "chattogram": 10,
+    "chittagong": 10,
     "cox's bazar": 13,
     "cumilla": 12,
+    "comilla": 12,
     "feni": 17,
     "khagrachhari": 27,
     "lakshmipur": 33,
     "noakhali": 48,
     "rangamati": 55,
     "barishal division": 1001,
+    "barisal division": 1001,
     "barguna": 7,
     "barishal": 4,
+    "barisal": 4,
     "bhola": 5,
     "jhalakathi": 24,
     "patuakhali": 51,
@@ -63,6 +73,7 @@ locations = {
     "bagerhat": 2,
     "chuadanga": 11,
     "jashore": 23,
+    "jessore": 23,
     "jhenaidah": 25,
     "khulna": 28,
     "kushtia": 31,
@@ -77,6 +88,7 @@ locations = {
     "sherpur": 59,
     "rajshahi division": 1006,
     "bogura": 6,
+    "bogra": 6,
     "chapainawabganj": 9,
     "joypurhat": 26,
     "naogaon": 41,
