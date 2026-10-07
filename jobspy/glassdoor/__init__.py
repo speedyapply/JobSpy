@@ -21,7 +21,6 @@ from jobspy.model import (
     Location,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.util import (
     create_logger,
@@ -34,27 +33,14 @@ log = create_logger("Glassdoor")
 
 
 class Glassdoor(Scraper):
-    def __init__(
-        self,
-        proxies: list[str] | str | None = None,
-        ca_cert: str | None = None,
-        user_agent: str | None = None,
-    ):
-        super().__init__(
-            Site.GLASSDOOR, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
-        self.base_url = None
-        self.session = None
-        self.scraper_input = None
-
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         try:
             self.base_url = scraper_input.country.get_glassdoor_url()
-            self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
+            self.session = create_session(
+                proxies=self.proxies, ca_cert=self.ca_cert, user_agent=self.user_agent
+            )
             self.session.headers.update(headers)
-            if self.user_agent:
-                self.session.headers["user-agent"] = self.user_agent
             variables = self._search_variables()
         except Exception as e:
             log.error(f"Glassdoor: {e}")

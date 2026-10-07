@@ -25,7 +25,6 @@ from jobspy.model import (
     Location,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.util import (
     create_logger,
@@ -43,25 +42,14 @@ class BDJobs(Scraper):
     delay = 2
     band_delay = 3
 
-    def __init__(
-        self,
-        proxies: list[str] | str | None = None,
-        ca_cert: str | None = None,
-        user_agent: str | None = None,
-    ):
-        super().__init__(
-            Site.BDJOBS, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
-        self.scraper_input = None
-        self.session = None
-
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
         self.session = create_session(
-            proxies=self.proxies, ca_cert=self.ca_cert, is_tls=False
+            proxies=self.proxies,
+            ca_cert=self.ca_cert,
+            is_tls=False,
+            user_agent=self.user_agent,
         )
-        if self.user_agent:
-            self.session.headers["user-agent"] = self.user_agent
         params = self._search_params()
         job_list: list[JobPost] = []
         seen = set()

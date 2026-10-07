@@ -10,13 +10,12 @@ from jobspy.google.constant import headers_jobs, headers_initial, async_param
 from jobspy.model import (
     Scraper,
     ScraperInput,
-    Site,
     JobPost,
     JobResponse,
     Location,
     JobType,
 )
-from jobspy.util import extract_emails_from_text, extract_job_type, create_session
+from jobspy.util import extract_emails_from_text, create_session
 from jobspy.google.util import log, find_job_info_initial_page, find_job_info
 
 
@@ -27,8 +26,7 @@ class Google(Scraper):
         """
         Initializes Google Scraper with the Goodle jobs search url
         """
-        site = Site(Site.GOOGLE)
-        super().__init__(site, proxies=proxies, ca_cert=ca_cert)
+        super().__init__(proxies=proxies, ca_cert=ca_cert)
 
         self.country = None
         self.session = None
@@ -216,6 +214,5 @@ class Google(Scraper):
             is_remote="remote" in text or "wfh" in text,
             description=description,
             emails=extract_emails_from_text(description),
-            job_type=extract_job_type(description),
         )
         return job_post

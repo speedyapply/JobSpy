@@ -24,7 +24,6 @@ from jobspy.model import (
     Location,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.util import create_logger, create_session, format_description, utc_date
 
@@ -40,13 +39,10 @@ class Indeed(Scraper):
         ca_cert: str | None = None,
         user_agent: str | None = None,
     ):
-        super().__init__(
-            Site.INDEED, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
+        super().__init__(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
         self.session = create_session(
             proxies=self.proxies, ca_cert=ca_cert, is_tls=False
         )
-        self.scraper_input = None
         self.base_url = None
 
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
@@ -59,12 +55,7 @@ class Indeed(Scraper):
             "indeed-locale": f"{language}-{country_code}",
         }
         if self.user_agent:
-            if "Indeed App" in self.user_agent:
-                request_headers["user-agent"] = self.user_agent
-            else:
-                log.warning(
-                    f"Indeed: user_agent '{self.user_agent}' isn't accepted by the site, using the default"
-                )
+            request_headers["user-agent"] = self.user_agent
         filters = self._build_filters()
         job_list: list[JobPost] = []
         seen = set()

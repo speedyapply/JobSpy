@@ -16,7 +16,6 @@ from jobspy.model import (
     Location,
     Scraper,
     ScraperInput,
-    Site,
 )
 from jobspy.naukri.constant import (
     headers,
@@ -46,23 +45,11 @@ class Naukri(Scraper):
     delay = 3
     band_delay = 4
 
-    def __init__(
-        self,
-        proxies: list[str] | str | None = None,
-        ca_cert: str | None = None,
-        user_agent: str | None = None,
-    ):
-        super().__init__(
-            Site.NAUKRI, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent
-        )
-        self.scraper_input = None
-        self.session = None
-
     def scrape(self, scraper_input: ScraperInput) -> JobResponse:
         self.scraper_input = scraper_input
-        self.session = create_session(proxies=self.proxies, ca_cert=self.ca_cert)
-        if self.user_agent:
-            self.session.headers["user-agent"] = self.user_agent
+        self.session = create_session(
+            proxies=self.proxies, ca_cert=self.ca_cert, user_agent=self.user_agent
+        )
         params = self._search_params()
         job_list: list[JobPost] = []
         seen = set()
