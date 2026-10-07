@@ -215,17 +215,6 @@ class CompensationInterval(Enum):
     DAILY = "daily"
     HOURLY = "hourly"
 
-    @classmethod
-    def get_interval(cls, pay_period):
-        interval_mapping = {
-            "YEAR": cls.YEARLY,
-            "HOUR": cls.HOURLY,
-        }
-        if pay_period in interval_mapping:
-            return interval_mapping[pay_period].value
-        else:
-            return cls[pay_period].value if pay_period in cls.__members__ else None
-
 
 class Compensation(BaseModel):
     interval: Optional[CompensationInterval] = None
