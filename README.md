@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://github.com/cullenwatson/JobSpy/assets/78247585/ae185b7e-e444-4712-8bb9-fa97f53e896b" alt="JobSpy" width="400">
+  <img src="https://github.com/user-attachments/assets/dcb90340-9469-4808-bc51-868e59a000e0" alt="JobSpy" width="320">
 </h1>
 
 <p align="center">
