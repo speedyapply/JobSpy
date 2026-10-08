@@ -1,14 +1,25 @@
-<img src="https://github.com/cullenwatson/JobSpy/assets/78247585/ae185b7e-e444-4712-8bb9-fa97f53e896b" width="400">
+<h1 align="center">
+  <a href="https://github.com/speedyapply/JobSpy"><img src="https://github.com/user-attachments/assets/dcb90340-9469-4808-bc51-868e59a000e0" alt="JobSpy" width="320"></a>
+</h1>
 
-**JobSpy** is a job scraping library with the goal of aggregating all the jobs from popular job boards with one tool.
+<p align="center">
+  <a href="https://pypi.org/project/python-jobspy/"><img src="https://img.shields.io/pypi/v/python-jobspy" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/python-jobspy/"><img src="https://img.shields.io/pypi/pyversions/python-jobspy" alt="Python versions"></a>
+  <a href="https://pepy.tech/projects/python-jobspy"><img src="https://static.pepy.tech/badge/python-jobspy/month" alt="Downloads per month"></a>
+  <a href="https://github.com/speedyapply/JobSpy/actions/workflows/ci.yml"><img src="https://github.com/speedyapply/JobSpy/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/speedyapply/JobSpy/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/python-jobspy" alt="License: MIT"></a>
+  <a href="https://discord.gg/v7WdHnrNcN"><img src="https://img.shields.io/discord/1227411661221269565?label=discord&logo=discord&logoColor=white" alt="Discord"></a>
+</p>
 
-## Features
+**JobSpy** is a job scraping library that aggregates jobs from popular job boards with one tool:
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, & other job boards concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs** & **HelloWork** concurrently
 - Aggregates the job postings in a dataframe
-- Proxies support to bypass blocking
+- Proxy support to bypass blocking
 
-![jobspy](https://github.com/cullenwatson/JobSpy/assets/78247585/ec7ef355-05f6-4fd3-8161-a817e31c5c57)
+<p align="center">
+  <a href="https://github.com/speedyapply/JobSpy"><img src="https://github.com/cullenwatson/JobSpy/assets/78247585/ec7ef355-05f6-4fd3-8161-a817e31c5c57" alt="JobSpy demo"></a>
+</p>
 
 ### Installation
 
@@ -77,6 +88,7 @@ Optional
 ├── proxies (list): 
 |    in format ['user:pass@host:port', 'localhost']
 |    each job board scraper will round robin through the proxies
+|    socks proxies on LinkedIn, Indeed and BDJobs need pip install "requests[socks]"
 |
 ├── is_remote (bool)
 │
@@ -97,11 +109,11 @@ Optional
 │
 ├── hours_old (int): 
 |    filters jobs by the number of hours since the job was posted 
-|    (Glassdoor rounds up to next day.)
+|    (Glassdoor filters by whole days, so it rounds up to the next day.)
 │
 ├── verbose (int) {0, 1, 2}: 
 |    Controls the verbosity of the runtime printouts 
-|    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 0.)
+|    (0 prints only errors, 1 is errors+warnings, 2 is all logs. Default is 1.)
 
 ├── fetch_description (bool): 
 |    for boards whose search results don't include the job description: fetches each job's
@@ -143,14 +155,14 @@ You can specify the following countries when searching on Indeed (use the exact 
 
 |                      |              |            |                |
 |----------------------|--------------|------------|----------------|
-| Argentina            | Australia*   | Austria*   | Bahrain        |
+| Argentina*           | Australia*   | Austria*   | Bahrain        |
 | Belgium*             | Brazil*      | Canada*    | Chile          |
 | China                | Colombia     | Costa Rica | Czech Republic |
 | Denmark              | Ecuador      | Egypt      | Finland        |
 | France*              | Germany*     | Greece     | Hong Kong*     |
 | Hungary              | India*       | Indonesia  | Ireland*       |
 | Israel               | Italy*       | Japan      | Kuwait         |
-| Luxembourg           | Malaysia     | Mexico*    | Morocco        |
+| Luxembourg           | Malaysia*    | Mexico*    | Morocco        |
 | Netherlands*         | New Zealand* | Nigeria    | Norway         |
 | Oman                 | Pakistan     | Panama     | Peru           |
 | Philippines          | Poland       | Portugal   | Qatar          |
@@ -179,10 +191,10 @@ HelloWork searches France. `location` takes a French city, postcode or region, e
 
 ## Notes
 * Indeed is the best scraper currently with no rate limiting.  
-* Indeed filters `hours_old` on when a job was added to Indeed, while `date_posted` is when the employer published it, so it can be older.  
-* All the job board endpoints are capped at around 1000 jobs on a given search.  
-* LinkedIn is the most restrictive and usually rate limits around the 10th page with one ip. Proxies are a must basically.
-* Glassdoor rate limits after about 30 requests per ip, which `fetch_description` reaches quickly.
+* Indeed's `date_posted` is the day a job was added to Indeed, the same date `hours_old` filters on.  
+* Most job board endpoints are capped at around 1000 jobs on a given search.  
+* LinkedIn rate limits bursts of requests with a 429, which clears within about a minute. Use proxies for larger searches.
+* Glassdoor rate limits above about 2 requests a second.
 
 ## Frequently Asked Questions
 
@@ -219,41 +231,34 @@ This searches the description/title and must include software, summer, 2025, one
 
 ```plaintext
 JobPost
+├── id
+├── site
+├── job_url
+├── job_url_direct
 ├── title
 ├── company
-├── company_url
-├── job_url
 ├── location
-│   ├── country
-│   ├── city
-│   ├── state
-├── is_remote
-├── description
-├── job_type: fulltime, parttime, internship, contract
-├── job_function
-│   ├── interval: yearly, monthly, weekly, daily, hourly
-│   ├── min_amount
-│   ├── max_amount
-│   ├── currency
-│   └── salary_source: direct_data, description (parsed from posting)
 ├── date_posted
-└── emails
-
-Linkedin specific
-└── job_level
-
-Linkedin & Indeed specific
-└── company_industry
-
-Indeed specific
-├── company_country
+├── job_type: fulltime, parttime, internship, contract, temporary, ...
+├── salary_source: direct_data, description (parsed from posting)
+├── interval: yearly, monthly, weekly, daily, hourly
+├── min_amount
+├── max_amount
+├── currency
+├── is_remote
+├── job_level
+├── job_function
+├── listing_type
+├── emails
+├── description
+├── company_industry
+├── company_url
+├── company_logo
+├── company_url_direct
 ├── company_addresses
-├── company_employees_label
-├── company_revenue_label
+├── company_num_employees
+├── company_revenue
 ├── company_description
-└── company_logo
-
-Naukri specific
 ├── skills
 ├── experience_range
 ├── company_rating
@@ -261,3 +266,5 @@ Naukri specific
 ├── vacancy_count
 └── work_from_home_type
 ```
+
+A column is empty when the job board doesn't provide it.
