@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://github.com/user-attachments/assets/dcb90340-9469-4808-bc51-868e59a000e0" alt="JobSpy" width="320">
+  <a href="https://github.com/speedyapply/JobSpy"><img src="https://github.com/user-attachments/assets/dcb90340-9469-4808-bc51-868e59a000e0" alt="JobSpy" width="320"></a>
 </h1>
 
 <p align="center">
@@ -18,7 +18,7 @@
 - Proxy support to bypass blocking
 
 <p align="center">
-  <img src="https://github.com/cullenwatson/JobSpy/assets/78247585/ec7ef355-05f6-4fd3-8161-a817e31c5c57" alt="JobSpy demo">
+  <a href="https://github.com/speedyapply/JobSpy"><img src="https://github.com/cullenwatson/JobSpy/assets/78247585/ec7ef355-05f6-4fd3-8161-a817e31c5c57" alt="JobSpy demo"></a>
 </p>
 
 ### Installation
