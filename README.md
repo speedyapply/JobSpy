@@ -25,7 +25,7 @@ import csv
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"], # "bayt", "naukri", "bdjobs"
+    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"], # "bayt", "naukri", "bdjobs", "hellowork"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -58,7 +58,7 @@ zip_recruiter Software Developer                 TEKsystems        Phoenix      
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork
 |    (default is all)
 │
 ├── search_term (str)
@@ -171,6 +171,10 @@ BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhak
 ### **Naukri**
 
 Naukri searches India. `location` takes a city, e.g. `"Pune"`.
+
+### **HelloWork**
+
+HelloWork searches France. `location` takes a French city, postcode or region, e.g. `"Lyon"`. Most jobs are posted in French, so French search terms find more.
 
 
 ## Notes
