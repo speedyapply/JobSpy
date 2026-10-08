@@ -11,6 +11,7 @@ from jobspy.bayt import Bayt
 from jobspy.bdjobs import BDJobs
 from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
+from jobspy.hellowork import HelloWork
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
 from jobspy.naukri import Naukri
@@ -67,6 +68,7 @@ def scrape_jobs(
         Site.BAYT: Bayt,
         Site.NAUKRI: Naukri,
         Site.BDJOBS: BDJobs,
+        Site.HELLOWORK: HelloWork,
     }
     set_logger_level(verbose)
     if linkedin_fetch_description:
