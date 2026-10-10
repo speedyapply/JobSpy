@@ -19,18 +19,18 @@ from jobspy.linkedin.constant import (
 )
 from jobspy.linkedin.util import criteria, is_job_remote, parse_location
 from jobspy.model import (
+    Compensation,
     JobPost,
     JobResponse,
-    Compensation,
     Scraper,
     ScraperInput,
 )
 from jobspy.util import (
+    create_logger,
+    create_session,
     format_description,
     get_enum_from_job_type,
-    create_session,
     remove_attributes,
-    create_logger,
 )
 
 log = create_logger("LinkedIn")
@@ -42,7 +42,10 @@ class LinkedIn(Scraper):
     band_delay = 4
 
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         super().__init__(proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)
         self.session = create_session(
@@ -133,7 +136,9 @@ class LinkedIn(Scraper):
         return {name: value for name, value in params.items() if value is not None}
 
     def _process_job(self, job_card: Tag, job_id: str) -> JobPost:
-        title = job_card.find("h3", class_="base-search-card__title").get_text(strip=True)
+        title = job_card.find("h3", class_="base-search-card__title").get_text(
+            strip=True
+        )
 
         company_tag = job_card.find("h4", class_="base-search-card__subtitle")
         company_link = company_tag.find("a", href=True)
@@ -199,7 +204,9 @@ class LinkedIn(Scraper):
         soup = BeautifulSoup(response.text, "html.parser")
         div_content = soup.find("div", class_="show-more-less-html__markup")
         description, emails = format_description(
-            remove_attributes(div_content).prettify(formatter="html") if div_content else None,
+            remove_attributes(div_content).prettify(formatter="html")
+            if div_content
+            else None,
             self.scraper_input.description_format,
         )
         logo_image = soup.find("img", class_="artdeco-entity-image")

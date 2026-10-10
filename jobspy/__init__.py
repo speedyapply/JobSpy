@@ -14,17 +14,23 @@ from jobspy.google import Google
 from jobspy.hellowork import HelloWork
 from jobspy.indeed import Indeed
 from jobspy.linkedin import LinkedIn
+from jobspy.model import (
+    Country,
+    JobResponse,
+    Location,
+    SalarySource,
+    ScraperInput,
+    Site,
+)
 from jobspy.naukri import Naukri
-from jobspy.model import Location, JobResponse, Country
-from jobspy.model import SalarySource, ScraperInput, Site
 from jobspy.util import (
-    set_logger_level,
-    extract_salary,
+    convert_to_annual,
     create_logger,
+    desired_order,
+    extract_salary,
     get_enum_from_job_type,
     map_str_to_site,
-    convert_to_annual,
-    desired_order,
+    set_logger_level,
 )
 from jobspy.ziprecruiter import ZipRecruiter
 

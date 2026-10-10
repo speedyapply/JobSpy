@@ -45,5 +45,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "*"
+[dependency-groups]
+dev = ["ruff==0.16.10"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B"]

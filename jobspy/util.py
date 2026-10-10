@@ -7,7 +7,8 @@ from itertools import cycle
 
 import requests
 from bs4 import BeautifulSoup
-from curl_cffi import CurlOpt, requests as curl_requests
+from curl_cffi import CurlOpt
+from curl_cffi import requests as curl_requests
 from markdownify import markdownify as md
 
 from jobspy.model import DescriptionFormat, JobType, Site
@@ -188,9 +189,7 @@ def extract_salary(salary_str, enforce_annual_salary=False):
     else:
         interval, below, factor = "yearly", float("inf"), 1
     annual_low, annual_high = low * factor, high * factor
-    if high >= below or not (
-        lower_limit <= annual_low < annual_high <= upper_limit
-    ):
+    if high >= below or not (lower_limit <= annual_low < annual_high <= upper_limit):
         return None, None, None, None
     if enforce_annual_salary:
         return "yearly", annual_low, annual_high, "USD"

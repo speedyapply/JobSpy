@@ -12,10 +12,13 @@ jobs:
   install:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
@@ -23,3 +26,18 @@ jobs:
       - run: python -m build --wheel
       - run: "python -m pip install --only-binary :all: dist/*.whl"
       - run: cd /tmp && python -c "from jobspy import scrape_jobs"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - run: python -m pip install --group dev
+      - run: ruff check jobspy
+      - run: ruff format --diff jobspy
+      - if: failure()
+        run: echo "::error::This PR doesn't match the project's ruff lint and format rules. Run 'pip install --group dev', then 'ruff format jobspy' and 'ruff check --fix jobspy'. Fix anything ruff still reports, then push."

@@ -6,12 +6,12 @@ from urllib.parse import urlsplit
 from jobspy.indeed.constant import (
     countries,
     default_distance,
+    full_time_is_permanent_in,
     headers,
     hybrid_key,
     job_search_query,
     job_type_codes,
     jobs_per_page,
-    full_time_is_permanent_in,
     languages,
     permanent_key,
     remote_key,
@@ -185,7 +185,7 @@ class Indeed(Scraper):
         if f".{urlsplit(apply_url).hostname}".endswith(".indeed.com"):
             apply_url = None
         return JobPost(
-            id=f'in-{job["key"]}',
+            id=f"in-{job['key']}",
             title=job["title"],
             description=description,
             company_name=employer.get("name") or job["sourceEmployerName"],
@@ -199,7 +199,7 @@ class Indeed(Scraper):
             job_type=get_job_type(job["attributes"], self.scraper_input.country),
             compensation=get_compensation(job["compensation"]),
             date_posted=utc_date(job["dateOnIndeed"] / 1000),
-            job_url=f'{self.base_url}/viewjob?jk={job["key"]}',
+            job_url=f"{self.base_url}/viewjob?jk={job['key']}",
             job_url_direct=apply_url,
             emails=emails,
             is_remote=is_job_remote(job["attributes"]),

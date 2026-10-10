@@ -1,27 +1,30 @@
 from __future__ import annotations
 
+import json
 import math
 import re
-import json
-from typing import Tuple
 from datetime import datetime, timedelta
+from typing import Tuple
 
-from jobspy.google.constant import headers_jobs, headers_initial, async_param
+from jobspy.google.constant import async_param, headers_initial, headers_jobs
+from jobspy.google.util import find_job_info, find_job_info_initial_page, log
 from jobspy.model import (
-    Scraper,
-    ScraperInput,
     JobPost,
     JobResponse,
-    Location,
     JobType,
+    Location,
+    Scraper,
+    ScraperInput,
 )
-from jobspy.util import extract_emails_from_text, create_session
-from jobspy.google.util import log, find_job_info_initial_page, find_job_info
+from jobspy.util import create_session, extract_emails_from_text
 
 
 class Google(Scraper):
     def __init__(
-        self, proxies: list[str] | str | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | str | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         """
         Initializes Google Scraper with the Goodle jobs search url
