@@ -244,7 +244,9 @@ class Glassdoor(Scraper):
                     details_alias % (job_id[3:], job_id[3:])
                     for job_id in job_ids[start : start + details_per_request]
                 )
-                response = self._graph("JobDetails", f"query JobDetails {{{aliases}}}", {})
+                response = self._graph(
+                    "JobDetails", f"query JobDetails {{{aliases}}}", {}
+                )
                 if response.status_code != 200:
                     log.warning(
                         f"Glassdoor response status code {response.status_code} "

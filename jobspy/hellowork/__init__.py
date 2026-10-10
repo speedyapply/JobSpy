@@ -76,7 +76,9 @@ class HelloWork(Scraper):
                 break
 
             new_cards = [
-                card for card in cards if card.get("data-id-storage-item-id") not in seen
+                card
+                for card in cards
+                if card.get("data-id-storage-item-id") not in seen
             ]
             seen.update(card.get("data-id-storage-item-id") for card in cards)
             for card in new_cards[skip if page == first_page else 0 :]:
@@ -102,7 +104,9 @@ class HelloWork(Scraper):
         if scraper_input.location and scraper_input.distance is not None:
             params["ray"] = round(scraper_input.distance * km_per_mile)
         if hours_old := scraper_input.hours_old:
-            params["d"] = next((d for hours, d in date_windows if hours_old <= hours), None)
+            params["d"] = next(
+                (d for hours, d in date_windows if hours_old <= hours), None
+            )
         job_type = scraper_input.job_type
         if job_type in job_type_params:
             params |= job_type_params[job_type]
@@ -114,7 +118,9 @@ class HelloWork(Scraper):
             params["t"] = "Complet"
         if scraper_input.easy_apply:
             log.warning("HelloWork: easy_apply isn't supported, ignoring it")
-        return {name: value for name, value in params.items() if value not in (None, "")}
+        return {
+            name: value for name, value in params.items() if value not in (None, "")
+        }
 
     @staticmethod
     def _hours_old(age: str) -> int | None:

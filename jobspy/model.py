@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 from datetime import date
 from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel, model_validator
 
 
@@ -314,7 +315,10 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        proxies: list[str] | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         self.proxies = proxies
         self.ca_cert = ca_cert

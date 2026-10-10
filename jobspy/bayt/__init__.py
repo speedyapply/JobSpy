@@ -20,12 +20,12 @@ from jobspy.bayt.constant import (
 from jobspy.model import (
     Compensation,
     CompensationInterval,
-    Scraper,
-    ScraperInput,
+    Country,
     JobPost,
     JobResponse,
     Location,
-    Country,
+    Scraper,
+    ScraperInput,
 )
 from jobspy.util import (
     create_logger,
