@@ -187,9 +187,17 @@ class LinkedIn(Scraper):
         match = salary_range.search(description or "")
         if not match:
             return Compensation()
-        low, high = (int(float(match[i].replace(",", ""))) for i in (1, 3))
-        if match[2] or match[4]:
-            low, high = low * 1000, high * 1000
+        low, high = (float(match[i].replace(",", "")) for i in (1, 3))
+        # Preserve the old lower-bound floor before expanding k notation.
+        if low < 1:
+            return Compensation()
+        low_k, high_k = bool(match[2]), bool(match[4])
+        if low_k or high_k:
+            # A k also covers a bare amount under 1,000, as in "$80-100k".
+            if low_k or low < 1000:
+                low = round(low * 1000, 2)
+            if high_k or high < 1000:
+                high = round(high * 1000, 2)
         if low < hourly_threshold:
             interval, below = CompensationInterval.HOURLY, hourly_threshold
         elif low < monthly_threshold:
