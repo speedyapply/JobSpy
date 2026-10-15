@@ -78,7 +78,7 @@ class Job(BaseModel):
     key: str | None
     title: str
     sourceEmployerName: str | None
-    dateOnIndeed: int
+    dateOnIndeed: int | None = None
     html: str | None = Field(validation_alias=AliasPath("description", "html"))
     employer: Employer | None
     location: IndeedLocation

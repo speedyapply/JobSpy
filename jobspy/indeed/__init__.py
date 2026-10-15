@@ -168,6 +168,7 @@ class Indeed(Scraper):
         company_page = employer.relativeCompanyPageUrl
         location = job.location
         country_code = location.countryCode
+        posted = job.dateOnIndeed
         apply_url = job.viewJobUrl
         if apply_url and f".{urlsplit(apply_url).hostname}".endswith(".indeed.com"):
             apply_url = None
@@ -184,7 +185,7 @@ class Indeed(Scraper):
             ),
             job_type=get_job_type(job.attributes, self.scraper_input.country_indeed),
             **get_compensation(job.compensation).model_dump(),
-            date_posted=utc_date(job.dateOnIndeed / 1000),
+            date_posted=utc_date(posted / 1000) if posted is not None else None,
             job_url=f"{self.base_url}/viewjob?jk={job.key}",
             job_url_direct=apply_url,
             is_remote=is_job_remote(job.attributes),
