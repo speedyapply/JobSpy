@@ -260,12 +260,33 @@ class Glassdoor(Scraper):
                     "JobDetails", f"query JobDetails {{{aliases}}}", {}
                 )
                 check_status(response)
-                for alias, view in response.json()[0]["data"].items():
-                    if view:
-                        details[f"gd-{alias[1:]}"] = description_fields(
-                            view["job"]["description"],
-                            self.scraper_input.description_format,
-                        )
+                answer = response.json()
+                if (
+                    not isinstance(answer, list)
+                    or not answer
+                    or not isinstance(answer[0], dict)
+                    or not isinstance(answer[0].get("data"), dict)
+                ):
+                    raise ValueError("invalid details response structure")
+                requested = {
+                    f"j{job_id[3:]}"
+                    for job_id in job_ids[start : start + details_per_request]
+                }
+                for alias, view in answer[0]["data"].items():
+                    if alias not in requested or view is None:
+                        continue
+                    job = view.get("job") if isinstance(view, dict) else None
+                    description = (
+                        job.get("description") if isinstance(job, dict) else None
+                    )
+                    if not isinstance(job, dict) or not isinstance(
+                        description, (str, type(None))
+                    ):
+                        self.warn("job details: invalid detail structure")
+                        continue
+                    details[f"gd-{alias[1:]}"] = description_fields(
+                        description, self.scraper_input.description_format
+                    )
         except Exception as e:
             self.log.warning(f"job details: {e}")
         return details
