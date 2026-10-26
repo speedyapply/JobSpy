@@ -89,7 +89,11 @@ class LinkedIn(Scraper):
 
             new_cards = []
             for job_card in job_cards:
-                job_id = str(job_card.get("data-entity-urn", "")).split(":")[-1]
+                identity = re.fullmatch(
+                    r"urn:li:(?:jobPosting|job):([0-9]+)",
+                    str(job_card.get("data-entity-urn", "")),
+                )
+                job_id = identity[1] if identity else ""
                 if job_id and job_id not in seen:
                     seen.add(job_id)
                     new_cards.append((job_id, job_card))
