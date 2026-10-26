@@ -22,6 +22,7 @@ from jobspy.glassdoor.model import (
     JobListings,
     JobView,
     Listing,
+    Overview,
     Place,
 )
 from jobspy.model import (
@@ -186,7 +187,7 @@ class Glassdoor(Scraper):
 
         job_id = job.listingId
         company_id = header.id
-        company = job.overview
+        company = job.overview or Overview()
         website = company.website
         if website and not website.startswith("http"):
             website = f"https://{website}"
@@ -225,7 +226,7 @@ class Glassdoor(Scraper):
     @staticmethod
     def _parse_salary(header: Header) -> Compensation:
         pay = header.payPeriodAdjustedPay
-        if not pay:
+        if not pay or pay.p10 is None or pay.p90 is None:
             return Compensation()
         return Compensation(
             interval=pay_intervals.get(header.payPeriod or ""),
