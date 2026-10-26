@@ -131,15 +131,14 @@ class LinkedIn(Scraper):
         if title_tag is None:
             raise ValueError("no title")
         title = title_tag.get_text(strip=True)
+        if not title:
+            raise ValueError("no title")
 
         company_tag = job_card.find("h4", class_="base-search-card__subtitle")
-        if company_tag is None:
-            raise ValueError("no company")
-        company_link = company_tag.find("a", href=True)
+        company_link = company_tag.find("a", href=True) if company_tag else None
         location_tag = job_card.find("span", class_="job-search-card__location")
-        if location_tag is None:
-            raise ValueError("no location")
-        location = parse_location(location_tag.text.strip())
+        location_text = location_tag.get_text(strip=True) if location_tag else ""
+        location = parse_location(location_text) if location_text else None
         time_tag = job_card.find("time")
         try:
             date_posted = (
@@ -154,7 +153,7 @@ class LinkedIn(Scraper):
         return JobPost(
             id=f"li-{job_id}",
             title=title,
-            company=company_tag.get_text(strip=True),
+            company=(company_tag.get_text(strip=True) or None) if company_tag else None,
             company_url=str(company_link["href"]).split("?")[0]
             if company_link
             else None,

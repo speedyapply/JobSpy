@@ -23,12 +23,14 @@ def criteria(soup: BeautifulSoup, heading: str) -> str | None:
     return span.get_text(strip=True) if span else None
 
 
-def is_job_remote(title: str, location: Location) -> bool:
+def is_job_remote(title: str, location: Location | None) -> bool | None:
     """
-    A remote keyword in the title or location
+    A remote keyword in the title or location; unknown without either signal
     """
-    text = f"{title} {location.display_location()}".lower()
-    return any(keyword in text for keyword in remote_keywords)
+    text = f"{title} {location.display_location() if location else ''}".lower()
+    if any(keyword in text for keyword in remote_keywords):
+        return True
+    return False if location else None
 
 
 def parse_location(text: str) -> Location:
