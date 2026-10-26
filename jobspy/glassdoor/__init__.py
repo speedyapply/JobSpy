@@ -60,7 +60,8 @@ class Glassdoor(Scraper):
             return []
 
         job_list: list[JobPost] = []
-        seen: set[int | None] = set()
+        seen: set[int] = set()
+        encountered: set[int] = set()
         page, skip = 1, scraper_input.offset
         cursor: str | None = None
 
@@ -85,19 +86,21 @@ class Glassdoor(Scraper):
                 self.fail(str(e))
                 break
 
-            seen_before = len(seen)
+            seen_before = len(encountered)
             page_jobs: list[JobPost] = []
             for listing in listings:
                 try:
                     entry = Listing.model_validate(listing)
                     job, job_id = entry.jobview, entry.listingId
+                    encountered.add(job_id)
                     if job_id in seen:
                         continue
-                    seen.add(job_id)
                     if skip:
+                        seen.add(job_id)
                         skip -= 1
                         continue
                     job_post = self._process_job(job)
+                    seen.add(job_id)
                 except Exception as e:
                     self.log.warning(f"skipping job: {e}")
                     continue
@@ -114,7 +117,7 @@ class Glassdoor(Scraper):
                 ]
             job_list += page_jobs
 
-            if not cursor or len(seen) == seen_before:
+            if not cursor or len(encountered) == seen_before:
                 break
             page += 1
 
