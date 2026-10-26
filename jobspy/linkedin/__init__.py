@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import random
 import re
 import time
@@ -167,18 +168,36 @@ class LinkedIn(Scraper):
     @staticmethod
     def _parse_salary(text: str) -> Compensation:
         """ "$117,000.00/yr - $234,000.00/yr" """
+        amount = r"(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)\.[0-9]{2}"
         match = re.fullmatch(
-            r"([^\d\s]+) ?([\d,]+\.\d\d)(/\w+) - [^\d\s]+ ?([\d,]+\.\d\d)/\w+",
+            rf"([^\d\s]+) ?({amount})(/\w+) - ([^\d\s]+) ?({amount})(/\w+)",
             " ".join(text.split()),
         )
         if not match:
             return Compensation()
-        currency, low, interval, high = match.groups()
+        low_symbol, low, low_period, high_symbol, high, high_period = match.groups()
+        known_currencies = {
+            **currencies,
+            **{code: code for code in (*currencies.values(), "BRL")},
+        }
+        currency = known_currencies.get(low_symbol)
+        interval = pay_intervals.get(low_period)
+        if (
+            currency is None
+            or low_symbol != high_symbol
+            or interval is None
+            or low_period != high_period
+        ):
+            return Compensation()
+        minimum = float(low.replace(",", ""))
+        maximum = float(high.replace(",", ""))
+        if not (math.isfinite(minimum) and math.isfinite(maximum)) or minimum > maximum:
+            return Compensation()
         return Compensation(
-            interval=pay_intervals.get(interval),
-            min_amount=float(low.replace(",", "")),
-            max_amount=float(high.replace(",", "")),
-            currency=currencies.get(currency, currency),
+            interval=interval,
+            min_amount=minimum,
+            max_amount=maximum,
+            currency=currency,
         )
 
     @staticmethod
@@ -237,10 +256,19 @@ class LinkedIn(Scraper):
             else None
         )
         job_level = criteria(soup, "Seniority level")
-        pay = self._parse_salary(salary_tag.get_text() if salary_tag else "")
+        pay = Compensation()
         source = None
-        if pay == Compensation() and self.scraper_input.country_indeed == Country.USA:
-            pay, source = self._guess_salary(plain_converter(html)), "description"
+        try:
+            if salary_tag is not None:
+                pay = self._parse_salary(salary_tag.get_text())
+                if pay == Compensation():
+                    self.warn("salary details: invalid or unsupported range")
+            elif self.scraper_input.country_indeed == Country.USA:
+                pay = self._guess_salary(plain_converter(html))
+                if pay != Compensation():
+                    source = "description"
+        except (ValueError, OverflowError):
+            self.warn("salary details: invalid or unsupported range")
         return {
             **fields,
             **pay.model_dump(),
