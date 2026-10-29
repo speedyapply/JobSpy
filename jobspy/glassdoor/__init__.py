@@ -24,6 +24,7 @@ from jobspy.glassdoor.model import (
     Listing,
     Place,
 )
+from jobspy.indeed.constant import country_codes
 from jobspy.model import (
     Compensation,
     JobPost,
@@ -130,22 +131,24 @@ class Glassdoor(Scraper):
 
     def _search_variables(self) -> dict[str, object] | None:
         """The search's variables, or None when the location isn't found."""
-        response = self.session.get(
-            f"{self.base_url}/autocomplete/location"
-            "?locationTypeFilters=CITY,STATE,COUNTRY&caller=jobs"
-            f"&term={quote(self.scraper_input.location or '')}"
-        )
-        check_status(response)
+        location = self.scraper_input.location or ""
+        places = self._places(location)
         variables: dict[str, object] = {
             "keyword": self.scraper_input.search_term,
             "numJobsToShow": jobs_per_page,
             "filterParams": self._filters(),
         }
-        if not self.scraper_input.location:
+        if not location:
             return variables
-        places = response.json()
+        city = location.split(",")[0].strip()
+        if not places and city and city != location:
+            # glassdoor.de finds "Berlin", not "Berlin, Germany"
+            code = country_codes[self.scraper_input.country_indeed]
+            places = [
+                p for p in self._places(city) if p.get("country2LetterIso") == code
+            ]
         if not places:
-            self.fail(f"location '{self.scraper_input.location}' not found")
+            self.fail(f"location '{location}' not found")
             return None
         place = Place.model_validate(places[0])
         location_id = place.locationId
@@ -156,6 +159,19 @@ class Glassdoor(Scraper):
             "locationType": location_type,
             "parameterUrlInput": f"IL.0,12_I{location_type}{location_id}",
         }
+
+    def _places(self, term: str) -> list[dict[str, object]]:
+        """Places matching the term. The request also sets the search cookies."""
+        response = self.session.get(
+            f"{self.base_url}/autocomplete/location"
+            "?locationTypeFilters=CITY,STATE,COUNTRY&caller=jobs"
+            f"&term={quote(term)}"
+        )
+        check_status(response)
+        if not term:
+            return []
+        places: list[dict[str, object]] = response.json()
+        return places
 
     def _filters(self) -> list[dict[str, str]]:
         filters: dict[str, str | int] = {}
