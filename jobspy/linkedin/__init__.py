@@ -91,15 +91,17 @@ class LinkedIn(Scraper):
             for job_card in job_cards:
                 job_id = str(job_card.get("data-entity-urn", "")).split(":")[-1]
                 if job_id and job_id not in seen:
-                    seen.add(job_id)
                     new_cards.append((job_id, job_card))
 
             for job_id, job_card in new_cards:
+                if job_id in seen:
+                    continue
                 try:
                     job_post = self._process_job(job_card, job_id)
                 except Exception as e:
                     self.log.warning(f"skipping job: {e}")
                     continue
+                seen.add(job_id)
                 job_list.append(job_post)
                 if len(job_list) >= scraper_input.results_wanted:
                     break
