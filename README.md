@@ -13,7 +13,7 @@
 
 **JobSpy** is a job scraping library that aggregates jobs from popular job boards with one tool:
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs** & **HelloWork** concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs**, **HelloWork** & **TechJobs.vn** concurrently
 - Aggregates the job postings in a dataframe
 - Proxy support to bypass blocking
 
@@ -35,7 +35,7 @@ _Python version >= [3.10](https://www.python.org/downloads/release/python-3100/)
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork"
+    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork", "techjobs"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -96,7 +96,7 @@ jobspy "data analyst" --remote --fields title,company,job_url
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork, techjobs
 |    (default is all)
 │
 ├── search_term (str)
@@ -214,6 +214,10 @@ Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 ### HelloWork
 
 HelloWork searches France. `location` takes a French city, postcode or region, e.g. `"Lyon"`. Most jobs are posted in French, so French search terms find more.
+
+### TechJobs.vn
+
+TechJobs.vn searches tech jobs in Vietnam, collected hourly from each employer's own careers page or ATS. It reads the site's public JSON feed ([OpenAPI](https://techjobs.vn/feeds/openapi.json)), so no proxy is needed. `location` takes a city, e.g. `"Hanoi"`, `"Ho Chi Minh City"` or `"Da Nang"`; `is_remote` returns remote jobs. `job_url` is the job's page on techjobs.vn and `job_url_direct` the employer's own posting. With `fetch_description`, `description` holds a short summary generated from the job's tagged fields (role, skills, experience), not the full JD.
 
 
 ## Notes

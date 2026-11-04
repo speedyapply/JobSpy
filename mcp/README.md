@@ -7,7 +7,7 @@
   <a href="https://discord.gg/v7WdHnrNcN"><img src="https://img.shields.io/discord/1227411661221269565?label=discord&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
-[JobSpy](https://github.com/speedyapply/JobSpy)'s MCP server lets AI agents search LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs and HelloWork. It installs [`python-jobspy[mcp]`](https://pypi.org/project/python-jobspy/) at the same version and runs its `mcp-jobspy` command.
+[JobSpy](https://github.com/speedyapply/JobSpy)'s MCP server lets AI agents search LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs, HelloWork and TechJobs.vn. It installs [`python-jobspy[mcp]`](https://pypi.org/project/python-jobspy/) at the same version and runs its `mcp-jobspy` command.
 
 ## Setup
 
