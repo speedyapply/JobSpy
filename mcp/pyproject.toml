@@ -1,13 +1,13 @@
 [project]
 name = "mcp-jobspy"
 version = "1.4.1"
-description = "JobSpy MCP Server: job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs & HelloWork"
+description = "JobSpy MCP Server: job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs, HelloWork & TechJobs.vn"
 readme = "README.md"
 maintainers = [
     { name = "Kirk Watson", email = "kirk@klwindustries.com" },
 ]
 license = "MIT"
-keywords = ["jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "bdjobs", "hellowork", "cli", "mcp", "mcp-server"]
+keywords = ["jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "bdjobs", "hellowork", "techjobs", "cli", "mcp", "mcp-server"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",

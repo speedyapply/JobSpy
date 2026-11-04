@@ -238,6 +238,7 @@ class Site(Enum):
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"
     HELLOWORK = "hellowork"
+    TECHJOBS = "techjobs"
 
 
 class ScraperInput(BaseModel):

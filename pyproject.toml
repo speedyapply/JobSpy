@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 name = "python-jobspy"
 version = "1.4.1"
-description = "JobSpy: job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs & HelloWork"
+description = "JobSpy: job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs, HelloWork & TechJobs.vn"
 authors = [
     { name = "Cullen Watson", email = "cullen@cullenwatson.com" },
     { name = "Zachary Hampton", email = "zachary@zacharysproducts.com" },
@@ -15,7 +15,7 @@ maintainers = [
 ]
 readme = "README.md"
 license = "MIT"
-keywords = ["jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "bdjobs", "hellowork", "cli", "mcp", "mcp-server"]
+keywords = ["jobs-scraper", "linkedin", "indeed", "glassdoor", "ziprecruiter", "bayt", "naukri", "bdjobs", "hellowork", "techjobs", "cli", "mcp", "mcp-server"]
 requires-python = ">=3.10"
 dependencies = [
     "requests>=2.31.0",
