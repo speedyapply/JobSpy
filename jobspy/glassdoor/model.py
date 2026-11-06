@@ -1,4 +1,17 @@
-from pydantic import AliasPath, BaseModel, Field
+from typing import Annotated
+
+from pydantic import AliasPath, BaseModel, BeforeValidator, Field, StringConstraints
+
+
+def validate_listing_id(value: object) -> int:
+    if type(value) is int:
+        return value
+    if isinstance(value, str) and value.strip().isascii() and value.strip().isdecimal():
+        return int(value.strip())
+    raise ValueError("invalid listing identity")
+
+
+ListingId = Annotated[int, BeforeValidator(validate_listing_id), Field(gt=0)]
 
 
 class Place(BaseModel):
@@ -42,8 +55,10 @@ class Overview(BaseModel):
 
 class JobView(BaseModel):
     header: Header
-    jobTitleText: str = Field(validation_alias=AliasPath("job", "jobTitleText"))
-    listingId: int = Field(validation_alias=AliasPath("job", "listingId"))
+    jobTitleText: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1)
+    ] = Field(validation_alias=AliasPath("job", "jobTitleText"))
+    listingId: ListingId = Field(validation_alias=AliasPath("job", "listingId"))
     country: str | None = Field(validation_alias=AliasPath("map", "country"))
     overview: Overview
 
@@ -55,7 +70,7 @@ class Cursor(BaseModel):
 
 class Listing(BaseModel):
     jobview: dict[str, object]
-    listingId: int | None = Field(
+    listingId: ListingId = Field(
         validation_alias=AliasPath("jobview", "job", "listingId")
     )
 
