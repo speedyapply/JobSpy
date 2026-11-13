@@ -1267,15 +1267,15 @@ files = [
 
 [[package]]
 name = "opentelemetry-api"
-version = "1.45.1"
+version = "1.45.2"
 description = "OpenTelemetry Python API"
 optional = true
 python-versions = ">=3.10"
 groups = ["main"]
 markers = "extra == \"mcp\""
 files = [
-    {file = "opentelemetry_api-1.45.1-py3-none-any.whl", hash = "sha256:b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb"},
-    {file = "opentelemetry_api-1.45.1.tar.gz", hash = "sha256:aa38ed19bcc084ba42782a73255b3582283eced7ad6dddbd6695189e69adfb75"},
+    {file = "opentelemetry_api-1.45.2-py3-none-any.whl", hash = "sha256:2cbd737377e710ee740d261c94e93fa0f08e6d037c18f17513cc0a2d94479a34"},
+    {file = "opentelemetry_api-1.45.2.tar.gz", hash = "sha256:d7b0008e21e5fd61cbe7a7f34ca3b6905a78ab677d9bc395e299359c75cda6b4"},
 ]
 
 [package.dependencies]
@@ -2026,9 +2026,23 @@ description = "A modern CSS selector implementation for Beautiful Soup."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
+markers = "python_version < \"3.12\""
 files = [
     {file = "soupsieve-2.10-py3-none-any.whl", hash = "sha256:8596eb8967d744174820280fa62b4542a2e955bfaccca73ed8a13c6eb8e9b502"},
     {file = "soupsieve-2.10.tar.gz", hash = "sha256:49e9380d7d2905463583bafe285e818c7366a9ed7b3aee221c1ac79c905d8bc0"},
+]
+
+[[package]]
+name = "soupsieve"
+version = "4.1"
+description = "A modern CSS selector implementation for Beautiful Soup."
+optional = false
+python-versions = ">=3.11.5"
+groups = ["main"]
+markers = "python_version >= \"3.12\""
+files = [
+    {file = "soupsieve-4.1-py3-none-any.whl", hash = "sha256:e4d667b3974ce6e038e7390486b8093369854a1d345ffdd4c121dfc4a782e809"},
+    {file = "soupsieve-4.1.tar.gz", hash = "sha256:ca9abf7126667010d8f6e9b39bfc1bc3b23c8aed9bcb0f54a754dde969bb8aab"},
 ]
 
 [[package]]
