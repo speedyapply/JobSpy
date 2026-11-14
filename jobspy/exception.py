@@ -55,3 +55,11 @@ class BDJobsException(Exception):
 
     def __init__(self, message: str | None = None) -> None:
         super().__init__(message or "An error occurred with BDJobs")
+
+
+class JobStreetException(Exception):
+    """Error raised when the JobStreet Indonesia scraper encounters a fatal
+    HTTP or parsing issue."""
+
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(message or "An error occurred with JobStreet")
