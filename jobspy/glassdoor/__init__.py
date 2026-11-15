@@ -16,6 +16,7 @@ from jobspy.glassdoor.constant import (
     location_types,
     pay_intervals,
     search_query,
+    shared_domain,
 )
 from jobspy.glassdoor.model import (
     Header,
@@ -130,10 +131,12 @@ class Glassdoor(Scraper):
 
     def _search_variables(self) -> dict[str, object] | None:
         """The search's variables, or None when the location isn't found."""
+        name, iso = shared_domain.get(self.scraper_input.country_indeed, (None, None))
+        location = self.scraper_input.location or name
         response = self.session.get(
             f"{self.base_url}/autocomplete/location"
             "?locationTypeFilters=CITY,STATE,COUNTRY&caller=jobs"
-            f"&term={quote(self.scraper_input.location or '')}"
+            f"&term={quote(location or '')}"
         )
         check_status(response)
         variables: dict[str, object] = {
@@ -141,13 +144,18 @@ class Glassdoor(Scraper):
             "numJobsToShow": jobs_per_page,
             "filterParams": self._filters(),
         }
-        if not self.scraper_input.location:
+        if not location:
             return variables
         places = response.json()
         if not places:
-            self.fail(f"location '{self.scraper_input.location}' not found")
+            self.fail(f"location '{location}' not found")
             return None
-        place = Place.model_validate(places[0])
+        # on the US site a place of another country can come first
+        found = next((p for p in places if p.get("country2LetterIso") == iso), None)
+        if iso and not found:
+            self.fail(f"location '{location}' not found in {name}")
+            return None
+        place = Place.model_validate(found or places[0])
         location_id = place.locationId
         location_type = location_types[place.locationType]
         return {

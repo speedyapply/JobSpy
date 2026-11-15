@@ -132,3 +132,8 @@ domains = {
     Country.USA: "www.glassdoor.com",
     Country.VIETNAM: "www.glassdoor.com",
 }
+# countries searched on the US site: their name and ISO code scope the search
+shared_domain = {
+    Country.MALAYSIA: ("Malaysia", "MY"),
+    Country.VIETNAM: ("Vietnam", "VN"),
+}
