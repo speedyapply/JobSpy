@@ -277,7 +277,7 @@ JobPost
 ├── location
 ├── date_posted
 ├── job_type: fulltime, parttime, internship, contract, temporary, ...
-├── salary_source: direct_data, description (parsed from posting)
+├── salary_source: direct_data, description (parsed from posting), estimated (the board's estimate)
 ├── interval: yearly, monthly, weekly, daily, hourly
 ├── min_amount
 ├── max_amount

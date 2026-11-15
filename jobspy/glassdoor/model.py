@@ -24,6 +24,7 @@ class Header(BaseModel):
     jobTypeKeys: list[str] | None = None
     rating: float | None = None
     remoteWorkTypes: list[str] | None = None
+    salarySource: str | None = None
 
 
 class Overview(BaseModel):
