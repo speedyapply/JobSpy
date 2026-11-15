@@ -112,8 +112,11 @@ class Naukri(Scraper):
             params |= internship_params
         elif job_type:
             self.warn(f"job_type {job_type.value} isn't supported, ignoring it")
-        if self.scraper_input.location:
-            params["location"] = self.scraper_input.location
+        # "Pune, India" lists alternatives to Naukri, and India matches every job
+        places = (self.scraper_input.location or "").split(",")
+        places = [p.strip() for p in places if p.strip().lower() not in ("", "india")]
+        if places:
+            params["location"] = ", ".join(places)
         if hours_old := self.scraper_input.hours_old:
             params |= {"jobAge": math.ceil(hours_old / 24), "sort": "f"}
         if self.scraper_input.is_remote:
