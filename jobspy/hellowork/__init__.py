@@ -198,7 +198,7 @@ class HelloWork(Scraper):
         city, _, department = text.rpartition(" - ")
         if re.fullmatch(r"\d{2,3}|2[AB]", department):
             return Location(city=city, state=department, country=Country.FRANCE)
-        return Location(city=text)
+        return Location(city=text, country=Country.FRANCE)
 
     @staticmethod
     def _parse_salary(text: str) -> Compensation | None:
