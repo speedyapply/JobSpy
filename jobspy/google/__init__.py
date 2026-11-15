@@ -194,7 +194,8 @@ class Google(Scraper):
                 date_posted = (datetime.now() - timedelta(days=days_ago)).date()
 
         description = job_info[19]
-        text = (description or "").lower()
+        # the title and location, as LinkedIn: a description says "not remote" too
+        text = f"{title} {location or ''}".lower()
 
         job_post = JobPost(
             id=f"go-{job_info[28]}",
@@ -205,7 +206,7 @@ class Google(Scraper):
             ),
             job_url=job_url,
             date_posted=date_posted,
-            is_remote="remote" in text or "wfh" in text,
+            is_remote=any(word in text for word in ("remote", "work from home", "wfh")),
             description=description,
             emails=extract_emails_from_text(description),
         )
