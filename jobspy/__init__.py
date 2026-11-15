@@ -16,6 +16,7 @@ from jobspy.glassdoor import Glassdoor
 from jobspy.google import Google
 from jobspy.hellowork import HelloWork
 from jobspy.indeed import Indeed
+from jobspy.infojobs import InfoJobs
 from jobspy.linkedin import LinkedIn
 from jobspy.model import (
     Country,
@@ -44,6 +45,7 @@ SCRAPER_MAPPING: dict[Site, type[Scraper]] = {
     Site.NAUKRI: Naukri,
     Site.BDJOBS: BDJobs,
     Site.HELLOWORK: HelloWork,
+    Site.INFOJOBS: InfoJobs,
 }
 
 column_types = {

@@ -60,6 +60,7 @@ Board = Literal[
     "naukri",
     "bdjobs",
     "hellowork",
+    "infojobs",
 ]
 searches: OrderedDict[str, dict[str, dict[str, object]]] = OrderedDict()
 

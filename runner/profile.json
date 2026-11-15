@@ -1,0 +1,14 @@
+{
+  "_comment": "Your profile for the compatibility score (match.py). Skills use the names in match.py's TECH list; anything else is matched as a plain word.",
+  "skills": [
+    "html", "css", "javascript", "typescript", "react", "next.js", "zustand", "flutter",
+    "sass", "tailwind", "vite", "material ui", "node.js", "express", "rest api",
+    "sql", "oracle", "mysql", "sequelize", "ejs", "docker", "figma", "git", "github",
+    "gitlab", "postman", "linux", "bash", "ui/ux"
+  ],
+  "roles": ["full stack", "frontend", "front end", "react", "node", "javascript", "typescript", "web"],
+  "years_experience": 1,
+  "locations": ["las palmas", "gran canaria", "canarias"],
+  "remote_ok": true,
+  "english": "B2"
+}

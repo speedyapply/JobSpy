@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+venv
+**/__pycache__
+output
+mcp
+.env
+*.md
+!README.md

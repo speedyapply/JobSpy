@@ -1,0 +1,18 @@
+services:
+  jobspy:
+    build: .
+    container_name: jobspy
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      INTERVAL_HOURS: ${INTERVAL_HOURS:-6}
+    ports:
+      # the API for the app; reach it through Tailscale (see README)
+      - "${API_BIND:-0.0.0.0}:${API_PORT:-8000}:8000"
+    volumes:
+      - ./output:/data
+      # edit your searches or profile without rebuilding: restart to pick them up
+      - ./runner/searches.json:/app/searches.json:ro
+      - ./runner/profile.json:/app/profile.json:ro

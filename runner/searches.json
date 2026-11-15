@@ -1,0 +1,21 @@
+[
+  {
+    "name": "python madrid",
+    "site_name": ["indeed", "linkedin", "infojobs"],
+    "search_term": "python",
+    "location": "Madrid",
+    "country_indeed": "spain",
+    "hours_old": 24,
+    "results_wanted": 50
+  },
+  {
+    "name": "python remoto",
+    "site_name": ["indeed", "linkedin", "infojobs"],
+    "search_term": "python",
+    "location": "España",
+    "country_indeed": "spain",
+    "is_remote": true,
+    "hours_old": 24,
+    "results_wanted": 50
+  }
+]

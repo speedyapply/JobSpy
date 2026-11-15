@@ -13,7 +13,7 @@
 
 **JobSpy** is a job scraping library that aggregates jobs from popular job boards with one tool:
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs** & **HelloWork** concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs**, **HelloWork** & **InfoJobs** concurrently
 - Aggregates the job postings in a dataframe
 - Proxy support to bypass blocking
 
@@ -35,7 +35,7 @@ _Python version >= [3.10](https://www.python.org/downloads/release/python-3100/)
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork"
+    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork", "infojobs"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -96,7 +96,7 @@ jobspy "data analyst" --remote --fields title,company,job_url
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork, infojobs
 |    (default is all)
 │
 ├── search_term (str)
@@ -215,6 +215,28 @@ Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 
 HelloWork searches France. `location` takes a French city, postcode or region, e.g. `"Lyon"`. Most jobs are posted in French, so French search terms find more.
 
+### InfoJobs
+
+InfoJobs searches Spain with the search the infojobs.net pages use; no account is needed. `location` takes a province, e.g. `"Madrid"` or `"A Coruña"`, or a city, which is matched against each job's city. `is_remote` keeps only fully remote jobs ("Solo teletrabajo"); `distance` isn't supported. Jobs come with their description, so `fetch_description` makes no extra requests. Set `INFOJOBS_DELAY` to the seconds between requests, e.g. `4` or `3-6` for a random pause in that range (default `3-6`).
+
+
+## Running it on a schedule with Docker
+
+`runner/run.py` runs the searches in `runner/searches.json` every `INTERVAL_HOURS` (default 6). Each search takes the `scrape_jobs()` arguments plus a `name`. Jobs not seen before are appended to `output/jobs.csv` and written alone to `output/new/<time>.csv`. A job already seen, by URL or by title and company on another board, isn't added again.
+
+```bash
+cp .env.example .env        # optional: INTERVAL_HOURS, INFOJOBS_DELAY
+docker compose up -d --build
+docker compose logs -f      # watch a run
+```
+
+Each new job gets a compatibility score (0-100) against `runner/profile.json`: your skills, roles, years of experience, locations and English level. Jobs without a description, such as LinkedIn's unless `fetch_description` is on, are scored on their title alone.
+
+Every job is kept in `output/jobs.db` (SQLite) and served by `runner/api.py` on port 8000, with the searches running in the background. The app in `app/` reads it: lists, search, detail, save / applied / discard, notes, stats, CSV export, notifications of new jobs, and your profile and CV. The profile the app edits lives in `output/profile.json` (started from `runner/profile.json`); saving it scores every stored job again, and the CV is kept as `output/cv.pdf`. Nothing it does sends a request to the job boards. The API is described at the top of `runner/api.py`; set `API_TOKEN` in `.env` so only the app can use it.
+
+To reach it from your phone, put the machine on [Tailscale](https://tailscale.com) and either use `http://<machine>:8000` (MagicDNS name or `tailscale ip -4`), or let Tailscale add HTTPS with `tailscale serve --bg 8000` and use `https://<machine>.<tailnet>.ts.net`.
+
+Edit `runner/searches.json` and `docker compose restart` to change the searches. `docker compose run --rm -e INTERVAL_HOURS=0 jobspy python run.py` runs them once, without the API.
 
 ## Notes
 * Indeed is the best scraper currently with no rate limiting.  
