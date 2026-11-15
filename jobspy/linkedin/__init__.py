@@ -48,6 +48,7 @@ class LinkedIn(Scraper):
 
     def scrape(self, scraper_input: ScraperInput) -> list[JobPost]:
         self.scraper_input = scraper_input
+        self.pages_blocked = False
         self.session = create_session(
             RequestsRotating(scraper_input.proxies, clear_cookies=True),
             scraper_input,
@@ -211,13 +212,22 @@ class LinkedIn(Scraper):
         """
         The job page's description, pay, logo and criteria; empty when the page can't be read
         """
+        if self.pages_blocked:
+            return {}
         try:
             response = self.session.get(f"{self.base_url}/jobs/view/{job_id}")
-            check_status(response)
+            blocked = response.status_code in (429, 999)
+            if not blocked:
+                check_status(response)
         except Exception as e:
             self.log.warning(f"job {job_id}: {e}")
             return {}
         path = urlparse(response.url).path
+        if blocked or path.startswith(("/authwall", "/login", "/checkpoint")):
+            # every next page would be refused too: stop and say so
+            self.pages_blocked = True
+            self.warn("job pages blocked by LinkedIn; the rest have no description")
+            return {}
         if not path.startswith("/jobs/view/"):
             self.log.warning(f"job {job_id}: redirected to {path}")
             return {}
