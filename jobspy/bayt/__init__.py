@@ -35,7 +35,8 @@ from jobspy.util import (
 
 
 def slugify(text: str) -> str:
-    return quote("-".join(text.lower().split()), safe="")
+    # an encoded "/" (UI/UX) is a 404
+    return quote("-".join(text.lower().replace("/", " ").split()), safe="")
 
 
 class Bayt(Scraper):
