@@ -44,9 +44,6 @@ class Google(Scraper):
         except Exception as e:
             self.fail(str(e))
             return []
-        if forward_cursor is None:
-            return job_list
-
         page = 1
 
         while (
