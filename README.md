@@ -97,7 +97,7 @@ jobspy "data analyst" --remote --fields title,company,job_url
 Optional
 ├── site_name (list|str): 
 |    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork
-|    (default is all)
+|    (default is all but google)
 │
 ├── search_term (str)
 |
