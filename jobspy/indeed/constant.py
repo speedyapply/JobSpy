@@ -204,7 +204,7 @@ countries = {code: country for country, code in country_codes.items()} | {
     "LV": "Latvia",
     "MT": "Malta",
     "SK": "Slovakia",
-    "SL": "Slovenia",
+    "SI": "Slovenia",
 }
 
 languages = {
