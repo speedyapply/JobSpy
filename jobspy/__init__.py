@@ -27,6 +27,7 @@ from jobspy.model import (
     Site,
 )
 from jobspy.naukri import Naukri
+from jobspy.seek import Seek
 from jobspy.util import (
     configure_logging,
 )
@@ -44,6 +45,7 @@ SCRAPER_MAPPING: dict[Site, type[Scraper]] = {
     Site.NAUKRI: Naukri,
     Site.BDJOBS: BDJobs,
     Site.HELLOWORK: HelloWork,
+    Site.SEEK: Seek,
 }
 
 column_types = {

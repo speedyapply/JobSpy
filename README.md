@@ -13,7 +13,7 @@
 
 **JobSpy** is a job scraping library that aggregates jobs from popular job boards with one tool:
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs** & **HelloWork** concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs**, **HelloWork** & **SEEK** (with **JobStreet** & **Jobsdb**) concurrently
 - Aggregates the job postings in a dataframe
 - Proxy support to bypass blocking
 
@@ -35,7 +35,7 @@ _Python version >= [3.10](https://www.python.org/downloads/release/python-3100/)
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork"
+    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork", "seek"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -96,7 +96,7 @@ jobspy "data analyst" --remote --fields title,company,job_url
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork
+|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork, seek
 |    (default is all)
 │
 ├── search_term (str)
@@ -154,7 +154,7 @@ Optional
 |    searches for linkedin jobs with specific company ids
 |
 ├── country_indeed (str): 
-|    filters the country on Indeed & Glassdoor (default is usa; see below for the names)
+|    filters the country on Indeed, Glassdoor & SEEK (default is usa; see below for the names)
 |
 ├── enforce_annual_salary (bool): 
 |    converts wages to annual salary
@@ -214,6 +214,10 @@ Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 ### HelloWork
 
 HelloWork searches France. `location` takes a French city, postcode or region, e.g. `"Lyon"`. Most jobs are posted in French, so French search terms find more.
+
+### SEEK / JobStreet / Jobsdb
+
+SEEK searches Australia & New Zealand (SEEK), Indonesia, Malaysia, Philippines & Singapore (JobStreet) and Hong Kong & Thailand (Jobsdb), chosen with the `country_indeed` parameter. `location` takes a suburb, city or region, e.g. `"Melbourne"` or `"Jakarta"`.
 
 
 ## Notes

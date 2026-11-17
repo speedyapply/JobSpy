@@ -53,7 +53,8 @@ def listing(title: str, names: Sequence[str]) -> str:
 
 EPILOG = "\n".join(
     [
-        f"board names:\n  {', '.join(DEFAULT_SITES)} (default)\n  {REGIONAL}\n",
+        f"board names:\n  {', '.join(DEFAULT_SITES)} (default)",
+        textwrap.fill(REGIONAL, 78, initial_indent="  ", subsequent_indent="  ") + "\n",
         listing("job types", [t.value for t in JobType]),
         listing("default fields", PREVIEW),
         listing(
@@ -115,7 +116,7 @@ def parser() -> argparse.ArgumentParser:
     add("--job-type", metavar="T", help="one of the job types below")
     add("--hours-old", metavar="N", help="posted in the last N hours")
     add("--easy-apply", action="store_true", help="jobs hosted on the board")
-    add("--country-indeed", metavar="C", help="Indeed and Glassdoor (default usa)")
+    add("--country-indeed", metavar="C", help="Indeed, Glassdoor, SEEK (default usa)")
     add("-n", "--results-wanted", metavar="N", default=5, help="per board (default 5)")
     add("--offset", metavar="N", help="skip the first N results")
     add = p.add_argument_group("boards").add_argument
