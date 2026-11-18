@@ -23,9 +23,19 @@ from jobspy.naukri.constant import (
     job_page_headers,
     job_type_labels,
     jobs_per_page,
+    place_levels,
+    place_params,
     search_params,
 )
-from jobspy.naukri.model import Job, JobDetails, JobSearch, Row, Salary, Shared
+from jobspy.naukri.model import (
+    Job,
+    JobDetails,
+    JobSearch,
+    Places,
+    Row,
+    Salary,
+    Shared,
+)
 from jobspy.naukri.util import generate_nkparam
 from jobspy.util import (
     TLSRotating,
@@ -42,6 +52,7 @@ class Naukri(Scraper):
     base_url = "https://www.naukri.com"
     search_url = f"{base_url}/jobapi/v3/search"
     job_page_url = f"{base_url}/jobapi/v4/job"
+    places_url = "https://taxonomy-suggest.naukri.com/suggest/taxonomyCommonSuggester"
     delay = (3, 7)
 
     def scrape(self, scraper_input: ScraperInput) -> list[JobPost]:
@@ -112,13 +123,44 @@ class Naukri(Scraper):
             params |= internship_params
         elif job_type:
             self.warn(f"job_type {job_type.value} isn't supported, ignoring it")
-        if self.scraper_input.location:
-            params["location"] = self.scraper_input.location
+        if location := self._location():
+            params["location"] = location
         if hours_old := self.scraper_input.hours_old:
             params |= {"jobAge": math.ceil(hours_old / 24), "sort": "f"}
         if self.scraper_input.is_remote:
             params["wfhType"] = 2
         return params
+
+    def _location(self) -> str | None:
+        location = self.scraper_input.location
+        parts = [part.strip() for part in (location or "").split(",")]
+        places = list(dict.fromkeys(filter(None, parts)))
+        if len(places) < 2:
+            return location
+        try:
+            levels = {place: self._place_level(place) for place in places}
+        except Exception as e:
+            self.warn(f"location '{location}' not looked up, searching each place: {e}")
+            return location
+        finally:
+            self.session.cookies.clear()
+        narrowest = max((n for n in levels.values() if n is not None), default=None)
+        return ", ".join(p for p in places if levels[p] in (None, narrowest))
+
+    def _place_level(self, place: str) -> int | None:
+        response = self.session.get(
+            self.places_url, params=place_params | {"query": place, "astext": place}
+        )
+        check_status(response)
+        return max(
+            (
+                place_levels[match.type]
+                for match in Places.model_validate(response.json()).title
+                if match.type in place_levels
+                and place.lower() in map(str.lower, match.name)
+            ),
+            default=None,
+        )
 
     def _process_job(self, raw: dict[str, object]) -> JobPost | None:
         job = Job.model_validate(raw)
