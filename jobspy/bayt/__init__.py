@@ -35,7 +35,7 @@ from jobspy.util import (
 
 
 def slugify(text: str) -> str:
-    return quote("-".join(text.lower().split()), safe="")
+    return quote("-".join(text.lower().replace("/", " ").split()), safe="")
 
 
 class Bayt(Scraper):
