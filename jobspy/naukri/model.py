@@ -56,3 +56,12 @@ class JobDetails(Shared):
 class JobSearch(BaseModel):
     noOfJobs: int
     jobDetails: list[dict[str, object]] | None = None
+
+
+class Place(BaseModel):
+    name: list[str]
+    type: str
+
+
+class Places(BaseModel):
+    title: list[Place] = Field(validation_alias=AliasPath("resultList", "title"))

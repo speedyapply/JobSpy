@@ -12,6 +12,14 @@ search_params: dict[str, str | int] = {
     "urlType": "search_by_keyword",
     "searchType": "adv",
 }
+place_levels = {"country": 0, "state": 1, "city": 2, "locality": 2, "groupLocation": 2}
+place_params: dict[str, str | int] = {
+    "appId": 109,
+    "category": "location",
+    "astype": ",".join(place_levels),
+    "resultField": "type,name",
+    "limit": 8,
+}
 internship_params = {"qproductJobSource": "2", "qinternshipFlag": "true"}
 
 job_type_labels = {
