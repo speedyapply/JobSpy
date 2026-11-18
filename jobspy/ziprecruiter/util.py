@@ -15,7 +15,9 @@ def page_values(html: str, *keys: str) -> dict[str, object]:
     def fill(obj: dict[str, object]) -> dict[str, object]:
         # "$2a" is text row 2a; a leading "$" is doubled
         for name, value in obj.items():
-            if isinstance(value, str) and value.startswith("$"):
+            if isinstance(value, str) and value.startswith("$n"):
+                obj[name] = int(value[2:])
+            elif isinstance(value, str) and value.startswith("$"):
                 text = value[1:] if value.startswith("$$") else value
                 obj[name] = texts.get(value, text)
         return obj
