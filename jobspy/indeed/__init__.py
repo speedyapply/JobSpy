@@ -184,11 +184,6 @@ class Indeed(Scraper):
             ),
             job_type=get_job_type(job.attributes, self.scraper_input.country_indeed),
             **get_compensation(job.compensation).model_dump(),
-            salary_source=(
-                "estimated"
-                if not job.compensation.baseSalary and job.compensation.estimated
-                else None
-            ),
             date_posted=utc_date(job.dateOnIndeed / 1000),
             job_url=f"{self.base_url}/viewjob?jk={job.key}",
             job_url_direct=apply_url,
