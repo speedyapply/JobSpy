@@ -227,6 +227,7 @@ class Glassdoor(Scraper):
             is_remote="WORK_FROM_HOME" in (header.remoteWorkTypes or [])
             or header.locationName == "Remote",
             **self._parse_salary(header).model_dump(),
+            salary_source="estimated" if header.salarySource == "ESTIMATED" else None,
             listing_type=header.adOrderSponsorshipLevel.lower(),
             company_rating=header.rating or None,
             company_industry=company.industryName,

@@ -69,6 +69,7 @@ query JobSearchResultsQuery(
                     }
                     rating
                     remoteWorkTypes
+                    salarySource
                 }
                 job {
                     jobTitleText
