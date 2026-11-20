@@ -3,7 +3,7 @@
   "name": "io.github.speedyapply/jobspy",
   "title": "JobSpy",
   "description": "Search LinkedIn, Indeed, ZipRecruiter, Glassdoor and regional job boards",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "websiteUrl": "https://github.com/speedyapply/JobSpy/tree/main/mcp",
   "repository": {
     "url": "https://github.com/speedyapply/JobSpy",
@@ -13,7 +13,7 @@
     {
       "registryType": "pypi",
       "identifier": "mcp-jobspy",
-      "version": "1.4.1",
+      "version": "1.5.0",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
