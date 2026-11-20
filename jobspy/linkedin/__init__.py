@@ -215,11 +215,11 @@ class LinkedIn(Scraper):
             response = self.session.get(f"{self.base_url}/jobs/view/{job_id}")
             check_status(response)
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return {}
         path = urlparse(response.url).path
         if not path.startswith("/jobs/view/"):
-            self.log.warning(f"job {job_id}: redirected to {path}")
+            self.warn(f"job {job_id}: redirected to {path}")
             return {}
 
         soup = BeautifulSoup(response.text, "html.parser")

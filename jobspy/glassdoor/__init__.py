@@ -283,5 +283,5 @@ class Glassdoor(Scraper):
                             self.scraper_input.description_format,
                         )
         except Exception as e:
-            self.log.warning(f"job details: {e}")
+            self.warn(f"job details: {e}")
         return details

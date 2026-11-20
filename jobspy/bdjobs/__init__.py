@@ -172,7 +172,7 @@ class BDJobs(Scraper):
             check_status(response)
             result = JobDetails.model_validate(response.json())
             if not result.data:
-                self.log.warning(f"job {job_id}: {result.message}")
+                self.warn(f"job {job_id}: {result.message}")
                 return {}
             details = result.data[0]
             fields = description_fields(
@@ -208,5 +208,5 @@ class BDJobs(Scraper):
                 "company_description": details.CompanyBusiness or None,
             }
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return {}

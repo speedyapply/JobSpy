@@ -263,5 +263,5 @@ class Naukri(Scraper):
             }
             return posted.replace(tzinfo=india_time).timestamp(), details
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return None

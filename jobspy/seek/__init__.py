@@ -208,7 +208,7 @@ class Seek(Scraper):
                 if warning not in self.warnings:
                     self.warn(warning)
             elif errors:
-                self.log.warning(f"job details: {errors[0].get('message')}")
+                self.warn(f"job details: {errors[0].get('message')}")
             for alias, raw in (answer.get("data") or {}).items():
                 job = JobDetails.model_validate(raw or {})
                 details[f"seek-{alias[1:]}"] = {
@@ -224,5 +224,5 @@ class Seek(Scraper):
                     "company_reviews_count": job.reviews,
                 }
         except Exception as e:
-            self.log.warning(f"job details: {e}")
+            self.warn(f"job details: {e}")
         return details
