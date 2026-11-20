@@ -1,6 +1,6 @@
 [project]
 name = "mcp-jobspy"
-version = "1.4.1"
+version = "1.5.0"
 description = "JobSpy MCP Server: job scraper for LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, Naukri, BDJobs, HelloWork & SEEK"
 readme = "README.md"
 maintainers = [
@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Office/Business",
 ]
 requires-python = ">=3.10"
-dependencies = ["python-jobspy[mcp]==1.4.1"]
+dependencies = ["python-jobspy[mcp]==1.5.0"]
 
 [project.urls]
 Homepage = "https://github.com/speedyapply/JobSpy"
