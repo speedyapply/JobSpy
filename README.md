@@ -13,7 +13,7 @@
 
 **JobSpy** is a job scraping library that aggregates jobs from popular job boards with one tool:
 
-- Scrapes job postings from **LinkedIn**, **Indeed**, **Glassdoor**, **ZipRecruiter**, **Bayt**, **Naukri**, **BDJobs**, **HelloWork** & **SEEK** (with **JobStreet** & **Jobsdb**) concurrently
+- Scrapes job postings from **LinkedIn**, **Indeed**, **ZipRecruiter**, **Glassdoor**, **SEEK** (with **JobStreet** & **Jobsdb**), **Naukri**, **HelloWork**, **Bayt** & **BDJobs** concurrently
 - Aggregates the job postings in a dataframe
 - Proxy support to bypass blocking
 
@@ -35,7 +35,7 @@ _Python version >= [3.10](https://www.python.org/downloads/release/python-3100/)
 from jobspy import scrape_jobs
 
 jobs = scrape_jobs(
-    site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"],  # also "bayt", "naukri", "bdjobs", "hellowork", "seek"
+    site_name=["linkedin", "indeed", "zip_recruiter", "glassdoor"],  # also "seek", "naukri", "hellowork", "bayt", "bdjobs"
     search_term="software engineer",
     location="San Francisco, CA",
     results_wanted=20,
@@ -96,7 +96,7 @@ jobspy "data analyst" --remote --fields title,company,job_url
 ```plaintext
 Optional
 ├── site_name (list|str): 
-|    linkedin, zip_recruiter, indeed, glassdoor, google, bayt, bdjobs, naukri, hellowork, seek
+|    linkedin, indeed, zip_recruiter, glassdoor, seek, naukri, hellowork, bayt, bdjobs, google
 |    (default is all)
 │
 ├── search_term (str)
@@ -154,7 +154,7 @@ Optional
 |    searches for linkedin jobs with specific company ids
 |
 ├── country_indeed (str): 
-|    filters the country on Indeed, Glassdoor & SEEK (default is usa; see below for the names)
+|    picks the country site on Indeed, Glassdoor & SEEK (default is usa; see below for the names)
 |
 ├── enforce_annual_salary (bool): 
 |    converts wages to annual salary
@@ -167,45 +167,58 @@ Optional
 
 ### LinkedIn
 
-LinkedIn searches globally & uses only the `location` parameter. 
+LinkedIn searches worldwide. `location` takes any place.
+
+### Indeed
+
+Indeed searches one country. `location` takes a place in that country, e.g. city & state.
+`country_indeed` (default `usa`) picks the country:
+
+|             |                      |            |                |
+|-------------|----------------------|------------|----------------|
+| Argentina   | Australia            | Austria    | Bahrain        |
+| Belgium     | Brazil               | Canada     | Chile          |
+| China       | Colombia             | Costa Rica | Czech Republic |
+| Denmark     | Ecuador              | Egypt      | Finland        |
+| France      | Germany              | Greece     | Hong Kong      |
+| Hungary     | India                | Indonesia  | Ireland        |
+| Israel      | Italy                | Japan      | Kuwait         |
+| Luxembourg  | Malaysia             | Mexico     | Morocco        |
+| Netherlands | New Zealand          | Nigeria    | Norway         |
+| Oman        | Pakistan             | Panama     | Peru           |
+| Philippines | Poland               | Portugal   | Qatar          |
+| Romania     | Saudi Arabia         | Singapore  | South Africa   |
+| South Korea | Spain                | Sweden     | Switzerland    |
+| Taiwan      | Thailand             | Turkey     | UK             |
+| Ukraine     | United Arab Emirates | Uruguay    | USA            |
+| Venezuela   | Vietnam              |            |                |
 
 ### ZipRecruiter
 
-ZipRecruiter searches for jobs in **US/Canada** & uses only the `location` parameter.
+ZipRecruiter searches the US & Canada. `location` takes a place in either.
 
-### Indeed / Glassdoor
+### Glassdoor
 
-Indeed & Glassdoor support most countries, chosen with the `country_indeed` parameter (default `usa`). Additionally, use the `location`
-parameter to narrow down the location, e.g. city & state if necessary. 
+Glassdoor searches worldwide. `location` takes any place, in any country, e.g. `"Berlin"` or `"Vietnam"`.
+`country_indeed` (default `usa`) picks the Glassdoor site; with no `location` it searches that site's country:
 
-You can specify the following countries when searching on Indeed (use the exact name, * indicates support for Glassdoor):
+|           |             |             |           |
+|-----------|-------------|-------------|-----------|
+| Argentina | Australia   | Austria     | Belgium   |
+| Brazil    | Canada      | France      | Germany   |
+| Hong Kong | India       | Ireland     | Italy     |
+| Mexico    | Netherlands | New Zealand | Singapore |
+| Spain     | Switzerland | UK          | USA       |
 
-|                      |              |            |                |
-|----------------------|--------------|------------|----------------|
-| Argentina*           | Australia*   | Austria*   | Bahrain        |
-| Belgium*             | Brazil*      | Canada*    | Chile          |
-| China                | Colombia     | Costa Rica | Czech Republic |
-| Denmark              | Ecuador      | Egypt      | Finland        |
-| France*              | Germany*     | Greece     | Hong Kong*     |
-| Hungary              | India*       | Indonesia  | Ireland*       |
-| Israel               | Italy*       | Japan      | Kuwait         |
-| Luxembourg           | Malaysia*    | Mexico*    | Morocco        |
-| Netherlands*         | New Zealand* | Nigeria    | Norway         |
-| Oman                 | Pakistan     | Panama     | Peru           |
-| Philippines          | Poland       | Portugal   | Qatar          |
-| Romania              | Saudi Arabia | Singapore* | South Africa   |
-| South Korea          | Spain*       | Sweden     | Switzerland*   |
-| Taiwan               | Thailand     | Turkey     | Ukraine        |
-| United Arab Emirates | UK*          | USA*       | Uruguay        |
-| Venezuela            | Vietnam*     |            |                |
+### SEEK / JobStreet / Jobsdb
 
-### Bayt
+SEEK searches one country. `location` takes a suburb, city or region in that country, e.g. `"Melbourne"` or `"Jakarta"`.
+`country_indeed` picks the country; set it, as the default `usa` isn't one of them:
 
-Bayt searches all countries unless `location` names one it covers, e.g. `"Dubai, UAE"` or `"Saudi Arabia"`.
-
-### BDJobs
-
-BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhaka"` or `"Chattogram Division"`.
+|             |             |           |          |
+|-------------|-------------|-----------|----------|
+| Australia   | Hong Kong   | Indonesia | Malaysia |
+| New Zealand | Philippines | Singapore | Thailand |
 
 ### Naukri
 
@@ -215,9 +228,13 @@ Naukri searches India. `location` takes a city, e.g. `"Pune"`.
 
 HelloWork searches France. `location` takes a French city, postcode or region, e.g. `"Lyon"`. Most jobs are posted in French, so French search terms find more.
 
-### SEEK / JobStreet / Jobsdb
+### Bayt
 
-SEEK searches Australia & New Zealand (SEEK), Indonesia, Malaysia, Philippines & Singapore (JobStreet) and Hong Kong & Thailand (Jobsdb), chosen with the `country_indeed` parameter. `location` takes a suburb, city or region, e.g. `"Melbourne"` or `"Jakarta"`.
+Bayt searches worldwide, with most of its jobs in the Middle East & India. `location` takes a country, or a city with its country, e.g. `"Saudi Arabia"` or `"Dubai, UAE"`.
+
+### BDJobs
+
+BDJobs searches Bangladesh. `location` takes a division or district, e.g. `"Dhaka"` or `"Chattogram Division"`.
 
 
 ## Notes

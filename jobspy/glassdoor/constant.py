@@ -121,7 +121,6 @@ domains = {
     Country.INDIA: "www.glassdoor.co.in",
     Country.IRELAND: "www.glassdoor.ie",
     Country.ITALY: "www.glassdoor.it",
-    Country.MALAYSIA: "www.glassdoor.com",
     Country.MEXICO: "www.glassdoor.com.mx",
     Country.NETHERLANDS: "www.glassdoor.nl",
     Country.NEWZEALAND: "www.glassdoor.co.nz",
@@ -130,5 +129,4 @@ domains = {
     Country.SWITZERLAND: "de.glassdoor.ch",
     Country.UK: "www.glassdoor.co.uk",
     Country.USA: "www.glassdoor.com",
-    Country.VIETNAM: "www.glassdoor.com",
 }

@@ -130,24 +130,23 @@ class Glassdoor(Scraper):
 
     def _search_variables(self) -> dict[str, object] | None:
         """The search's variables, or None when the location isn't found."""
-        response = self.session.get(
-            f"{self.base_url}/autocomplete/location"
-            "?locationTypeFilters=CITY,STATE,COUNTRY&caller=jobs"
-            f"&term={quote(self.scraper_input.location or '')}"
-        )
-        check_status(response)
         variables: dict[str, object] = {
             "keyword": self.scraper_input.search_term,
             "numJobsToShow": jobs_per_page,
             "filterParams": self._filters(),
         }
-        if not self.scraper_input.location:
+        location = self.scraper_input.location or ""
+        place = self._place(location)
+        if not location:
             return variables
-        places = response.json()
-        if not places:
-            self.fail(f"location '{self.scraper_input.location}' not found")
+        city, *parts = [part.strip() for part in location.split(",")]
+        if not place and parts:
+            names = [name for part in parts if (name := self._region(part))]
+            if len(names) == len(parts):
+                place = self._place(", ".join([city, *names]))
+        if not place:
+            self.fail(f"location '{location}' not found")
             return None
-        place = Place.model_validate(places[0])
         location_id = place.locationId
         location_type = location_types[place.locationType]
         return {
@@ -156,6 +155,22 @@ class Glassdoor(Scraper):
             "locationType": location_type,
             "parameterUrlInput": f"IL.0,12_I{location_type}{location_id}",
         }
+
+    def _place(self, term: str) -> Place | None:
+        response = self.session.get(
+            f"{self.base_url}/autocomplete/location"
+            "?locationTypeFilters=CITY,STATE,COUNTRY&caller=jobs"
+            f"&term={quote(term)}"
+        )
+        check_status(response)
+        places = response.json()
+        return Place.model_validate(places[0]) if places else None
+
+    def _region(self, term: str) -> str | None:
+        place = self._place(term)
+        if not place:
+            return None
+        return place.stateName if place.locationType == "C" else place.label
 
     def _filters(self) -> list[dict[str, str]]:
         filters: dict[str, str | int] = {}
