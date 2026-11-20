@@ -298,7 +298,7 @@ class Bayt(Scraper):
             else:
                 raise ValueError("no JobPosting")
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return {}
 
         def row(name: str) -> list[str]:

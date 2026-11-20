@@ -171,7 +171,7 @@ class ZipRecruiter(Scraper):
                 job.htmlFullDescription, self.scraper_input.description_format
             )
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return {}
 
         industries = job.canonicalIndustries

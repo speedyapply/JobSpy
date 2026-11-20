@@ -278,5 +278,5 @@ class HelloWork(Scraper):
                 "experience_range": experience,
             }
         except Exception as e:
-            self.log.warning(f"job {job_id}: {e}")
+            self.warn(f"job {job_id}: {e}")
             return {}
