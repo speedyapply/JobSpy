@@ -72,6 +72,7 @@ class Job(BaseModel):
         default=None, validation_alias=AliasPath("companyLogo", "logoUrl")
     )
     rawCanonicalZipJobPageUrl: str
+    jobRedirectPageUrl: str | None = None
     locationTypes: list[LocationType]
     pay: Pay
 
