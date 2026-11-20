@@ -24,8 +24,8 @@ remote_keywords = ["remote", "work from home", "wfh"]
 
 lower_limit, upper_limit = 1000, 700000
 hourly_threshold, monthly_threshold = 350, 30000
-# "$80k - $100k" or "$80,000 to $100,000"; not "$5-10M" or "$20 - $30 million"
 salary_range = re.compile(
-    r"\$(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)\s*(?:[-—–]|to)\s*(?:\$)?(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)"
-    r"(?![\d.,]*\d|\s*(?:[mMbB]\b|[mb]illion\b|bn\b))"
+    r"\$(?<!CAD \$)(?!(?:\d(?:\.\d+)?|[\d,.]+[kK])\s*to\b)"
+    r"(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)\s*(?:[-—–]|to)\s*\$?(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)"
+    r"(?![.,]?\d|(?i:[mb]|\s*(?:mm|[mb]illion))\b)"
 )
