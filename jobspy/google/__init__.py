@@ -33,8 +33,11 @@ class Google(Scraper):
         :param scraper_input: Information about job search criteria.
         :return: a list of jobs.
         """
+        # a copy: the other boards share scraper_input
+        scraper_input = scraper_input.model_copy(
+            update={"results_wanted": min(900, scraper_input.results_wanted)}
+        )
         self.scraper_input = scraper_input
-        self.scraper_input.results_wanted = min(900, scraper_input.results_wanted)
 
         self.session = create_session(
             RequestsRotating(scraper_input.proxies), scraper_input
