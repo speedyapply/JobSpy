@@ -194,11 +194,14 @@ class HelloWork(Scraper):
 
     @staticmethod
     def _parse_location(text: str) -> Location:
-        """ "Lyon 3e - 69" is a city and its department; anything else is kept as the site writes it"""
+        """ "Lyon 3e - 69" is a city and its department; anything else is kept as the site writes it.
+
+        HelloWork only lists jobs in France, so the country is France either way.
+        """
         city, _, department = text.rpartition(" - ")
         if re.fullmatch(r"\d{2,3}|2[AB]", department):
             return Location(city=city, state=department, country=Country.FRANCE)
-        return Location(city=text)
+        return Location(city=text, country=Country.FRANCE)
 
     @staticmethod
     def _parse_salary(text: str) -> Compensation | None:
