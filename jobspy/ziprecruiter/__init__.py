@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 import time
+from urllib.parse import urljoin
 
 from jobspy.model import (
     Compensation,
@@ -125,7 +126,11 @@ class ZipRecruiter(Scraper):
             company_url=self.base_url + job.companyUrl if job.companyUrl else None,
             company_logo=job.logoUrl,
             location=Location(city=job.city, state=job.stateCode, country=country),
-            job_url=self.base_url + job.rawCanonicalZipJobPageUrl,
+            # some cards have no canonical page, only the redirect link
+            job_url=urljoin(
+                self.base_url,
+                job.rawCanonicalZipJobPageUrl or job.jobRedirectPageUrl or "",
+            ),
             job_url_direct=direct_url(apply_url) if apply_url else None,
             date_posted=posted.date(),
             job_type=job_type,
