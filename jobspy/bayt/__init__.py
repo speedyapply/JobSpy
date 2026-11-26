@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup, Tag
 
 from jobspy.bayt.constant import (
     all_countries,
+    city_aliases,
     country_aliases,
     date_intervals,
     job_type_codes,
@@ -97,12 +98,17 @@ class Bayt(Scraper):
 
     @staticmethod
     def _location(location: str | None) -> tuple[str, str | None]:
-        """ "Dubai, UAE" -> ("uae", "dubai"); a country alone -> (country, None)"""
-        parts = [part.strip() for part in (location or "").split(",") if part.strip()]
+        """Return Bayt's country and optional city slugs, e.g. ("oman", "muscat")."""
+        parts = [part.strip() for part in re.split(r"[,،]", location or "") if part.strip()]
         if not parts:
             return all_countries, None
-        country = country_aliases.get(parts[-1].lower(), slugify(parts[-1]))
-        city = slugify(parts[0]) if len(parts) > 1 else None
+        raw_country = parts[-1].lower()
+        country = country_aliases.get(raw_country, slugify(parts[-1]))
+        if len(parts) > 1:
+            raw_city = parts[0].lower()
+            city = city_aliases.get(raw_city, slugify(parts[0]))
+        else:
+            city = None
         return country, city
 
     def _search_url(self, page: int, hybrid: bool) -> str:
